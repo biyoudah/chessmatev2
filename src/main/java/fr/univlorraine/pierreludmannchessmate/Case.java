@@ -11,7 +11,7 @@ public class Case {
         this.y = y;
         this.estvide = estvide;
     }
-    public boolean isEstvide() {
+    public boolean isEstVide() {
         return estvide;
     }
     public void setEstvide(boolean estvide) {

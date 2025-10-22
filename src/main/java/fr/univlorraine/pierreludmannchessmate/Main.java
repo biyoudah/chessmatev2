@@ -2,9 +2,11 @@ package fr.univlorraine.pierreludmannchessmate;
 
 public class Main {
     public static void main(String[] args) {
-        Fou fouBlanc = new Fou(true);
-        fouBlanc.dessiner();
-        System.out.println(fouBlanc.deplacementValide(2, 2, 5, 5)); // true
-        System.out.println(fouBlanc.deplacementValide(2, 2, 5, 4)); // false
+        Echiquier echiquier = new Echiquier();
+        echiquier.afficher();
+        Piece d = new Dame(true);
+        echiquier.placerPiece(2,3,d);
+        echiquier.afficher();
+
     }
 }
