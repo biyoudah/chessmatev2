@@ -25,6 +25,6 @@
 - Finalisation du **diagramme de classes**
 - Construction du **diagramme entité-association**
 - Début de la **rédaction du cahier des charges**
-- Création des **classes Java**  
+- Création des classes **Java**  
   → Correction des erreurs et harmonisation du code (travail d’équipe)
 
