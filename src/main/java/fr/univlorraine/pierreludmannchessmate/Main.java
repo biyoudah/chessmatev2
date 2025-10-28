@@ -6,6 +6,7 @@ public class Main {
         echiquier.afficher();
         Piece d = new Dame(true);
         echiquier.placerPiece(2,3,d);
+        System.out.println("Echiquier apres ajout dame \n");
         echiquier.afficher();
 
     }

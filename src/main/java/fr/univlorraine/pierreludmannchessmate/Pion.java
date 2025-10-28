@@ -7,11 +7,11 @@ public class Pion extends Piece {
     }
 
     @Override
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2659"); // ♙
+            return "\u2659"; // ♙
         } else {
-            System.out.println("\u265F"); // ♟
+            return "\u265F"; // ♟
         }
     }
 

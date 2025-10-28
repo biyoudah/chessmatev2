@@ -7,11 +7,11 @@ public class Roi extends Piece {
     }
 
     @Override
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2654"); // ♔
+            return "\u2654"; // ♔
         } else {
-            System.out.println("\u265A"); // ♚
+            return "\u265A"; // ♚
         }
     }
 

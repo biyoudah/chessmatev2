@@ -7,11 +7,11 @@ public class Tour extends Piece {
     }
 
     @Override
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2656"); // ♖
+            return "\u2656"; // ♖
         } else {
-            System.out.println("\u265C"); // ♜
+            return "\u265C"; // ♜
         }
     }
 

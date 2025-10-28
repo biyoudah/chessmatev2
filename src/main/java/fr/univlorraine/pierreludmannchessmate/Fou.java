@@ -6,11 +6,11 @@ public class Fou extends Piece {
         super(estBlanc);
     }
 
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2657");
+            return "\u2657";
         } else {
-            System.out.println("\u265D");
+            return "\u265D";
         }
 
     }

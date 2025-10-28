@@ -1,13 +1,19 @@
 package fr.univlorraine.pierreludmannchessmate;
 
 public class Echiquier {
-    private Case[][] e;
+    private final Case[][] e;
 
     public Echiquier(){
-        this.e = new Case[8][8];
+        e = new Case[8][8];
+        initialiser();
     }
-    public void initialiser(Echiquier e){
-        e = new Echiquier();
+
+    public void initialiser(){
+        for (int i = 0; i < 8; i++){
+            for (int j = 0; j < 8; j++){
+                e[i][j] = new Case(i,j,true,null);
+            }
+        }
     }
 
     public Case getCase(int x, int y){

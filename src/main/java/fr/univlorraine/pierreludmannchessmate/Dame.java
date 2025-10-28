@@ -7,11 +7,11 @@ public class Dame extends Piece {
     }
 
     @Override
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2655"); // ♕
+            return "\u2655"; // ♕
         } else {
-            System.out.println("\u265B"); // ♛
+            return "\u265B"; // ♛
         }
     }
 

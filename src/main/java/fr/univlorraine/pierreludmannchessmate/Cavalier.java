@@ -7,11 +7,11 @@ public class Cavalier extends Piece {
     }
 
     @Override
-    public void dessiner() {
+    public String dessiner() {
         if (estBlanc()) {
-            System.out.println("\u2658"); // ♘
+            return "\u2658"; // ♘
         } else {
-            System.out.println("\u265E"); // ♞
+            return "\u265E"; // ♞
         }
     }
 
