@@ -90,5 +90,10 @@ public class Echiquier {
             }
             System.out.println();
         }
+
+
+    }
+    public int getTaille() {
+        return e.length;
     }
 }
