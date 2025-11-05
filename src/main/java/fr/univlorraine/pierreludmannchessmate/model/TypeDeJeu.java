@@ -8,12 +8,12 @@ import lombok.Data;
 @Entity
 public class TypeDeJeu {
     @Id
-    private Integer id;
+    private Long id;
     private String nomTypeDeJeu;
 
     public TypeDeJeu() {
     }
-    public TypeDeJeu(Integer id,String nomTypeDeJeu) {
+    public TypeDeJeu(Long id,String nomTypeDeJeu) {
         this.id = id;
         this.nomTypeDeJeu = nomTypeDeJeu;
     }
