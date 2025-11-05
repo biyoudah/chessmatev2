@@ -25,26 +25,24 @@ public class Main {
 
                 // === Tests de déplacement ===
 
-                System.out.println("\nTest 1 : Déplacement valide du Fou (C1 -> E3)");
+                System.out.println("\n Faire traversé le pion par le fou spoiler ça va pas marcher");
                 echiquier.deplacerPiece(7, 2, 5, 4); // diagonale -> OK
                 echiquier.afficher();
 
-                System.out.println("\nTest 2 : Déplacement invalide du Fou (E3 -> E5)");
-                echiquier.deplacerPiece(5, 4, 3, 4); // vertical -> NON
+                System.out.println("\n  alors que de l'autre coté");
+                echiquier.deplacerPiece(7, 2, 6, 1); // diagonale -> OK
                 echiquier.afficher();
 
-                System.out.println("\nTest 3 : Tentative de déplacement bloqué (Tour A1 -> A4)");
-                echiquier.placerPiece(6, 0, new Pion(true)); // Pion devant la tour
-                echiquier.deplacerPiece(7, 0, 4, 0); // Bloqué -> NON
+                System.out.println("\n  au dessus");
+                echiquier.deplacerPiece(7, 2, 5, 1); // diagonale -> OK
                 echiquier.afficher();
 
-                System.out.println("\nTest 4 : Déplacement du Cavalier (B1 -> C3)");
-                echiquier.deplacerPiece(7, 1, 5, 2); // OK
+                System.out.println("\n  faire sortir de l'echiquier");
+                echiquier.deplacerPiece(7, 2, 10, 10); // diagonale -> OK
                 echiquier.afficher();
 
-                System.out.println("\nTest 5 : Capture de la dame noire (E3 -> D8)");
-                echiquier.deplacerPiece(5, 4, 0, 3); // fou attaque la dame -> OK
-                echiquier.afficher();
+
+
 
         }
 
