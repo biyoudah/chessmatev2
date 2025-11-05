@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/static.css/show.css">
+    <meta charset="UTF-8">
+    <title>Chessmate - Puzzle</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .board-container {
+            display: inline-block;
+        }
+
+        .board {
+            display: inline-grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 3px solid #333;
+            margin: 20px auto;
+        }
+
+        .case {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .case.white {
+            background-color: #f0d9b5;
+        }
+
+        .case.black {
+            background-color: #b58863;
+        }
+
+        .case:hover {
+            opacity: 0.8;
+        }
+
+        .piece-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+
+        .piece-selector h3 {
+            margin-top: 0;
+        }
+
+        .piece-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .piece-btn {
+            padding: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .piece-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .piece-btn.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .color-selector {
+            margin: 15px 0;
+        }
+
+        .color-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .color-btn.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+        }
+
+        button.action-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+        }
+
+        button.action-btn.danger {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+<h1>♟ Chessmate - Puzzle ♟</h1>
+
+<div th:if="${message}" class="message" th:text="${message}"></div>
+
+<div class="container">
+    <!-- Sélecteur de pièces -->
+    <div class="piece-selector">
+        <h3>Sélectionner une pièce</h3>
+
+        <div class="piece-buttons">
+            <button class="piece-btn" data-piece="roi">♔</button>
+            <button class="piece-btn" data-piece="dame">♕</button>
+            <button class="piece-btn" data-piece="tour">♖</button>
+            <button class="piece-btn" data-piece="fou">♗</button>
+            <button class="piece-btn" data-piece="cavalier">♘</button>
+            <button class="piece-btn" data-piece="pion">♙</button>
+        </div>
+
+        <div class="color-selector">
+            <h4>Couleur :</h4>
+            <button class="color-btn selected" data-color="true">⚪ Blanc</button>
+            <button class="color-btn" data-color="false">⚫ Noir</button>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <button class="action-btn" id="modePlace">Mode : Placer</button>
+            <button class="action-btn danger" id="modeRemove">Mode : Retirer</button>
+        </div>
+    </div>
+
+    <!-- Échiquier -->
+    <div class="board-container">
+        <div class="board" id="board">
+            <div th:each="i : ${#numbers.sequence(7, 0, -1)}">
+                <div th:each="j : ${#numbers.sequence(0, 7)}"
+                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                     th:attr="data-x=${i}, data-y=${j}"
+                     th:text="${board[i][j]}"
+                     onclick="clickCase(this)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau d'info -->
+    <div class="info-panel">
+        <h3>Informations</h3>
+        <p><strong>Joueur :</strong> <span th:text="${joueur}"></span></p>
+        <p><strong>Pièces placées :</strong> <span th:text="${nbPieces}"></span></p>
+        <p><strong>Score :</strong> <span th:text="${score}"></span></p>
+
+        <form method="post" action="/reset" style="margin-top: 20px;">
+            <button type="submit" class="action-btn danger">Réinitialiser</button>
+        </form>
+
+        <form method="post" action="/create" style="margin-top: 10px;">
+            <button type="submit" class="action-btn">Nouvelle partie</button>
+        </form>
+    </div>
+</div>
+
+<!-- Forms cachés -->
+<form method="post" action="/place" id="placeForm">
+    <input type="hidden" name="x" id="placeX">
+    <input type="hidden" name="y" id="placeY">
+    <input type="hidden" name="pieceType" id="pieceType">
+    <input type="hidden" name="estBlanc" id="estBlanc" value="true">
+</form>
+
+<form method="post" action="/remove" id="removeForm">
+    <input type="hidden" name="x" id="removeX">
+    <input type="hidden" name="y" id="removeY">
+</form>
+
+<script>
+    let selectedPiece = null;
+    let selectedColor = true; // true = blanc, false = noir
+    let mode = 'place'; // 'place' ou 'remove'
+
+    // Sélection de pièce
+    document.querySelectorAll('.piece-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.piece-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedPiece = this.getAttribute('data-piece');
+        });
+    });
+
+    // Sélection de couleur
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedColor = this.getAttribute('data-color') === 'true';
+            document.getElementById('estBlanc').value = selectedColor;
+        });
+    });
+
+    // Changement de mode
+    document.getElementById('modePlace').addEventListener('click', function() {
+        mode = 'place';
+        this.style.background = '#4CAF50';
+        document.getElementById('modeRemove').style.background = '#ccc';
+    });
+
+    document.getElementById('modeRemove').addEventListener('click', function() {
+        mode = 'remove';
+        this.style.background = '#f44336';
+        document.getElementById('modePlace').style.background = '#ccc';
+    });
+
+    // Clic sur une case
+    function clickCase(element) {
+        const x = element.getAttribute('data-x');
+        const y = element.getAttribute('data-y');
+
+        if (mode === 'place') {
+            if (selectedPiece === null) {
+                alert('Veuillez d\'abord sélectionner une pièce');
+                return;
+            }
+
+            document.getElementById('placeX').value = x;
+            document.getElementById('placeY').value = y;
+            document.getElementById('pieceType').value = selectedPiece;
+            document.getElementById('placeForm').submit();
+        } else {
+            document.getElementById('removeX').value = x;
+            document.getElementById('removeY').value = y;
+            document.getElementById('removeForm').submit();
+        }
+    }
+</script>
+</body>
+</html>

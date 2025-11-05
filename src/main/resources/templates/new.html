@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chessmate - Nouvelle partie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 50px;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>♟ Bienvenue à Chessmate ♟</h1>
+<p>Placez les pièces d'échecs sur le plateau pour résoudre le puzzle !</p>
+<form method="post" action="/create">
+    <input type="text" name="pseudo" placeholder="Votre pseudo (optionnel)" value="Joueur">
+    <br>
+    <button type="submit">Commencer</button>
+</form>
+</body>
+</html>

@@ -33,6 +33,7 @@ public class Echiquier {
     public void placerPiece(int x1, int y1, Piece piece) {
         if(e[x1][y1].isEstVide()){
             e[x1][y1].setPiece(piece);
+            e[x1][y1].setEstvide(false);
         }
     }
     public void afficher() {
