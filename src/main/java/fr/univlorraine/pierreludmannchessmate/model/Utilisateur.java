@@ -1,6 +1,7 @@
 package fr.univlorraine.pierreludmannchessmate.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import java.time.Instant;
@@ -12,8 +13,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Entity
 public class Utilisateur {
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String pseudo;
     private String email;
     private String motDePasse;
