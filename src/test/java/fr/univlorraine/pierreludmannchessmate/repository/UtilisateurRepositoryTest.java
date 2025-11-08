@@ -31,7 +31,6 @@ class UtilisateurRepositoryTest {
     }
     @Test
     void should_update_utilisateur() {
-        // 1. ARRANGE : Créer et enregistrer
         Utilisateur utilisateur = new Utilisateur("AncienPseudo","mail@test.com","pass");
         utilisateurRepository.save(utilisateur);
 

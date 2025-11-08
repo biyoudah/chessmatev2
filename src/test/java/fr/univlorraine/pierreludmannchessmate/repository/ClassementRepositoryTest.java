@@ -19,8 +19,7 @@ class ClassementRepositoryTest {
 
     @Test
     void should_save_and_find_classement() {
-        // ARRANGE : Le nom est la clé primaire
-        String classementNom = "Classement ELO Général";
+        String classementNom = "Classement Jeu8Dames";
         Classement classement = new Classement(classementNom);
 
         classementRepository.save(classement);
@@ -33,8 +32,7 @@ class ClassementRepositoryTest {
 
     @Test
     void should_update_classement() {
-        // ARRANGE
-        String classementNom = "Classement Hebdo";
+        String classementNom = "Classement MatEn3Coups_Pb1";
         Classement classement = new Classement(classementNom);
         classementRepository.save(classement);
 
@@ -49,7 +47,7 @@ class ClassementRepositoryTest {
 
     @Test
     void should_delete_classement() {
-        String classementNom = "Classement Bêta";
+        String classementNom = "Classement MatEn3Coups_Pb2";
         Classement classement = new Classement(classementNom);
         classementRepository.save(classement);
 
