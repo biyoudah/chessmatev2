@@ -34,4 +34,6 @@ public abstract class Defi {
      * @return true si la solution est valide, false sinon.
      */
     public abstract boolean validerSolution(Echiquier echiquier);
+
+    public abstract int  calculerScore(int tempsResolution);
 }

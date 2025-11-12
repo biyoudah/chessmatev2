@@ -10,12 +10,14 @@ public class Score {
     private int tempsResolution;
     private Date date;
     private boolean estValide;
+    private Echiquier echiquier;
 
     public Score(Joueur joueur, Defi defi, int points, int tempsResolution, Date date) {
         this.joueur = joueur;
         this.defi = defi;
         this.points = points;
         this.tempsResolution = tempsResolution;
+        this.estValide = false;
     }
 
     public long getId() {
@@ -40,8 +42,8 @@ public class Score {
         return estValide;
     }
     public void enregistrer(){
-        if (estValide){
-            points += 100;
+        if (defi.validerSolution(echiquier)){
+            points += defi.calculerScore(tempsResolution);
         }
     }
     public void invalider(){
