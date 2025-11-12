@@ -5,7 +5,9 @@ public class Main {
       /*  Echiquier echiquier = new Echiquier();
         echiquier.afficher();
         Piece d = new Dame(true);
+        Piece d1 = new Dame(true);
         echiquier.placerPiece(2,3,d);
+        echiquier.placerPiece(3,3,d1);
         System.out.println("Echiquier apres ajout dame \n");
         echiquier.afficher();*/
 

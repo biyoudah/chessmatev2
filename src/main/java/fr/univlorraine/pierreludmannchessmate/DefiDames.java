@@ -20,6 +20,11 @@ public class DefiDames extends Defi {
         return backtrack(echiquier, positions, 0, taille, startTime);
     }
 
+    @Override
+    public int calculerScore(int tempsResolution) {
+        return 0;
+    }
+
     private boolean backtrack(Echiquier echiquier, int[] positions, int ligne, int taille, long startTime) {
         if (System.currentTimeMillis() - startTime > TIMEOUT_MS) {
             return false; // Timeout dépassé

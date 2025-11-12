@@ -81,6 +81,12 @@ public class Echiquier {
         }
     }
 
+    public void retirerPiece(int x, int y) {
+        e[x][y].setPiece(null);
+        e[x][y].setEstVide(true);
+    }
+
+
 
     public void afficher() {
         for (int i = 0; i < 8; i++) {
@@ -96,4 +102,16 @@ public class Echiquier {
     public int getTaille() {
         return e.length;
     }
+
+    public String[][] getBoardUnicode() {
+        String[][] boardUnicode = new String[getTaille()][getTaille()];
+        for (int i = 0; i < getTaille(); i++) {
+            for (int j = 0; j < getTaille(); j++) {
+                Piece p = e[i][j].getPiece();
+                boardUnicode[i][j] = (p == null) ? "" : p.dessiner(); // dessiner() retourne le symbole Unicode
+            }
+        }
+        return boardUnicode;
+    }
+
 }

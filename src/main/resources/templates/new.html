@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Chessmate - Nouvelle partie</title>
     <style>
         body {
@@ -10,7 +10,7 @@
             background-color: #f0f0f0;
             padding: 50px;
         }
-        input {
+        input, select {
             padding: 10px;
             font-size: 16px;
             margin: 20px;
@@ -30,7 +30,15 @@
 <h1>♟ Bienvenue à Chessmate ♟</h1>
 <p>Placez les pièces d'échecs sur le plateau pour résoudre le puzzle !</p>
 <form method="post" action="/create">
-    <input type="text" name="pseudo" placeholder="Votre pseudo (optionnel)" value="Joueur">
+    <!-- Ajoutez la sélection du mode -->
+    <label for="modeDeJeu">Mode de jeu :</label>
+    <select name="modeDeJeu" id="modeDeJeu">
+        <option value="custom">Custom</option>
+        <option value="8-queens">8 Reines</option>
+        <!-- Ajoutez d'autres modes si besoin -->
+    </select>
+    <br>
+    <input type="text" name="pseudo" placeholder="Votre pseudo (optionnel)" value="Joueur" />
     <br>
     <button type="submit">Commencer</button>
 </form>

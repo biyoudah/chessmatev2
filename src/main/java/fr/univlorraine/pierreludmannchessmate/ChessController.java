@@ -29,16 +29,21 @@ public class ChessController {
     }
 
     @PostMapping("/create")
-    String postCreate(@RequestParam(required = false) String pseudo, Model model) {
+    public String postCreate(@RequestParam(required = false) String pseudo,
+                             @RequestParam String modeDeJeu,
+                             Model model) {
         ChessGame game;
         if (pseudo != null && !pseudo.isEmpty()) {
             game = new ChessGame(pseudo);
         } else {
             game = new ChessGame();
         }
+        // Stocker le mode dans l'objet ChessGame
+        game.setModeDeJeu(modeDeJeu);
         model.addAttribute("game", game);
         return "redirect:/show";
     }
+
 
     // Placer une pièce
     @PostMapping("/place")
@@ -52,13 +57,14 @@ public class ChessController {
         boolean success = game.placerPiece(x, y, pieceType, estBlanc);
 
         if (!success) {
-            redirAttrs.addFlashAttribute("message", "Impossible de placer la pièce ici");
+            redirAttrs.addFlashAttribute("message", "Placement invalide ou puzzle non résolu.");
         } else {
-            redirAttrs.addFlashAttribute("message", "Pièce placée avec succès");
+            redirAttrs.addFlashAttribute("message", "Pièce placée avec succès et puzzle validé!");
         }
 
         return "redirect:/show";
     }
+
 
     // Retirer une pièce
     @PostMapping("/remove")
@@ -94,4 +100,5 @@ public class ChessController {
 
         return "show";
     }
+
 }
