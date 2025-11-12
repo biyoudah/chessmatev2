@@ -69,7 +69,7 @@ public class ChessGame {
         }
 
         caseSource.setPiece(null);
-        caseSource.setEstvide(true);
+        caseSource.setEstVide(true);
         return true;
     }
 

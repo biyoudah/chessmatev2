@@ -66,8 +66,8 @@ public class Echiquier {
         }
         caseArrivee.setPiece(piece);
         caseDepart.setPiece(null);
-        caseDepart.setEstvide(true);
-        caseArrivee.setEstvide(false);
+        caseDepart.setEstVide(true);
+        caseArrivee.setEstVide(false);
 
         System.out.println("Déplacement effectué !");
         return true;
@@ -77,7 +77,7 @@ public class Echiquier {
     public void placerPiece(int x1, int y1, Piece piece) {
         if(e[x1][y1].isEstVide()){
             e[x1][y1].setPiece(piece);
-            e[x1][y1].setEstvide(false);
+            e[x1][y1].setEstVide(false);
         }
     }
 

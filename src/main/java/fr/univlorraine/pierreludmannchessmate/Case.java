@@ -14,7 +14,7 @@ public class Case {
     public boolean isEstVide() {
         return estvide;
     }
-    public void setEstvide(boolean estvide) {
+    public void setEstVide(boolean estvide) {
         this.estvide = estvide;
     }
     public Piece getPiece() {

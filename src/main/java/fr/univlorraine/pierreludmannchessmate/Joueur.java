@@ -39,6 +39,7 @@ public class Joueur {
         return enEchec;
     }
 
+
     // Setters
     public void setPseudo(String pseudo) {
         this.pseudo = pseudo;
@@ -49,8 +50,8 @@ public class Joueur {
     }
 
     public void setEnEchec(boolean enEchec) {
-        this.enEchec = enEchec;
-    }
+        this.enEchec = enEchec;}
+
 
     // Méthode pour vérifier l'authentification (si nécessaire plus tard)
     public boolean verifierMotDePasse(String mdp) {
