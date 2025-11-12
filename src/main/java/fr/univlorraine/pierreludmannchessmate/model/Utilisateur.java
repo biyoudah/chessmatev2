@@ -17,18 +17,19 @@ public class Utilisateur {
     private Long id;
     private String pseudo;
     private String email;
-    private String motDePasse;
+    private String password;
     @CreationTimestamp
     private Instant dateCreation;
     @UpdateTimestamp
     private Instant dateMAJ;
+    private String role; // Ex: "USER", "ADMIN"
 
     public Utilisateur() {
     }
-    public Utilisateur(String pseudo, String email, String motDePasse) {
+    public Utilisateur(String pseudo, String email, String password) {
         this.pseudo = pseudo;
         this.email = email;
-        this.motDePasse = motDePasse;
+        this.password = password;
     }
 }
 
