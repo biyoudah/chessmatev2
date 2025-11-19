@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <title>Connexion</title>
+</head>
+<body>
+<h1>Connexion</h1>
+
+<div th:if="${param.error}" style="color: red; margin-bottom: 10px;">
+    <span>Email ou mot de passe incorrect.</span>
+</div>
+
+<div th:if="${param.logout}" style="color: green; margin-bottom: 10px;">
+    <span>Vous avez été déconnecté avec succès.</span>
+</div>
+
+<form th:action="@{/login}" method="post">
+    <div style="margin-top: 10px;">
+        <label for="username">Email :</label>
+        <input id="username" required name="username" class="form-control" type="text"/>
+    </div>
+
+    <div style="margin-top: 10px;">
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" class="form-control" required />
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button type="submit">Se connecter</button>
+    </div>
+</form>
+
+<p>Pas encore de compte ? <a th:href="@{/register}">Inscrivez-vous ici</a>.</p>
+</body>
+</html>

@@ -1,5 +1,9 @@
 package fr.univlorraine.pierreludmannchessmate;
 
+import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
+import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
+import org.springframework.security.core.Authentication;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +14,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @SessionAttributes("game")
 public class ChessController {
+
+    private final UtilisateurRepository utilisateurRepository;
+
+    public ChessController(UtilisateurRepository utilisateurRepository) {
+        this.utilisateurRepository = utilisateurRepository;
+    }
 
     @ModelAttribute("game")
     ChessGame createGame() {
@@ -50,7 +60,7 @@ public class ChessController {
                      @RequestParam String pieceType,
                      @RequestParam(defaultValue = "true") boolean estBlanc,
                      RedirectAttributes redirAttrs,
-                     @SessionAttribute("game") ChessGame game) {
+                     @ModelAttribute("game") ChessGame game) {
 
         // Appel de la méthode qui retourne un statut (String)
         String resultat = game.placerPiece(x, y, pieceType, estBlanc);
@@ -85,7 +95,7 @@ public class ChessController {
     String postRemove(@RequestParam int x,
                       @RequestParam int y,
                       RedirectAttributes redirAttrs,
-                      @SessionAttribute("game") ChessGame game) {
+                      @ModelAttribute("game") ChessGame game) {
 
         // Appel de la méthode qui retourne true/false
         boolean success = game.retirerPiece(x, y);
@@ -101,15 +111,24 @@ public class ChessController {
     }
 
     @PostMapping("/reset")
-    String postReset(@SessionAttribute("game") ChessGame game) {
+    String postReset(
+            @ModelAttribute("game") ChessGame game) {
         game.reinitialiser();
         return "redirect:/show";
     }
 
     @GetMapping("/show")
-    String getShow(@ModelAttribute("game") ChessGame game, Model model) {
+    String getShow(@ModelAttribute("game") ChessGame game,
+                   Model model,
+                   Authentication authentication) { // Injection correcte
+
+        String email = authentication.getName();
+
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé !"));
+
         model.addAttribute("board", game.getBoard());
-        model.addAttribute("joueur", game.getJoueur().getPseudo());
+        model.addAttribute("pseudo", utilisateur.getPseudo()); // Pseudo disponible dans la vue
         model.addAttribute("nbPieces", game.compterPieces());
         model.addAttribute("score", game.getScore());
         return "show";
