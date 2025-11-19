@@ -6,13 +6,13 @@ public class ChessGame {
     private Echiquier echiquier;
     private Joueur joueur;
     private int score;
-    private String modeDeJeu; // Par exemple "8-queens", "custom", etc.
+    private String modeDeJeu; // "8-queens", "custom", etc.
 
     public ChessGame() {
         this.echiquier = new Echiquier();
         this.joueur = new Joueur("Joueur", true);
         this.score = 0;
-        this.modeDeJeu = "custom"; // Par défaut mode personnalisé
+        this.modeDeJeu = "custom";
     }
 
     public ChessGame(String pseudo) {
@@ -22,62 +22,65 @@ public class ChessGame {
         this.modeDeJeu = "custom";
     }
 
-    public boolean placerPiece(int x, int y, String typePiece, boolean estBlanc) {
+    /**
+     * Tente de placer une pièce.
+     * Retourne un code statut : "OK", "OCCUPEE", "INVALID" (conflit), ou "ERREUR".
+     */
+    public String placerPiece(int x, int y, String typePiece, boolean estBlanc) {
         Case caseDestination = echiquier.getCase(x, y);
 
+        // 1. Vérifier si la case est déjà occupée
         if (!caseDestination.isEstVide()) {
-            return false; // Case déjà occupée
+            return "OCCUPEE";
         }
 
+        // 2. Vérifier les conflits (Si une reine attaque cette position)
+        if (estEnConflit(x, y)) {
+            return "INVALID";
+        }
+
+        // 3. Création de la pièce
         Piece piece = creerPiece(typePiece, estBlanc);
         if (piece == null) {
-            return false; // Type de pièce inconnu
+            return "ERREUR";
         }
 
+        // 4. Placement effectif
         echiquier.placerPiece(x, y, piece);
-
-        if ("8-queens".equals(modeDeJeu)) {
-            return validerSolution8Reines();
-        }
-
-        return true;
+        return "OK";
     }
 
-    // Validation simple du problème des 8 reines
-    public boolean validerSolution8Reines() {
-        int n = 8;
-        int[] positions = new int[n];
-        Arrays.fill(positions, -1);
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+    /**
+     * Vérifie si la position (x, y) est attaquée par une pièce déjà sur le plateau.
+     * (Logique simplifiée pour les Dames/Reines : Ligne, Colonne, Diagonale)
+     */
+    private boolean estEnConflit(int x, int y) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
-                Piece p = c.getPiece();
-                if (p instanceof Dame) {
-                    positions[i] = j;
-                    break;
+
+                // Si on trouve une pièce ailleurs sur le plateau
+                if (!c.isEstVide()) {
+                    // 1. Même ligne ou colonne
+                    if (i == x || j == y) return true;
+
+                    // 2. Même diagonale
+                    if (Math.abs(i - x) == Math.abs(j - y)) return true;
                 }
             }
         }
-
-        for (int i = 0; i < n; i++) {
-            if (positions[i] == -1) return false; // Pas assez de dames
-
-            for (int j = i + 1; j < n; j++) {
-                if (positions[j] == -1) return false;
-
-                if (positions[i] == positions[j] || Math.abs(positions[i] - positions[j]) == Math.abs(i - j)) {
-                    return false; // Conflit détecté
-                }
-            }
-        }
-        return true; // Configuration valide
+        return false;
     }
 
+    /**
+     * Retire une pièce du plateau.
+     * Retourne true si une pièce a été retirée, false si la case était déjà vide.
+     */
     public boolean retirerPiece(int x, int y) {
         Case caseSource = echiquier.getCase(x, y);
+
         if (caseSource.isEstVide()) {
-            return false; // Case déjà vide
+            return false; // Rien à retirer
         }
 
         caseSource.setPiece(null);
@@ -85,10 +88,42 @@ public class ChessGame {
         return true;
     }
 
+    /**
+     * Vérifie si la condition de victoire est atteinte.
+     */
+    public boolean estPuzzleResolu() {
+        // On utilise la logique 8 reines par défaut ou si le mode est spécifié
+        // Ici je force la vérification pour que tu puisses gagner en mode "custom" aussi si tu veux
+        return verifier8Reines();
+    }
+
+    private boolean verifier8Reines() {
+        int n = 8;
+        int countDames = 0;
+
+        // Compter les dames
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (!echiquier.getCase(i, j).isEstVide()) {
+                    countDames++;
+                }
+            }
+        }
+
+        // S'il n'y a pas 8 dames, ce n'est pas fini
+        if (countDames != 8) return false;
+
+        // S'il y a 8 dames, comme la méthode 'placerPiece' empêche déjà les conflits,
+        // alors c'est forcément GAGNÉ !
+        return true;
+    }
+
     public void reinitialiser() {
         echiquier.initialiser();
         score = 0;
     }
+
+    // --- Méthodes utilitaires et Getters/Setters ---
 
     public String[][] getBoard() {
         String[][] board = new String[8][8];
@@ -109,9 +144,7 @@ public class ChessGame {
         int count = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (!echiquier.getCase(i, j).isEstVide()) {
-                    count++;
-                }
+                if (!echiquier.getCase(i, j).isEstVide()) count++;
             }
         }
         return count;
@@ -129,23 +162,9 @@ public class ChessGame {
         }
     }
 
-    public Joueur getJoueur() {
-        return joueur;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public String getModeDeJeu() {
-        return modeDeJeu;
-    }
-
-    public void setModeDeJeu(String modeDeJeu) {
-        this.modeDeJeu = modeDeJeu;
-    }
+    public Joueur getJoueur() { return joueur; }
+    public int getScore() { return score; }
+    public void setScore(int score) { this.score = score; }
+    public String getModeDeJeu() { return modeDeJeu; }
+    public void setModeDeJeu(String modeDeJeu) { this.modeDeJeu = modeDeJeu; }
 }

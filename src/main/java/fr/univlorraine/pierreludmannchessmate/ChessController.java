@@ -38,14 +38,12 @@ public class ChessController {
         } else {
             game = new ChessGame();
         }
-        // Stocker le mode dans l'objet ChessGame
         game.setModeDeJeu(modeDeJeu);
         model.addAttribute("game", game);
         return "redirect:/show";
     }
 
-
-    // Placer une pièce
+    // --- ACTION : PLACER UNE PIÈCE ---
     @PostMapping("/place")
     String postPlace(@RequestParam int x,
                      @RequestParam int y,
@@ -54,37 +52,54 @@ public class ChessController {
                      RedirectAttributes redirAttrs,
                      @SessionAttribute("game") ChessGame game) {
 
-        boolean success = game.placerPiece(x, y, pieceType, estBlanc);
+        // Appel de la méthode qui retourne un statut (String)
+        String resultat = game.placerPiece(x, y, pieceType, estBlanc);
 
-        if (!success) {
-            redirAttrs.addFlashAttribute("message", "Placement invalide ou puzzle non résolu.");
-        } else {
-            redirAttrs.addFlashAttribute("message", "Pièce placée avec succès et puzzle validé!");
+        switch (resultat) {
+            case "OCCUPEE":
+                redirAttrs.addFlashAttribute("message", "❌ Impossible : la case est déjà occupée !");
+                break;
+
+            case "INVALID":
+                redirAttrs.addFlashAttribute("message", "⚠️ Mauvais placement ! Cette case est menacée par une autre pièce.");
+                break;
+
+            case "OK":
+                // Si le placement est valide, on vérifie si c'est la victoire
+                if (game.estPuzzleResolu()) {
+                    redirAttrs.addFlashAttribute("message", "🏆 BRAVO ! Vous avez placé les 8 Reines sans conflit !");
+                } else {
+                    redirAttrs.addFlashAttribute("message", "✅ Pièce placée.");
+                }
+                break;
+
+            default:
+                redirAttrs.addFlashAttribute("message", "Erreur technique lors du placement.");
         }
 
         return "redirect:/show";
     }
 
-
-    // Retirer une pièce
+    // --- ACTION : RETIRER UNE PIÈCE ---
     @PostMapping("/remove")
     String postRemove(@RequestParam int x,
                       @RequestParam int y,
                       RedirectAttributes redirAttrs,
                       @SessionAttribute("game") ChessGame game) {
 
+        // Appel de la méthode qui retourne true/false
         boolean success = game.retirerPiece(x, y);
 
         if (!success) {
-            redirAttrs.addFlashAttribute("message", "Aucune pièce à retirer");
+            // Cas où on clique "Retirer" sur une case vide
+            redirAttrs.addFlashAttribute("message", "❌ La case est déjà vide, rien à retirer.");
         } else {
-            redirAttrs.addFlashAttribute("message", "Pièce retirée");
+            redirAttrs.addFlashAttribute("message", "🗑️ Pièce retirée.");
         }
 
         return "redirect:/show";
     }
 
-    // Réinitialiser
     @PostMapping("/reset")
     String postReset(@SessionAttribute("game") ChessGame game) {
         game.reinitialiser();
@@ -97,8 +112,6 @@ public class ChessController {
         model.addAttribute("joueur", game.getJoueur().getPseudo());
         model.addAttribute("nbPieces", game.compterPieces());
         model.addAttribute("score", game.getScore());
-
         return "show";
     }
-
 }
