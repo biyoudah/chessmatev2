@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" href="/css/show.css">
-    <script src="/js/show.js"></script>
     <meta charset="UTF-8">
     <title>Chessmate - Puzzle</title>
-
+    <link rel="stylesheet" th:href="@{/css/show.css}">
 </head>
 <body>
 <h1>♟ Chessmate - Puzzle ♟</h1>
-
 <div th:if="${message}" class="message" th:text="${message}"></div>
 
 <div class="container">
@@ -18,18 +15,18 @@
         <h3>Sélectionner une pièce</h3>
 
         <div class="piece-buttons">
-            <button class="piece-btn selected" data-piece="dame">♕</button>
+            <button class="piece-btn" data-piece="dame" onclick="selectPiece(this)">♕</button>
         </div>
 
         <div class="color-selector">
             <h4>Couleur :</h4>
-            <button class="color-btn selected" data-color="true">⚪ Blanc</button>
-            <button class="color-btn" data-color="false">⚫ Noir</button>
+            <button class="color-btn selected" data-color="true" onclick="selectColor(this)">⚪ Blanc</button>
+            <button class="color-btn" data-color="false" onclick="selectColor(this)">⚫ Noir</button>
         </div>
 
         <div style="margin-top: 15px;">
-            <button class="action-btn" id="modePlace">Mode : Placer</button>
-            <button class="action-btn danger" id="modeRemove">Mode : Retirer</button>
+            <button class="action-btn selected" id="modePlace" onclick="setModePlace()">Mode : Placer</button>
+            <button class="action-btn danger" id="modeRemove" onclick="setModeRemove()">Mode : Retirer</button>
         </div>
     </div>
 
@@ -50,15 +47,17 @@
     <!-- Panneau d'info -->
     <div class="info-panel">
         <h3>Informations</h3>
-        <p><strong>Joueur :</strong> <span th:text="${pseudo}"></span></p>
+        <p><strong>Joueur :</strong> <span th:text="${utilisateur}"></span></p>
         <p><strong>Pièces placées :</strong> <span th:text="${nbPieces}"></span></p>
         <p><strong>Score :</strong> <span th:text="${score}"></span></p>
 
         <form method="post" action="/reset" style="margin-top: 20px;">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <button type="submit" class="action-btn danger">Réinitialiser</button>
         </form>
 
         <form method="post" action="/create" style="margin-top: 10px;">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <button type="submit" class="action-btn">Nouvelle partie</button>
         </form>
     </div>
@@ -66,6 +65,7 @@
 
 <!-- Forms cachés -->
 <form method="post" action="/place" id="placeForm">
+    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input type="hidden" name="x" id="placeX">
     <input type="hidden" name="y" id="placeY">
     <input type="hidden" name="pieceType" id="pieceType">
@@ -73,8 +73,11 @@
 </form>
 
 <form method="post" action="/remove" id="removeForm">
+    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input type="hidden" name="x" id="removeX">
     <input type="hidden" name="y" id="removeY">
 </form>
+
+<script th:src="@{/js/show.js}"></script>
 </body>
 </html>
