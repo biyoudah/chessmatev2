@@ -2,35 +2,75 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <title>Inscription</title>
+    <style>
+        /* Styles pour les messages d'erreur */
+        .error-message {
+            color: #dc3545; /* Couleur rouge standard */
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Styles pour l'alerte générale (Email déjà pris) */
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        /* Style de base pour les inputs, pour une meilleure visualisation */
+        .form-control {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* NOUVEAU : Style pour encadrer l'input en rouge en cas d'erreur */
+        .is-invalid {
+            border: 2px solid #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
 </head>
 <body>
-    <h1>Créer un compte</h1>
+<h1>Créer un compte</h1>
 
-    <div th:if="${error}" style="color: red; margin-bottom: 10px;">
-        <span th:text="${error}"></span>
+<form method="post" th:action="@{/register}" th:object="${utilisateur}">
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}">   </div>
+
+    <div style="margin-top: 10px;">
+        <label for="pseudo">Pseudo :</label>
+        <!-- th:field pour la liaison et th:classappend pour le surlignage conditionnel -->
+        <input type="text" id="pseudo" th:field="*{pseudo}"  class="form-control" required />
+        <!-- Affichage des messages d'erreur de validation pour ce champ -->
+        <p th:id="${#fields.hasErrors('pseudo')}"  th:errorclass="error" th:errors="*{pseudo}"> </p>
     </div>
 
-    <form th:action="@{/register}" th:object="${utilisateur}" method="post">
-        <div style="margin-top: 10px;">
-            <label for="pseudo">Pseudo :</label>
-            <input type="text" id="pseudo" name="pseudo" class="form-control" required />
-        </div>
+    <div style="margin-top: 10px;">
+        <label for="email">Email :</label>
+        <input type="text" id="email" th:field="*{email}"
+               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+               class="form-control" required />
+        <span th:errors="*{email}" class="error-message"></span>
+    </div>
 
-        <div style="margin-top: 10px;">
-            <label for="email">Email :</label>
-            <input type="text" id="email" name="email" class="form-control" required />
-        </div>
+    <div style="margin-top: 10px;">
+        <label for="password">Mot de passe :</label>
+        <input class="form-control" id="password" required
+               th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+               th:field="*{password}" type="password"/>
+        <span class="error-message" th:errors="*{password}"></span>
+    </div>
 
-        <div style="margin-top: 10px;">
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" name="password" class="form-control" required />
-        </div>
+    <div style="margin-top: 20px;">
+        <button type="submit">S'inscrire</button>
+    </div>
+</form>
 
-        <div style="margin-top: 20px;">
-            <button type="submit">S'inscrire</button>
-        </div>
-    </form>
-
-    <p>Déjà un compte ? <a th:href="@{/login}">Connectez-vous ici</a>.</p>
+<p>Déjà un compte ? <a th:href="@{/login}">Connectez-vous ici</a>.</p>
 </body>
 </html>

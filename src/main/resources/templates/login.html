@@ -6,6 +6,10 @@
 <body>
 <h1>Connexion</h1>
 
+<div th:if="${param.success}" style="color: green; margin-bottom: 10px;">
+    <span>L'inscription a bien été prise en compte.</span>
+</div>
+
 <div th:if="${param.error}" style="color: red; margin-bottom: 10px;">
     <span>Email ou mot de passe incorrect.</span>
 </div>
@@ -16,13 +20,13 @@
 
 <form th:action="@{/login}" method="post">
     <div style="margin-top: 10px;">
-        <label for="username">Email :</label>
-        <input id="username" required name="username" class="form-control" type="text"/>
+        <label for="email">Email :</label>
+        <input type="text" id="email" required name="username" placeholder="exemple@mail.com" class="form-control" />
     </div>
 
     <div style="margin-top: 10px;">
         <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" class="form-control" required />
+        <input type="password" id="password" name="password" placeholder="********" class="form-control" required />
     </div>
 
     <div style="margin-top: 20px;">
