@@ -4,13 +4,12 @@ import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
 import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
 import org.springframework.security.core.Authentication;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Slf4j
+
 @Controller
 @SessionAttributes("game")
 public class ChessController {
@@ -24,7 +23,7 @@ public class ChessController {
     @ModelAttribute("game")
     ChessGame createGame() {
         ChessGame game = new ChessGame();
-        log.info("Create new chess puzzle game");
+        //og.info("Create new chess puzzle game");
         return game;
     }
 
