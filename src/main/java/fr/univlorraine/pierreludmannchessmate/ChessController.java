@@ -30,7 +30,7 @@ public class ChessController {
 
     @GetMapping("/")
     String getHome() {
-        return "redirect:/new";
+        return "redirect:/home";
     }
 
     @GetMapping("/new")
@@ -133,4 +133,22 @@ public class ChessController {
         model.addAttribute("score", game.getScore());
         return "show";
     }
+    @GetMapping("/home")
+    public String getHomePage(@ModelAttribute("game") ChessGame game,
+                          Model model,
+                          Authentication authentication) {
+
+        boolean isLoggedIn = authentication != null && authentication.isAuthenticated();
+        model.addAttribute("isLoggedIn", isLoggedIn);
+
+        if (isLoggedIn) {
+            String email = authentication.getName();
+            Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+            model.addAttribute("pseudo", utilisateur.getPseudo());
+        }
+
+        return "home";  // home.html
+    }
+
 }

@@ -17,15 +17,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests // Autorisation d'accès
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll() // Pages publiques sans connexion
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**","/home","/","/img/**").permitAll() // Pages publiques sans connexion
                         .anyRequest().authenticated() // Tout le reste nécessite une connexion
                 )
-                .formLogin(form -> form
-                        .loginPage("/login") // Spécifie l'URL de votre page de connexion
+                .formLogin((form) -> form
+                        .loginPage("/login") // URL de la page de login
                         .loginProcessingUrl("/login") // L'URL où le POST du formulaire est envoyé (géré par Spring)
-                        .defaultSuccessUrl("/show", true) // ✅ REDIRECTION POST-CONNEXION VERS /show
+                        .defaultSuccessUrl("/home", true) // Redirection après succès
                         .failureUrl("/login?error") // Redirection en cas d'échec
-                        .permitAll()
+                        .permitAll() // Accès pour tout le monde
                 )
                 .logout((logout) -> logout.permitAll());
 
