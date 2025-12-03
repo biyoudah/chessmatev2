@@ -17,12 +17,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests // Autorisation d'accès
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll() // Pages publiques sans connexion
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**","/home","/","/img/**").permitAll() // Pages publiques sans connexion
                         .anyRequest().authenticated() // Tout le reste nécessite une connexion
                 )
                 .formLogin((form) -> form
                         .loginPage("/login") // URL de la page de login
-                        .defaultSuccessUrl("/show", true) // Redirection après succès
+                        .defaultSuccessUrl("/home", false) // Redirection après succès
                         .permitAll() // Accès pour tout le monde
                 )
                 .logout((logout) -> logout.permitAll());
