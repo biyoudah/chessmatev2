@@ -16,9 +16,9 @@ public class Cavalier extends Piece {
     }
 
     @Override
-    // Soit diff de 1 en ligne et 2 en colonne ou l'inverse
-    public boolean deplacementValide(int departLigne, int departColonne,  int arriveeligne, int arriveColonne) {
-        int diffL = Math.abs(arriveeligne - departColonne);
+    public boolean deplacementValide(int departLigne, int departColonne, int arriveeligne, int arriveColonne) {
+        int diffL = Math.abs(arriveeligne - departLigne);
+
         int diffC = Math.abs(arriveColonne - departColonne);
 
         return (diffL == 2 && diffC == 1) || (diffL == 1 && diffC == 2);
