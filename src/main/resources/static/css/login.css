@@ -1,13 +1,5 @@
-old_body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 20px;
-}
-
-body {
-    background: #242424;
+body {     /*arrière-plan*/
+    background: #d9d9d9;
     font-family: 'Segoe UI', Arial, sans-serif;
     height: 100vh;
     margin: 0;
@@ -16,17 +8,18 @@ body {
     align-items: center;
 }
 
-.login-container {
-    background: #222;
+.login-container {     /*bloc au centre avec coins arrondis*/
+    background: #2b2b2b;
     padding: 40px 30px;
     border-radius: 14px;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 20px #000100;
     min-width: 350px;
     width: 100%;
     max-width: 400px;
+    margin-top: 70px;
 }
 
-.login-container h1 {
+.login-container h1 {    /*titre Connexion*/
     color: #fff;
     text-align: center;
     margin-bottom: 30px;
@@ -43,12 +36,12 @@ body {
     margin-bottom: 10px;
 }
 
-.form-group {
+.form-group {           /*intitulés e-mail et mdp*/
     margin-top: 18px;
     color: #fff;
 }
 
-.form-control {
+.form-control {          /*champs de saisie*/
     width: 100%;
     padding: 12px 14px;
     border-radius: 6px;
@@ -62,9 +55,9 @@ body {
 }
 
 
-.form-control:focus {
+.form-control:focus {    /*quand un champ de saisie est actif*/
     outline: none;
-    background: #404040;
+    background: #5a5a5a;
     color: #fff;
 }
 
@@ -78,8 +71,8 @@ body {
     max-width: 400px;
 }
 
-button[type="submit"] {
-    background: #81c440;
+button[type="submit"] {         /*bouton “Se connecter”*/
+    background: #0542c8;
     border: none;
     border-radius: 8px;
     color: #fff;
@@ -87,13 +80,19 @@ button[type="submit"] {
     font-size: 1.25em;
     padding: 14px 0;
     width: 100%;
-    box-shadow: 0 2px 0 #629c2b;
+    box-shadow: 0 2px 0 #042c84;
     cursor: pointer;
     margin-top: 14px;
     transition: background 0.2s;
 }
 
-button[type="submit"]:hover {
-    background: #5ea924;
+button[type="submit"]:hover {          /*quand bouton "Se connecter" est survolé*/
+    background: #0639a8;
 }
 
+.logo-login {           /*logo*/
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 80px;
+    height: auto;
+}
