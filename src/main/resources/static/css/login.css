@@ -8,6 +8,13 @@ body {     /*arri√®re-plan*/
     align-items: center;
 }
 
+.page-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* centre logo et container de connexion*/
+}
+
+
 .login-container {     /*bloc au centre avec coins arrondis*/
     background: #2b2b2b;
     padding: 40px 30px;
@@ -92,7 +99,7 @@ button[type="submit"]:hover {          /*quand bouton "Se connecter" est survol√
 
 .logo-login {           /*logo*/
     display: block;
-    margin: 0 auto 20px auto;
+    margin-bottom: 20px;
     width: 80px;
     height: auto;
 }
