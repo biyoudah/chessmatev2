@@ -20,9 +20,12 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll() // Pages publiques sans connexion
                         .anyRequest().authenticated() // Tout le reste nécessite une connexion
                 )
-                .formLogin((form) -> form
-                        .loginPage("/login") // URL de la page de login
-                        .permitAll() // Accès pour tout le monde
+                .formLogin(form -> form
+                        .loginPage("/login") // Spécifie l'URL de votre page de connexion
+                        .loginProcessingUrl("/login") // L'URL où le POST du formulaire est envoyé (géré par Spring)
+                        .defaultSuccessUrl("/show", true) // ✅ REDIRECTION POST-CONNEXION VERS /show
+                        .failureUrl("/login?error") // Redirection en cas d'échec
+                        .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
 
