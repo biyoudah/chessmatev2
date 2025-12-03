@@ -23,7 +23,7 @@ body {     /*arri√®re-plan*/
     min-width: 350px;
     width: 100%;
     max-width: 400px;
-    margin-top: 70px;
+    margin-top: 30px;
 }
 
 .login-container h1 {    /*titre Connexion*/
@@ -99,7 +99,7 @@ button[type="submit"]:hover {          /*quand bouton "Se connecter" est survol√
 
 .logo-login {           /*logo*/
     display: block;
-    margin-bottom: 20px;
-    width: 80px;
+    margin-bottom: 10px;
+    width: 150px;
     height: auto;
 }
