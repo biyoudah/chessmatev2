@@ -2,69 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <title>Inscription</title>
-    <style>
-        /* Style simple pour l'affichage des erreurs */
-        .error-message {
-            color: red;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        .error-input {
-            border: 1px solid red;
-        }
-    </style>
 </head>
 <body>
 <h1>Inscription</h1>
 
-<form id="registerForm" th:action="@{/register}" th:object="${utilisateur}" method="post">
+<form th:action="@{/register}" th:object="${utilisateur}" method="post">
 
-    <div style="margin-top: 10px;">
+    <div class="form-group">
         <label for="email">Email :</label>
         <input type="text"
                id="email"
-               name="email"
-               th:field="*{email}" placeholder="exemple@mail.com"
+               th:field="*{email}"
+               placeholder="exemple@mail.com"
                class="form-control"
-               required
                th:classappend="${#fields.hasErrors('email') ? 'error-input' : ''}"/>
 
-        <div id="emailError" class="error-message"></div>
-
         <div th:if="${#fields.hasErrors('email')}" class="error-message">
-            <span th:errors="*{email}">[Erreur email]</span>
+            <span th:errors="*{email}">Erreur email</span>
         </div>
     </div>
 
-    <div style="margin-top: 10px;">
+    <div class="form-group">
         <label for="pseudo">Nom d'utilisateur :</label>
         <input type="text"
+               id="pseudo"
                th:field="*{pseudo}"
                placeholder="Pseudo (lettres et chiffres, min 3)"
                class="form-control"
-               required
                th:classappend="${#fields.hasErrors('pseudo') ? 'error-input' : ''}"/>
 
-        <div id="pseudoError" class="error-message"></div>
-
         <div th:if="${#fields.hasErrors('pseudo')}" class="error-message">
-            <span th:errors="*{pseudo}">[Erreur pseudo]</span>
+            <span th:errors="*{pseudo}">Erreur pseudo</span>
         </div>
     </div>
 
-    <div style="margin-top: 10px;">
+    <div class="form-group">
         <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" placeholder="********" class="form-control" required />
-        <div id="passwordError" class="error-message"></div>
+        <input type="password"
+               id="password"
+               th:field="*{password}"
+               placeholder="********"
+               class="form-control"
+               th:classappend="${#fields.hasErrors('password') ? 'error-input' : ''}"/>
+
+        <div th:if="${#fields.hasErrors('password')}" class="error-message">
+            <span th:errors="*{password}">Erreur mot de passe</span>
+        </div>
     </div>
 
     <div style="margin-top: 20px;">
-        <button type="submit" id="submitBtn">S'inscrire</button>
+        <button type="submit">S'inscrire</button>
     </div>
 </form>
 
 <p>Déjà un compte ? <a th:href="@{/login}">Connectez-vous ici</a>.</p>
 
-<script src="/js/registration.js"></script>
 </body>
 </html>
