@@ -1,14 +1,4 @@
-old_body {     /*arrière-plan*/
-    background: #d9d9d9;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-body {
+body {         /*arrière-plan*/
     height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -17,8 +7,8 @@ body {
     align-items: center;
 
     /* couleurs des cases */
-    --case1: #dcdcdc;  /* gris clair */
-    --case2: #839ab3;  /* bleu clair, ajuste comme tu veux */
+    --case1: rgba(191, 191, 191, 0.95);  /*gris*/
+    --case2: #839ab3; /*bleu*/
 
     background-color: var(--case1);
     background-image:
@@ -36,8 +26,8 @@ body {
             var(--case2) 75%,
             var(--case2) 100%
             );
-    background-size: 220px 220px;          /* taille des cases*/
-    background-position: 0 0, 110px 110px; /* décale la deuxième couche pour l’effet damier */
+    background-size: 210px 210px;          /* taille des cases*/
+    background-position: 0 0, 105px 105px; /* décale la deuxième couche pour l’effet damier mette moitié taille cases */
 
 }
 
@@ -47,17 +37,30 @@ body {
     align-items: center;    /* centre logo et container de connexion*/
 }
 
+.login-card {       /*container logo+connexion*/
+    background-color: #c3c3c3;
+    /* haut | droite/gauche | bas */
+    padding: 30px 44px 44px;
+    border-radius: 18px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 460px;
+    max-width: 90vw;
+}
 
-.login-container {     /*bloc au centre avec coins arrondis*/
+.login-container {     /*container pour formulaire de connexion*/
     background: #2b2b2b;
-    padding: 40px 30px;
+    padding: 30px 30px;
     border-radius: 14px;
     box-shadow: 0 2px 20px #000100;
     min-width: 350px;
-    width: 100%;
     max-width: 400px;
+    width: 100%;
     margin-top: 10px;
 }
+
 
 .login-container h1 {    /*titre Connexion*/
     color: #fff;
@@ -72,7 +75,7 @@ body {
 }
 
 .deconnexion {
-    color: green;
+    color: #005a00;
     margin-bottom: 10px;
 }
 
@@ -101,15 +104,6 @@ body {
     color: #fff;
 }
 
-.login-container {
-    background: #222;
-    padding: 40px 30px;
-    border-radius: 14px;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-    min-width: 350px;
-    width: 100%;
-    max-width: 400px;
-}
 
 button[type="submit"] {         /*bouton “Se connecter”*/
     background: #0542c8;
@@ -132,8 +126,8 @@ button[type="submit"]:hover {          /*quand bouton "Se connecter" est survol�
 
 .logo-login {           /*logo*/
     display: block;
-    margin-bottom: 10px;
-    width: 150px;
+    margin-bottom: 2px;
+    width: 260px;
     height: auto;
 }
 
