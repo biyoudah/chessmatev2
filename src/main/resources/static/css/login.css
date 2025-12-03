@@ -7,7 +7,7 @@ body {         /*arrière-plan*/
     align-items: center;
 
     /* couleurs des cases */
-    --case1: rgba(191, 191, 191, 0.95);  /*gris*/
+    --case1: rgba(205, 204, 204, 0.95);  /*gris*/
     --case2: #839ab3; /*bleu*/
 
     background-color: var(--case1);
@@ -38,7 +38,7 @@ body {         /*arrière-plan*/
 }
 
 .login-card {       /*container logo+connexion*/
-    background-color: #c3c3c3;
+    background-color: #cacaca;
     /* haut | droite/gauche | bas */
     padding: 20px 44px 44px;
     border-radius: 18px;
