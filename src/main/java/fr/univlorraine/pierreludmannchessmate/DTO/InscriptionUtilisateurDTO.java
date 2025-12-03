@@ -16,8 +16,8 @@ public class InscriptionUtilisateurDTO {
 
     // Contrainte pour le nom d'utilisateur : obligatoire, entre 3 et 50 caractères
     // Et doit correspondre à une expression régulière (ici, seulement des lettres et chiffres)
-    @NotBlank(message = "Le pseudo d'utilisateur est obligatoire")
-    @Size(min = 3, max = 50, message = "Le pseudo doit contenir entre 3 et 50 caractères")
+    @NotBlank(message = "Le pseudo est obligatoire")
+    @Size(min = 3, max = 30, message = "Le pseudo doit contenir entre 3 et 30 caractères")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Le pseudo ne doit contenir que des lettres et des chiffres")
     private String pseudo;
 
@@ -27,7 +27,7 @@ public class InscriptionUtilisateurDTO {
     @Size(min = 8, max = 30, message = "Le mot de passe doit contenir entre 8 et 30 caractères")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9\\s]).{8,30}$",
-            message = "Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial."
+            message = "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial."
     )
     private String password;
 

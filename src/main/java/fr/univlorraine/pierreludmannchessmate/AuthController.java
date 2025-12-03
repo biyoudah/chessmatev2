@@ -33,9 +33,7 @@ public class AuthController {
     // Affiche le formulaire d'inscription (GET)
     @GetMapping("/register")
     public String register(Model model) {
-        if (!model.containsAttribute("utilisateur")) {
-            model.addAttribute("utilisateur", new InscriptionUtilisateurDTO());
-        }
+        model.addAttribute("utilisateur", new InscriptionUtilisateurDTO());
         return "register";
     }
 
@@ -63,18 +61,15 @@ public class AuthController {
             return "register";
         }
 
-        // --- Si tout est valide ---
-
-        // 3. Création et préparation de l'objet Utilisateur
+        // 3. Enregistrement nouvel entité utilisateur
         Utilisateur nouvelUtilisateur = new Utilisateur();
         nouvelUtilisateur.setEmail(registrationDto.getEmail());
         nouvelUtilisateur.setPseudo(registrationDto.getPseudo());
 
-        // 4. Chiffrement et définition du mot de passe
-        String hashedPassword = passwordEncoder.encode(registrationDto.getPassword());
-        nouvelUtilisateur.setPassword(hashedPassword);
+        //4. Hachage mdp
+        nouvelUtilisateur.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
-        // 5. Définition du rôle par défaut
+        //5. Définition du rôle
         nouvelUtilisateur.setRole("USER");
 
         // 6. Sauvegarde
