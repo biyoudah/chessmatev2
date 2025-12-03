@@ -3,37 +3,24 @@
 <head>
     <meta charset="UTF-8" />
     <title>Chessmate - Nouvelle partie</title>
-    <link rel="stylesheet" th:href="@{/css/new.css}">
-    <script th:src="@{/js/new.js}" defer></script>
+    <link rel="stylesheet" href="/css/new.css">
+
 </head>
 <body>
-<main class="main-content">
 <h1>♟ Bienvenue à Chessmate ♟</h1>
 <p>Placez les pièces d'échecs sur le plateau pour résoudre le puzzle !</p>
-
-<form th:action="@{/create}" method="post" id="new-game-form">
-    <!-- Champ caché envoyé au contrôleur -->
-    <input type="hidden" name="modeDeJeu" id="modeDeJeu" value="custom">
-
-    <div class="modes-container">
-        <button type="button" class="game-btn active-mode"
-                id="btn-8queens"
-                onmouseover="showModeHover('8 Reines')"
-                onclick="selectMode('8-queens', 'btn-8queens')">
-            8 Reines
-        </button>
-
-        <button type="button" class="game-btn"
-                id="btn-custom"
-                onmouseover="showModeHover('Custom')"
-                onclick="selectMode('custom', 'btn-custom')">
-            Custom
-        </button>
-    </div>
-
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <button type="submit" class="start-btn">Commencer</button>
+<form method="post" action="/create">
+    <!-- Ajoutez la sélection du mode -->
+    <label for="modeDeJeu">Mode de jeu :</label>
+    <select name="modeDeJeu" id="modeDeJeu">
+        <option value="custom">Custom</option>
+        <option value="8-queens">8 Reines</option>
+        <!-- Ajoutez d'autres modes si besoin -->
+    </select>
+    <br>
+    <input type="text" name="pseudo" placeholder="Votre pseudo (optionnel)" value="Joueur" />
+    <br>
+    <button type="submit">Commencer</button>
 </form>
-</main>
 </body>
 </html>
