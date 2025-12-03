@@ -40,7 +40,7 @@ body {         /*arrière-plan*/
 .login-card {       /*container logo+connexion*/
     background-color: #c3c3c3;
     /* haut | droite/gauche | bas */
-    padding: 30px 44px 44px;
+    padding: 20px 44px 44px;
     border-radius: 18px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
     display: flex;
