@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.validation.FieldError;
 
@@ -40,7 +41,7 @@ public class AuthController {
 
     // Traite la soumission du formulaire d'inscription (POST)
     @PostMapping("/register")
-    public String processRegistration(@Valid InscriptionUtilisateurDTO registrationDto,
+    public String processRegistration(@Valid @ModelAttribute("utilisateur") InscriptionUtilisateurDTO registrationDto,
                                       BindingResult bindingResult,
                                       Model model) {
 
@@ -59,7 +60,6 @@ public class AuthController {
 
         // 2. Vérification des erreurs de validation JSR 380 OU de l'unicité ci-dessus
         if (bindingResult.hasErrors()) {
-            model.addAttribute("utilisateur", registrationDto);
             return "register";
         }
 
