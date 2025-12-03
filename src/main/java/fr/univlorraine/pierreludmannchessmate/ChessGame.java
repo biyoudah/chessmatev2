@@ -47,6 +47,10 @@ public class ChessGame {
             return "INVALID";
         }
 
+        if(estMenacant(x,y,typePiece,estBlanc)){
+            return "MENACANT";
+        }
+
         // 3. Création de la pièce
         Piece piece = creerPiece(typePiece, estBlanc);
         if (piece == null) {
@@ -84,6 +88,24 @@ public class ChessGame {
             }
         }
         return false;
+    }
+
+    private boolean estMenacant(int x, int y, String  typePiece, boolean estBlanc) {
+       Piece newPiece = creerPiece(typePiece, estBlanc);
+
+       for (int i = 0; i < 8; i++) {
+           for (int j = 0; j < 8; j++) {
+               Case c = echiquier.getCase(i, j);
+               if (!c.isEstVide() && c.getPiece() != null) {
+
+                   // Vérifie si la nouvelle pièce peut menacer cette pièce existante
+                   if (newPiece.deplacementValide(x, y, i, j)) {
+                       return true;
+                   }
+               }
+           }
+       }
+               return false;
     }
 
     /**
