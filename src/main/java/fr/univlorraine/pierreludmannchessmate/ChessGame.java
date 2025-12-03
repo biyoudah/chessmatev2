@@ -1,11 +1,19 @@
 package fr.univlorraine.pierreludmannchessmate;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Arrays;
 
 public class ChessGame {
     private Echiquier echiquier;
+    @Getter
     private Joueur joueur;
+    @Setter
+    @Getter
     private int score;
+    @Setter
+    @Getter
     private String modeDeJeu; // "8-queens", "custom", etc.
 
     public ChessGame() {
@@ -54,18 +62,24 @@ public class ChessGame {
      * Vérifie si la position (x, y) est attaquée par une pièce déjà sur le plateau.
      * (Logique simplifiée pour les Dames/Reines : Ligne, Colonne, Diagonale)
      */
+    /**
+     * Vérifie si la position cible (x, y) est menacée par une pièce existante.
+     * Utilise le polymorphisme : c'est la pièce elle-même qui calcule sa portée.
+     */
     private boolean estEnConflit(int x, int y) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
 
-                // Si on trouve une pièce ailleurs sur le plateau
-                if (!c.isEstVide()) {
-                    // 1. Même ligne ou colonne
-                    if (i == x || j == y) return true;
+                // S'il y a une pièce sur cette case
+                if (!c.isEstVide() && c.getPiece() != null) {
+                    Piece pieceExistante = c.getPiece();
 
-                    // 2. Même diagonale
-                    if (Math.abs(i - x) == Math.abs(j - y)) return true;
+                    // On demande à la pièce spécifique (Cavalier, Dame, etc.)
+                    // si elle peut atteindre la case cible (x, y) depuis sa position (i, j).
+                    if (pieceExistante.deplacementValide(i, j, x, y)) {
+                        return true; // Conflit détecté !
+                    }
                 }
             }
         }
@@ -162,9 +176,4 @@ public class ChessGame {
         }
     }
 
-    public Joueur getJoueur() { return joueur; }
-    public int getScore() { return score; }
-    public void setScore(int score) { this.score = score; }
-    public String getModeDeJeu() { return modeDeJeu; }
-    public void setModeDeJeu(String modeDeJeu) { this.modeDeJeu = modeDeJeu; }
 }
