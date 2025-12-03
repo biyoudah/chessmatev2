@@ -37,9 +37,19 @@
     </div>
 
     <div style="margin-top: 10px;">
-        <label for="username">Nom d'utilisateur :</label>
-        <input type="text" id="username" name="username" placeholder="Pseudo (lettres et chiffres, min 3)" class="form-control" required />
-        <div id="usernameError" class="error-message"></div>
+        <label for="pseudo">Nom d'utilisateur :</label>
+        <input type="text"
+               th:field="*{pseudo}"
+               placeholder="Pseudo (lettres et chiffres, min 3)"
+               class="form-control"
+               required
+               th:classappend="${#fields.hasErrors('pseudo') ? 'error-input' : ''}"/>
+
+        <div id="pseudoError" class="error-message"></div>
+
+        <div th:if="${#fields.hasErrors('pseudo')}" class="error-message">
+            <span th:errors="*{pseudo}">[Erreur pseudo]</span>
+        </div>
     </div>
 
     <div style="margin-top: 10px;">

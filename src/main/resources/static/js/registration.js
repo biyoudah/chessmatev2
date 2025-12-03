@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registerForm');
     const emailInput = document.getElementById('email');
-    const usernameInput = document.getElementById('username');
+    const usernameInput = document.getElementById('pseudo');
     const passwordInput = document.getElementById('password');
 
     // Événement déclenché lors de la soumission du formulaire
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Regex : commence (^) et termine ($) par 3 ou plus ({3,}) lettres et/ou chiffres ([a-zA-Z0-9])
         const usernameRegex = /^[a-zA-Z0-9]{3,}$/;
         const value = usernameInput.value.trim();
-        const errorElement = document.getElementById('usernameError');
+        const errorElement = document.getElementById('pseudoError');
 
         if (!usernameRegex.test(value)) {
             errorElement.textContent = "Le nom d'utilisateur doit contenir au moins 3 caractères (lettres et chiffres uniquement).";
