@@ -78,7 +78,10 @@ function selectColor(button) {
 
     // Mise à jour variable et stockage
     selectedColor = button.getAttribute('data-color') === 'true';
+<<<<<<< HEAD
     document.getElementById('estBlanc').value = selectedColor;
+=======
+>>>>>>> origin/main
     localStorage.setItem('chessColor', selectedColor); // Stocke "true" ou "false"
 
     // Mise à jour de l'input caché

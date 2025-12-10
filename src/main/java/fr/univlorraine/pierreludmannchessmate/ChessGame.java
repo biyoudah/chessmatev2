@@ -70,11 +70,22 @@ public class ChessGame {
             return "INVALID";
         }
 
+<<<<<<< HEAD
         // 3. Vérifier si le chemin est bloqué (Sauf pour le Cavalier qui saute)
         if (!piece.getClass().getSimpleName().equalsIgnoreCase("Cavalier")) {
             if (!cheminEstLibre(xDepart, yDepart, xArrivee, yArrivee)) {
                 return "BLOCAGE"; // Il y a une pièce sur le chemin
             }
+=======
+        if(estMenacant(x,y,typePiece,estBlanc)){
+            return "MENACANT";
+        }
+
+        // 3. Création de la pièce
+        Piece piece = creerPiece(typePiece, estBlanc);
+        if (piece == null) {
+            return "ERREUR";
+>>>>>>> origin/main
         }
 
         // 4. Vérifier la case d'arrivée (Tir allié ?)
@@ -168,6 +179,7 @@ public class ChessGame {
         }
     }
 
+<<<<<<< HEAD
     private String getTypeFromFenChar(char c) {
         return switch (Character.toLowerCase(c)) {
             case 'p' -> "pion";
@@ -184,6 +196,26 @@ public class ChessGame {
     // SECTION 3 : LOGIQUE PLACEMENT LIBRE (MODE 8-REINES / CUSTOM)
     // =========================================================================
 
+=======
+    private boolean estMenacant(int x, int y, String  typePiece, boolean estBlanc) {
+       Piece newPiece = creerPiece(typePiece, estBlanc);
+
+       for (int i = 0; i < 8; i++) {
+           for (int j = 0; j < 8; j++) {
+               Case c = echiquier.getCase(i, j);
+               if (!c.isEstVide() && c.getPiece() != null) {
+
+                   // Vérifie si la nouvelle pièce peut menacer cette pièce existante
+                   if (newPiece.deplacementValide(x, y, i, j)) {
+                       return true;
+                   }
+               }
+           }
+       }
+               return false;
+    }
+
+>>>>>>> origin/main
     /**
      * Crée et place une nouvelle pièce (Mode Éditeur / 8 Reines).
      */

@@ -15,6 +15,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+<<<<<<< HEAD
                 .authorizeHttpRequests((requests) -> requests
                         // 1. Ressources statiques (CSS, JS)
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
@@ -35,6 +36,16 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)
                         .permitAll()
+=======
+                .authorizeHttpRequests((requests) -> requests // Autorisation d'accès
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**","/home","/","/img/**").permitAll() // Pages publiques sans connexion
+                        .anyRequest().authenticated() // Tout le reste nécessite une connexion
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login") // URL de la page de login
+                        .defaultSuccessUrl("/home", false) // Redirection après succès
+                        .permitAll() // Accès pour tout le monde
+>>>>>>> origin/main
                 )
                 .logout((logout) -> logout.permitAll());
 
