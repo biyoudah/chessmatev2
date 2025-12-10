@@ -15,43 +15,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-<<<<<<< HEAD
                 .authorizeHttpRequests((requests) -> requests
-                        // 1. Ressources statiques (CSS, JS)
+                        // 1. Ressources statiques (CSS, JS, images, webjars)
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
 
                         // 2. Auth (Login/Register)
                         .requestMatchers("/login", "/register").permitAll()
 
-                        // 3. PAGES DU JEU (PUBLIC) : On autorise tout le monde ici
+                        // 3. Pages du jeu (publiques)
                         .requestMatchers("/", "/home", "/new", "/create", "/show", "/puzzle").permitAll()
 
-                        // 4. ACTIONS DU JEU (PUBLIC) : API et Mouvements
+                        // 4. Actions du jeu (publiques)
                         .requestMatchers("/api/puzzle", "/move", "/place", "/remove", "/reset").permitAll()
 
-                        // (Optionnel) Tout le reste nécessite une connexion
+                        // 5. Le reste nécessite une connexion
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/home", false)
                         .permitAll()
-=======
-                .authorizeHttpRequests((requests) -> requests // Autorisation d'accès
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**","/home","/","/img/**").permitAll() // Pages publiques sans connexion
-                        .anyRequest().authenticated() // Tout le reste nécessite une connexion
-                )
-                .formLogin((form) -> form
-                        .loginPage("/login") // URL de la page de login
-                        .defaultSuccessUrl("/home", false) // Redirection après succès
-                        .permitAll() // Accès pour tout le monde
->>>>>>> origin/main
                 )
                 .logout((logout) -> logout.permitAll());
-
-        // Note: Si vous aviez des erreurs 403 sur les POST sans être logué,
-        // il faudrait peut-être désactiver CSRF temporairement pour le dev,
-        // mais avec Thymeleaf forms, ça devrait aller.
 
         return http.build();
     }

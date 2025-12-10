@@ -1,6 +1,5 @@
 package fr.univlorraine.pierreludmannchessmate;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -63,43 +62,32 @@ public class ChessGame {
         Piece piece = caseDepart.getPiece();
 
         // (Optionnel) Vérifier si c'est bien au tour de cette couleur de jouer
-        // if (piece.isEstBlanc() != this.traitAuBlanc) return "MAUVAIS_TOUR";
+        // if (piece.estBlanc() != this.traitAuBlanc) return "MAUVAIS_TOUR";
 
-        // 2. Vérifier la géométrie du coup (Est-ce que cette pièce bouge comme ça ?)
+        // 2. Vérifier la géométrie du coup
         if (!piece.deplacementValide(xDepart, yDepart, xArrivee, yArrivee)) {
             return "INVALID";
         }
 
-<<<<<<< HEAD
-        // 3. Vérifier si le chemin est bloqué (Sauf pour le Cavalier qui saute)
+        // 3. Vérifier si le chemin est bloqué (sauf Cavalier)
         if (!piece.getClass().getSimpleName().equalsIgnoreCase("Cavalier")) {
             if (!cheminEstLibre(xDepart, yDepart, xArrivee, yArrivee)) {
-                return "BLOCAGE"; // Il y a une pièce sur le chemin
+                return "BLOCAGE";
             }
-=======
-        if(estMenacant(x,y,typePiece,estBlanc)){
-            return "MENACANT";
         }
 
-        // 3. Création de la pièce
-        Piece piece = creerPiece(typePiece, estBlanc);
-        if (piece == null) {
-            return "ERREUR";
->>>>>>> origin/main
-        }
-
-        // 4. Vérifier la case d'arrivée (Tir allié ?)
+        // 4. Vérifier la case d'arrivée (pièce alliée ?)
         if (!caseArrivee.isEstVide()) {
             Piece pieceCible = caseArrivee.getPiece();
             if (pieceCible.estBlanc() == piece.estBlanc()) {
                 return "AMI"; // Impossible de manger sa propre pièce
             }
-            // Sinon, c'est une capture, la pièce cible disparaitra (écrasée)
+            // Sinon capture autorisée
         }
 
         // --- EXÉCUTION DU MOUVEMENT ---
-        echiquier.placerPiece(xArrivee, yArrivee, piece); // Place la pièce à l'arrivée
-        caseDepart.setPiece(null);       // Vide le départ
+        echiquier.placerPiece(xArrivee, yArrivee, piece);
+        caseDepart.setPiece(null);
         caseDepart.setEstVide(true);
 
         // Change le trait
@@ -116,14 +104,12 @@ public class ChessGame {
         int dx = Integer.compare(x2, x1); // -1, 0, ou 1
         int dy = Integer.compare(y2, y1); // -1, 0, ou 1
 
-        // On part de la première case après le départ
         int x = x1 + dx;
         int y = y1 + dy;
 
-        // Tant qu'on n'a pas atteint la case d'arrivée
         while (x != x2 || y != y2) {
             if (!echiquier.getCase(x, y).isEstVide()) {
-                return false; // Obstacle trouvé
+                return false;
             }
             x += dx;
             y += dy;
@@ -137,7 +123,6 @@ public class ChessGame {
 
     /**
      * Initialise le plateau à partir d'une chaîne FEN.
-     * Ex: "r1bqkbnr/pppp1ppp/2n5/4p3... w KQkq - 0 1"
      */
     public void chargerDepuisFen(String fen) {
         this.reinitialiser();
@@ -152,25 +137,19 @@ public class ChessGame {
 
         String[] rangees = position.split("/");
 
-        // FEN décrit le plateau du rang 8 (haut) au rang 1 (bas)
-        // L'index 0 correspond à la ligne du haut (x=0 dans notre logique visuelle standard)
         for (int row = 0; row < 8; row++) {
             String ligne = rangees[row];
             int col = 0;
 
             for (char c : ligne.toCharArray()) {
                 if (Character.isDigit(c)) {
-                    // C'est un nombre de cases vides
                     col += Character.getNumericValue(c);
                 } else {
-                    // C'est une pièce
                     boolean estBlanc = Character.isUpperCase(c);
                     String type = getTypeFromFenChar(c);
 
                     Piece p = creerPiece(type, estBlanc);
                     if (p != null) {
-                        // Attention : row correspond souvent à l'axe vertical (X ou Y selon ton implémentation)
-                        // Ici je suppose que echiquier.placerPiece prend (Ligne, Colonne)
                         echiquier.placerPiece(row, col, p);
                     }
                     col++;
@@ -179,7 +158,6 @@ public class ChessGame {
         }
     }
 
-<<<<<<< HEAD
     private String getTypeFromFenChar(char c) {
         return switch (Character.toLowerCase(c)) {
             case 'p' -> "pion";
@@ -196,26 +174,6 @@ public class ChessGame {
     // SECTION 3 : LOGIQUE PLACEMENT LIBRE (MODE 8-REINES / CUSTOM)
     // =========================================================================
 
-=======
-    private boolean estMenacant(int x, int y, String  typePiece, boolean estBlanc) {
-       Piece newPiece = creerPiece(typePiece, estBlanc);
-
-       for (int i = 0; i < 8; i++) {
-           for (int j = 0; j < 8; j++) {
-               Case c = echiquier.getCase(i, j);
-               if (!c.isEstVide() && c.getPiece() != null) {
-
-                   // Vérifie si la nouvelle pièce peut menacer cette pièce existante
-                   if (newPiece.deplacementValide(x, y, i, j)) {
-                       return true;
-                   }
-               }
-           }
-       }
-               return false;
-    }
-
->>>>>>> origin/main
     /**
      * Crée et place une nouvelle pièce (Mode Éditeur / 8 Reines).
      */
@@ -223,10 +181,7 @@ public class ChessGame {
         Case caseDestination = echiquier.getCase(x, y);
 
         if (!caseDestination.isEstVide()) return "OCCUPEE";
-        if (estEnConflit(x, y)) return "INVALID"; // Vérifie si la case est attaquée
-
-        // Note: estMenacant vérifie si la nouvelle pièce attaque les autres
-        // if(estMenacant(x,y,typePiece,estBlanc)) return "MENACANT";
+        if (estEnConflit(x, y)) return "INVALID";
 
         Piece piece = creerPiece(typePiece, estBlanc);
         if (piece == null) return "ERREUR";
@@ -252,11 +207,7 @@ public class ChessGame {
             for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
                 if (!c.isEstVide() && c.getPiece() != null) {
-                    // On vérifie le déplacement mais on ignore les collisions pour simplifier
-                    // la logique "8 reines" pure si besoin, sinon on garde deplacementValide
                     if (c.getPiece().deplacementValide(i, j, x, y)) {
-                        // Pour être précis dans le mode 8 reines, il faudrait aussi vérifier le chemin
-                        // Mais pour l'instant on garde ça simple
                         return true;
                     }
                 }
@@ -269,7 +220,7 @@ public class ChessGame {
         if ("custom".equals(modeDeJeu)) {
             return verifier8Reines();
         }
-        return false; // TODO: Logique de résolution API (comparer avec PGN)
+        return false; // TODO : logique pour puzzle-api
     }
 
     private boolean verifier8Reines() {
@@ -287,7 +238,7 @@ public class ChessGame {
     // =========================================================================
 
     public void reinitialiser() {
-        echiquier.initialiser(); // Remet tout à zéro (vide)
+        echiquier.initialiser();
         score = 0;
         traitAuBlanc = true;
     }
@@ -318,7 +269,6 @@ public class ChessGame {
     }
 
     private Piece creerPiece(String type, boolean estBlanc) {
-        // Adapte les constructeurs selon tes classes réelles
         return switch (type.toLowerCase()) {
             case "roi" -> new Roi(estBlanc);
             case "dame" -> new Dame(estBlanc);
