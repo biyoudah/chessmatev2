@@ -1,39 +1,60 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
 <head>
-    <title>Connexion</title>
+    <meta charset="UTF-8">
+    <title>Bienvenue sur ChessMate - Page de connexion</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
+
 <body>
-<h1>Connexion</h1>
 
-<div th:if="${param.success}" style="color: green; margin-bottom: 10px;">
-    <span>L'inscription a bien été prise en compte.</span>
-</div>
+<div class="page-login">
 
-<div th:if="${param.error}" style="color: red; margin-bottom: 10px;">
-    <span>Email ou mot de passe incorrect.</span>
-</div>
+    <div class="login-card">
 
-<div th:if="${param.logout}" style="color: green; margin-bottom: 10px;">
-    <span>Vous avez été déconnecté avec succès.</span>
-</div>
+    <img th:src="@{/imG/ChessMateWithoutBackground.png}" alt="Mon logo" class="logo-login">
 
-<form th:action="@{/login}" method="post">
-    <div style="margin-top: 10px;">
-        <label for="email">Email :</label>
-        <input type="text" id="email" required name="username" placeholder="exemple@mail.com" class="form-control" />
+    <div class="login-container">
+
+        <h1>Connexion</h1>
+
+        <div th:if="${param.success}" style="color: green; margin-bottom: 10px;">
+            <span>L'inscription a bien été prise en compte.</span>
+        </div>
+
+        <div th:if="${param.error}" style="color: red; margin-bottom: 10px;">
+            <span>Email ou mot de passe incorrect.</span>
+        </div>
+
+        <div th:if="${param.logout}" class="deconnexion">
+            <span>Vous avez été déconnecté avec succès.</span>
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input type="text" id="email" required name="username" placeholder="exemple@mail.com" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" placeholder="********" class="form-control" required />
+            </div>
+
+            <button type="submit">Se connecter</button>
+
+        </form>
+
+        <p class="register-text">
+            Pas encore de compte ?
+            <a th:href="@{/register}">Inscrivez-vous ici</a>.
+        </p>
+
     </div>
 
-    <div style="margin-top: 10px;">
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" placeholder="********" class="form-control" required />
     </div>
 
-    <div style="margin-top: 20px;">
-        <button type="submit">Se connecter</button>
-    </div>
-</form>
-
-<p>Pas encore de compte ? <a th:href="@{/register}">Inscrivez-vous ici</a>.</p>
+</div>
 </body>
 </html>
