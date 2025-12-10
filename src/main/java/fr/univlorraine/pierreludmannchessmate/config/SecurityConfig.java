@@ -17,7 +17,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         // 1. Ressources statiques (CSS, JS)
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
 
                         // 2. Auth (Login/Register)
                         .requestMatchers("/login", "/register").permitAll()
