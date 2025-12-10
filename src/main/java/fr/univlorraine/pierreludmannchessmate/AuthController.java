@@ -1,12 +1,17 @@
 package fr.univlorraine.pierreludmannchessmate;
 
+import fr.univlorraine.pierreludmannchessmate.DTO.InscriptionUtilisateurDTO;
 import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
 import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; // Nécéssaire pour le GET /register
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping; // Nécéssaire pour le POST /register
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.validation.FieldError;
 
 @Controller
 public class AuthController {
@@ -26,37 +31,52 @@ public class AuthController {
     }
 
     // Affiche le formulaire d'inscription (GET)
-    // 🔑 Ajout de l'objet 'utilisateur' au modèle pour la liaison Thymeleaf (th:object="${utilisateur}")
     @GetMapping("/register")
     public String register(Model model) {
-        // Thymeleaf a besoin de cet objet vide pour construire le formulaire
-        model.addAttribute("utilisateur", new Utilisateur());
+        model.addAttribute("utilisateur", new InscriptionUtilisateurDTO());
         return "register";
     }
 
     // Traite la soumission du formulaire d'inscription (POST)
     @PostMapping("/register")
-    public String processRegistration(Utilisateur utilisateur, Model model) {
+    public String processRegistration(@Valid @ModelAttribute("utilisateur") InscriptionUtilisateurDTO registrationDto,
+                                      BindingResult bindingResult,
+                                      Model model) {
 
-        // 1. Vérification si le pseudo existe déjà
-        if (utilisateurRepository.findByEmail(utilisateur.getEmail()).isPresent()) {
-            // Rajoute l'objet 'utilisateur' et l'erreur pour que l'utilisateur puisse corriger le formulaire
-            model.addAttribute("utilisateur", utilisateur);
-            model.addAttribute("error", "Ce mail est déjà pris !");
+        // 1. Vérification si l'e-mail est déjà utilisé (Règle métier côté serveur)
+        if (utilisateurRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
+            bindingResult.addError(new FieldError(
+                    "utilisateur",
+                    "email",
+                    registrationDto.getEmail(),
+                    false,
+                    null,
+                    null,
+                    "Email déjà utilisé, veuillez changer d'email."
+            ));
+        }
+
+        // 2. Vérification des erreurs de validation JSR 380 OU de l'unicité ci-dessus
+        if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        // 2. Chiffrer le mot de passe
-        String hashedPassword = passwordEncoder.encode(utilisateur.getPassword());
-        utilisateur.setPassword(hashedPassword);
+        // 3. Enregistrement nouvel entité utilisateur
+        Utilisateur nouvelUtilisateur = new Utilisateur();
+        nouvelUtilisateur.setEmail(registrationDto.getEmail());
+        nouvelUtilisateur.setPseudo(registrationDto.getPseudo());
 
-        // 3. Définir le rôle par défaut (nécessaire pour Spring Security)
-        utilisateur.setRole("USER");
+        //4. Hachage mdp
+        nouvelUtilisateur.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
-        // 4. Sauvegarde dans la base de données
-        utilisateurRepository.save(utilisateur);
+        //5. Définition du rôle
+        nouvelUtilisateur.setRole("USER");
 
-        // 5. Rediriger vers le login avec un message de succès
-        return "redirect:/show?registered=true";
+        // 6. Sauvegarde
+        utilisateurRepository.save(nouvelUtilisateur);
+
+        // 7. Redirection vers le login avec un message de succès
+        return "redirect:/login?success";
     }
+
 }
