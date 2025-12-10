@@ -1,26 +1,36 @@
 package fr.univlorraine.pierreludmannchessmate;
 
+
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
-
 public class ChessGame {
+
     private Echiquier echiquier;
+
     @Getter
     private Joueur joueur;
-    @Setter
-    @Getter
+
+    @Getter @Setter
     private int score;
-    @Setter
-    @Getter
-    private String modeDeJeu; // "8-queens", "custom", etc.
+
+    @Getter @Setter
+    private String modeDeJeu; // "puzzle-api", "custom", etc.
+
+    @Getter @Setter
+    private String solutionPuzzle; // Stocke le PGN (la solution)
+
+    @Getter @Setter
+    private boolean traitAuBlanc; // true = aux blancs de jouer, false = noirs
+
+    // --- CONSTRUCTEURS ---
 
     public ChessGame() {
         this.echiquier = new Echiquier();
         this.joueur = new Joueur("Joueur", true);
         this.score = 0;
         this.modeDeJeu = "custom";
+        this.traitAuBlanc = true;
     }
 
     public ChessGame(String pseudo) {
@@ -28,78 +38,193 @@ public class ChessGame {
         this.joueur = new Joueur(pseudo, true);
         this.score = 0;
         this.modeDeJeu = "custom";
+        this.traitAuBlanc = true;
     }
 
-    /**
-     * Tente de placer une pièce.
-     * Retourne un code statut : "OK", "OCCUPEE", "INVALID" (conflit), ou "ERREUR".
-     */
-    public String placerPiece(int x, int y, String typePiece, boolean estBlanc) {
-        Case caseDestination = echiquier.getCase(x, y);
+    // =========================================================================
+    // SECTION 1 : LOGIQUE DE MOUVEMENT (POUR LE PUZZLE)
+    // =========================================================================
 
-        // 1. Vérifier si la case est déjà occupée
-        if (!caseDestination.isEstVide()) {
-            return "OCCUPEE";
+    /**
+     * Tente de déplacer une pièce existante du point A (depart) au point B (arrivee).
+     * Utilisé dans le mode Puzzle.
+     * @return un code statut : "OK", "VIDE", "INVALID", "BLOCAGE" ou "AMI".
+     */
+    public String deplacerPiece(int xDepart, int yDepart, int xArrivee, int yArrivee) {
+
+        Case caseDepart = echiquier.getCase(xDepart, yDepart);
+        Case caseArrivee = echiquier.getCase(xArrivee, yArrivee);
+
+        // 1. Vérifier s'il y a bien une pièce à déplacer
+        if (caseDepart.isEstVide() || caseDepart.getPiece() == null) {
+            return "VIDE";
         }
 
-        // 2. Vérifier les conflits (Si une reine attaque cette position)
-        if (estEnConflit(x, y)) {
+        Piece piece = caseDepart.getPiece();
+
+        // (Optionnel) Vérifier si c'est bien au tour de cette couleur de jouer
+        // if (piece.isEstBlanc() != this.traitAuBlanc) return "MAUVAIS_TOUR";
+
+        // 2. Vérifier la géométrie du coup (Est-ce que cette pièce bouge comme ça ?)
+        if (!piece.deplacementValide(xDepart, yDepart, xArrivee, yArrivee)) {
             return "INVALID";
         }
 
-        if(estMenacant(x,y,typePiece,estBlanc)){
-            return "MENACANT";
+        // 3. Vérifier si le chemin est bloqué (Sauf pour le Cavalier qui saute)
+        if (!piece.getClass().getSimpleName().equalsIgnoreCase("Cavalier")) {
+            if (!cheminEstLibre(xDepart, yDepart, xArrivee, yArrivee)) {
+                return "BLOCAGE"; // Il y a une pièce sur le chemin
+            }
         }
 
-        // 3. Création de la pièce
-        Piece piece = creerPiece(typePiece, estBlanc);
-        if (piece == null) {
-            return "ERREUR";
+        // 4. Vérifier la case d'arrivée (Tir allié ?)
+        if (!caseArrivee.isEstVide()) {
+            Piece pieceCible = caseArrivee.getPiece();
+            if (pieceCible.estBlanc() == piece.estBlanc()) {
+                return "AMI"; // Impossible de manger sa propre pièce
+            }
+            // Sinon, c'est une capture, la pièce cible disparaitra (écrasée)
         }
 
-        // 4. Placement effectif
-        echiquier.placerPiece(x, y, piece);
+        // --- EXÉCUTION DU MOUVEMENT ---
+        echiquier.placerPiece(xArrivee, yArrivee, piece); // Place la pièce à l'arrivée
+        caseDepart.setPiece(null);       // Vide le départ
+        caseDepart.setEstVide(true);
+
+        // Change le trait
+        this.traitAuBlanc = !this.traitAuBlanc;
+
         return "OK";
     }
 
     /**
-     * Vérifie si la position (x, y) est attaquée par une pièce déjà sur le plateau.
-     * (Logique simplifiée pour les Dames/Reines : Ligne, Colonne, Diagonale)
+     * Vérifie qu'il n'y a pas d'obstacle entre (x1,y1) et (x2,y2).
+     * Fonctionne pour les lignes droites et les diagonales.
      */
+    private boolean cheminEstLibre(int x1, int y1, int x2, int y2) {
+        int dx = Integer.compare(x2, x1); // -1, 0, ou 1
+        int dy = Integer.compare(y2, y1); // -1, 0, ou 1
+
+        // On part de la première case après le départ
+        int x = x1 + dx;
+        int y = y1 + dy;
+
+        // Tant qu'on n'a pas atteint la case d'arrivée
+        while (x != x2 || y != y2) {
+            if (!echiquier.getCase(x, y).isEstVide()) {
+                return false; // Obstacle trouvé
+            }
+            x += dx;
+            y += dy;
+        }
+        return true;
+    }
+
+    // =========================================================================
+    // SECTION 2 : LOGIQUE API CHESS.COM (FEN)
+    // =========================================================================
+
     /**
-     * Vérifie si la position cible (x, y) est menacée par une pièce existante.
-     * Utilise le polymorphisme : c'est la pièce elle-même qui calcule sa portée.
+     * Initialise le plateau à partir d'une chaîne FEN.
+     * Ex: "r1bqkbnr/pppp1ppp/2n5/4p3... w KQkq - 0 1"
+     */
+    public void chargerDepuisFen(String fen) {
+        this.reinitialiser();
+
+        String[] parties = fen.split(" ");
+        String position = parties[0];
+
+        // Gestion du trait (qui doit jouer ?)
+        if (parties.length > 1) {
+            this.traitAuBlanc = parties[1].equals("w");
+        }
+
+        String[] rangees = position.split("/");
+
+        // FEN décrit le plateau du rang 8 (haut) au rang 1 (bas)
+        // L'index 0 correspond à la ligne du haut (x=0 dans notre logique visuelle standard)
+        for (int row = 0; row < 8; row++) {
+            String ligne = rangees[row];
+            int col = 0;
+
+            for (char c : ligne.toCharArray()) {
+                if (Character.isDigit(c)) {
+                    // C'est un nombre de cases vides
+                    col += Character.getNumericValue(c);
+                } else {
+                    // C'est une pièce
+                    boolean estBlanc = Character.isUpperCase(c);
+                    String type = getTypeFromFenChar(c);
+
+                    Piece p = creerPiece(type, estBlanc);
+                    if (p != null) {
+                        // Attention : row correspond souvent à l'axe vertical (X ou Y selon ton implémentation)
+                        // Ici je suppose que echiquier.placerPiece prend (Ligne, Colonne)
+                        echiquier.placerPiece(row, col, p);
+                    }
+                    col++;
+                }
+            }
+        }
+    }
+
+    private String getTypeFromFenChar(char c) {
+        return switch (Character.toLowerCase(c)) {
+            case 'p' -> "pion";
+            case 'r' -> "tour";
+            case 'n' -> "cavalier";
+            case 'b' -> "fou";
+            case 'q' -> "dame";
+            case 'k' -> "roi";
+            default -> "pion";
+        };
+    }
+
+    // =========================================================================
+    // SECTION 3 : LOGIQUE PLACEMENT LIBRE (MODE 8-REINES / CUSTOM)
+    // =========================================================================
+
+    /**
+     * Crée et place une nouvelle pièce (Mode Éditeur / 8 Reines).
+     */
+    public String placerPiece(int x, int y, String typePiece, boolean estBlanc) {
+        Case caseDestination = echiquier.getCase(x, y);
+
+        if (!caseDestination.isEstVide()) return "OCCUPEE";
+        if (estEnConflit(x, y)) return "INVALID"; // Vérifie si la case est attaquée
+
+        // Note: estMenacant vérifie si la nouvelle pièce attaque les autres
+        // if(estMenacant(x,y,typePiece,estBlanc)) return "MENACANT";
+
+        Piece piece = creerPiece(typePiece, estBlanc);
+        if (piece == null) return "ERREUR";
+
+        echiquier.placerPiece(x, y, piece);
+        return "OK";
+    }
+
+    public boolean retirerPiece(int x, int y) {
+        Case caseSource = echiquier.getCase(x, y);
+        if (caseSource.isEstVide()) return false;
+
+        caseSource.setPiece(null);
+        caseSource.setEstVide(true);
+        return true;
+    }
+
+    /**
+     * Vérifie si la case (x, y) est menacée par une pièce existante.
      */
     private boolean estEnConflit(int x, int y) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
-
-                // S'il y a une pièce sur cette case
                 if (!c.isEstVide() && c.getPiece() != null) {
-                    Piece pieceExistante = c.getPiece();
-
-                    // On demande à la pièce spécifique (Cavalier, Dame, etc.)
-                    // si elle peut atteindre la case cible (x, y) depuis sa position (i, j).
-                    if (pieceExistante.deplacementValide(i, j, x, y)) {
-                        return true; // Conflit détecté !
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean estMenacant(int x, int y, String  typePiece, boolean estBlanc) {
-        Piece newPiece = creerPiece(typePiece, estBlanc);
-
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Case c = echiquier.getCase(i, j);
-                if (!c.isEstVide() && c.getPiece() != null) {
-
-                    // Vérifie si la nouvelle pièce peut menacer cette pièce existante
-                    if (newPiece.deplacementValide(x, y, i, j)) {
+                    // On vérifie le déplacement mais on ignore les collisions pour simplifier
+                    // la logique "8 reines" pure si besoin, sinon on garde deplacementValide
+                    if (c.getPiece().deplacementValide(i, j, x, y)) {
+                        // Pour être précis dans le mode 8 reines, il faudrait aussi vérifier le chemin
+                        // Mais pour l'instant on garde ça simple
                         return true;
                     }
                 }
@@ -108,58 +233,32 @@ public class ChessGame {
         return false;
     }
 
-    /**
-     * Retire une pièce du plateau.
-     * Retourne true si une pièce a été retirée, false si la case était déjà vide.
-     */
-    public boolean retirerPiece(int x, int y) {
-        Case caseSource = echiquier.getCase(x, y);
-
-        if (caseSource.isEstVide()) {
-            return false; // Rien à retirer
-        }
-
-        caseSource.setPiece(null);
-        caseSource.setEstVide(true);
-        return true;
-    }
-
-    /**
-     * Vérifie si la condition de victoire est atteinte.
-     */
     public boolean estPuzzleResolu() {
-        // On utilise la logique 8 reines par défaut ou si le mode est spécifié
-        // Ici je force la vérification pour que tu puisses gagner en mode "custom" aussi si tu veux
-        return verifier8Reines();
+        if ("custom".equals(modeDeJeu)) {
+            return verifier8Reines();
+        }
+        return false; // TODO: Logique de résolution API (comparer avec PGN)
     }
 
     private boolean verifier8Reines() {
-        int n = 8;
         int countDames = 0;
-
-        // Compter les dames
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (!echiquier.getCase(i, j).isEstVide()) {
-                    countDames++;
-                }
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (!echiquier.getCase(i, j).isEstVide()) countDames++;
             }
         }
-
-        // S'il n'y a pas 8 dames, ce n'est pas fini
-        if (countDames != 8) return false;
-
-        // S'il y a 8 dames, comme la méthode 'placerPiece' empêche déjà les conflits,
-        // alors c'est forcément GAGNÉ !
-        return true;
+        return countDames == 8;
     }
+
+    // =========================================================================
+    // UTILITAIRES
+    // =========================================================================
 
     public void reinitialiser() {
-        echiquier.initialiser();
+        echiquier.initialiser(); // Remet tout à zéro (vide)
         score = 0;
+        traitAuBlanc = true;
     }
-
-    // --- Méthodes utilitaires et Getters/Setters ---
 
     public String[][] getBoard() {
         String[][] board = new String[8][8];
@@ -187,15 +286,15 @@ public class ChessGame {
     }
 
     private Piece creerPiece(String type, boolean estBlanc) {
-        switch (type.toLowerCase()) {
-            case "roi": return new Roi(estBlanc);
-            case "dame": return new Dame(estBlanc);
-            case "tour": return new Tour(estBlanc);
-            case "fou": return new Fou(estBlanc);
-            case "cavalier": return new Cavalier(estBlanc);
-            case "pion": return new Pion(estBlanc);
-            default: return null;
-        }
+        // Adapte les constructeurs selon tes classes réelles
+        return switch (type.toLowerCase()) {
+            case "roi" -> new Roi(estBlanc);
+            case "dame" -> new Dame(estBlanc);
+            case "tour" -> new Tour(estBlanc);
+            case "fou" -> new Fou(estBlanc);
+            case "cavalier" -> new Cavalier(estBlanc);
+            case "pion" -> new Pion(estBlanc);
+            default -> null;
+        };
     }
-
 }
