@@ -82,6 +82,10 @@ public class ChessController {
                 }
                 break;
 
+            case "MENACANT":
+                redirAttrs.addFlashAttribute("message", "⚠️ Mauvais placement ! Cette case menace une autre pièce.");
+                break;
+
             default:
                 redirAttrs.addFlashAttribute("message", "Erreur technique lors du placement.");
         }
