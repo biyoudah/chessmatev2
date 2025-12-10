@@ -8,31 +8,45 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration // Pour configurer l'application
-@EnableWebSecurity // Active le module de sécurité web de Spring
+@Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    // Définition des règles de circulation HTTP
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((requests) -> requests // Autorisation d'accès
-                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll() // Pages publiques sans connexion
-                        .anyRequest().authenticated() // Tout le reste nécessite une connexion
+                .authorizeHttpRequests((requests) -> requests
+                        // 1. Ressources statiques (CSS, JS)
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+
+                        // 2. Auth (Login/Register)
+                        .requestMatchers("/login", "/register").permitAll()
+
+                        // 3. PAGES DU JEU (PUBLIC) : On autorise tout le monde ici
+                        .requestMatchers("/", "/home", "/new", "/create", "/show", "/puzzle").permitAll()
+
+                        // 4. ACTIONS DU JEU (PUBLIC) : API et Mouvements
+                        .requestMatchers("/api/puzzle", "/move", "/place", "/remove", "/reset").permitAll()
+
+                        // (Optionnel) Tout le reste nécessite une connexion
+                        .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
-                        .loginPage("/login") // URL de la page de login
-                        .defaultSuccessUrl("/show", true) // Redirection après succès
-                        .permitAll() // Accès pour tout le monde
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
+
+        // Note: Si vous aviez des erreurs 403 sur les POST sans être logué,
+        // il faudrait peut-être désactiver CSRF temporairement pour le dev,
+        // mais avec Thymeleaf forms, ça devrait aller.
 
         return http.build();
     }
 
-    // Définition de l'algorithme de chiffrement
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Pour chiffrer les mots de passe ("Hachage")
+        return new BCryptPasswordEncoder();
     }
 }

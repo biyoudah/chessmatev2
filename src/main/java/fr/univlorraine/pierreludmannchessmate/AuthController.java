@@ -24,6 +24,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+
     // Affiche le formulaire de connexion
     @GetMapping("/login")
     public String login() {

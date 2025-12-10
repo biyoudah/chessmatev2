@@ -2,6 +2,7 @@ package fr.univlorraine.pierreludmannchessmate;
 
 import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
 import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +16,7 @@ public class ChessController {
 
     private final UtilisateurRepository utilisateurRepository;
 
-    // Client HTTP pour Chess.com
+    // Client API Chess.com
     private final RestClient restClient = RestClient.builder()
             .baseUrl("https://api.chess.com/pub")
             .build();
@@ -24,15 +25,16 @@ public class ChessController {
         this.utilisateurRepository = utilisateurRepository;
     }
 
+    // Initialisation de la session "game"
     @ModelAttribute("game")
     ChessGame createGame() {
         return new ChessGame();
     }
 
-    // --- NAVIGATION DE BASE ---
+    // --- NAVIGATION ---
 
     @GetMapping("/")
-    String getHome() {
+    public String root() {
         return "redirect:/home";
     }
 
@@ -43,7 +45,8 @@ public class ChessController {
     }
 
     @GetMapping("/new")
-    String getNew() {
+    public String getNew(Model model, Authentication authentication) {
+        injecterInfosUtilisateur(model, authentication);
         return "new";
     }
 
@@ -53,11 +56,13 @@ public class ChessController {
     public String postCreate(@RequestParam(required = false) String pseudo,
                              @RequestParam String modeDeJeu,
                              Model model) {
-        ChessGame game = (pseudo != null && !pseudo.isEmpty()) ? new ChessGame(pseudo) : new ChessGame();
+
+        // Si pas de pseudo, on met "Invité" ou celui du constructeur par défaut
+        ChessGame game = (pseudo != null && !pseudo.isEmpty()) ? new ChessGame(pseudo) : new ChessGame("Invité");
+
         game.setModeDeJeu(modeDeJeu);
         model.addAttribute("game", game);
 
-        // Si on choisit le mode Puzzle, on redirige vers la page puzzle, sinon vers show (8 reines)
         if ("puzzle".equals(modeDeJeu)) {
             return "redirect:/puzzle";
         }
@@ -65,12 +70,13 @@ public class ChessController {
     }
 
     // =========================================================================
-    // SECTION 1 : MODE PLACEMENT (8 REINES / SHOW.HTML)
+    // MODE 8 REINES (SHOW)
     // =========================================================================
 
     @GetMapping("/show")
-    String getShow(@ModelAttribute("game") ChessGame game, Model model, Authentication authentication) {
+    public String getShow(@ModelAttribute("game") ChessGame game, Model model, Authentication authentication) {
         injecterInfosUtilisateur(model, authentication);
+
         model.addAttribute("board", game.getBoard());
         model.addAttribute("nbPieces", game.compterPieces());
         model.addAttribute("score", game.getScore());
@@ -78,16 +84,16 @@ public class ChessController {
     }
 
     @PostMapping("/place")
-    String postPlace(@RequestParam int x, @RequestParam int y, @RequestParam String pieceType,
-                     @RequestParam(defaultValue = "true") boolean estBlanc,
-                     RedirectAttributes redirAttrs, @ModelAttribute("game") ChessGame game) {
+    public String postPlace(@RequestParam int x, @RequestParam int y, @RequestParam String pieceType,
+                            @RequestParam(defaultValue = "true") boolean estBlanc,
+                            RedirectAttributes redirAttrs, @ModelAttribute("game") ChessGame game) {
 
         String resultat = game.placerPiece(x, y, pieceType, estBlanc);
         switch (resultat) {
             case "OCCUPEE" -> redirAttrs.addFlashAttribute("message", "❌ Case occupée !");
             case "INVALID" -> redirAttrs.addFlashAttribute("message", "⚠️ Case menacée !");
             case "OK" -> {
-                if (game.estPuzzleResolu()) redirAttrs.addFlashAttribute("message", "🏆 BRAVO ! 8 Reines placées !");
+                if (game.estPuzzleResolu()) redirAttrs.addFlashAttribute("message", "🏆 BRAVO ! Gagné !");
                 else redirAttrs.addFlashAttribute("message", "✅ Pièce placée.");
             }
             case "MENACANT" -> redirAttrs.addFlashAttribute("message", "⚠️ Menace une autre pièce.");
@@ -97,29 +103,27 @@ public class ChessController {
     }
 
     @PostMapping("/remove")
-    String postRemove(@RequestParam int x, @RequestParam int y,
-                      RedirectAttributes redirAttrs, @ModelAttribute("game") ChessGame game) {
+    public String postRemove(@RequestParam int x, @RequestParam int y,
+                             RedirectAttributes redirAttrs, @ModelAttribute("game") ChessGame game) {
         if (game.retirerPiece(x, y)) redirAttrs.addFlashAttribute("message", "🗑️ Pièce retirée.");
         else redirAttrs.addFlashAttribute("message", "❌ Case déjà vide.");
         return "redirect:/show";
     }
 
     // =========================================================================
-    // SECTION 2 : MODE PUZZLE API (PUZZLE.HTML) - C'EST ÇA QUI MANQUAIT
+    // MODE PUZZLE API (PUZZLE)
     // =========================================================================
 
-    // 1. Afficher la page Puzzle (GET)
     @GetMapping("/puzzle")
     public String getPuzzlePage(@ModelAttribute("game") ChessGame game, Model model, Authentication authentication) {
         injecterInfosUtilisateur(model, authentication);
+
         model.addAttribute("board", game.getBoard());
         model.addAttribute("score", game.getScore());
-        // Ajoute le trait (c'est aux blancs ou aux noirs de jouer ?)
-        model.addAttribute("traitAuBlanc", game.getJoueur().estBlanc());
+        model.addAttribute("traitAuBlanc", game.isTraitAuBlanc());
         return "puzzle";
     }
 
-    // 2. Charger un Puzzle depuis l'API (POST)
     @PostMapping("/api/puzzle")
     public String loadApiPuzzle(@ModelAttribute("game") ChessGame game, RedirectAttributes redirAttrs) {
         try {
@@ -136,9 +140,7 @@ public class ChessController {
             }
         } catch (Exception e) {
             redirAttrs.addFlashAttribute("message", "❌ Erreur API Chess.com");
-            e.printStackTrace();
         }
-        // IMPORTANT : Redirige vers /puzzle, pas /show
         return "redirect:/puzzle";
     }
 
@@ -148,58 +150,51 @@ public class ChessController {
                            RedirectAttributes redirAttrs,
                            @ModelAttribute("game") ChessGame game) {
 
-        // --- DEBUG : Affiche ce que le serveur reçoit ---
-        System.out.println("--- TENTATIVE DE MOUVEMENT ---");
-        System.out.println("Départ : (" + departX + ", " + departY + ")");
-        System.out.println("Arrivée : (" + arriveeX + ", " + arriveeY + ")");
-
-        // Vérifions ce qu'il y a sur la case de départ AVANT le move
-        // Attention : il faut que ta méthode getCase soit accessible ou passer par getBoard
-        // Ici on suppose que tu as accès à echiquier ou une méthode de debug
-        // System.out.println("Pièce détectée : " + game.getEchiquier().getCase(departX, departY).getPiece());
-
         String resultat = game.deplacerPiece(departX, departY, arriveeX, arriveeY);
-
-        System.out.println("Résultat du mouvement : " + resultat);
-        System.out.println("------------------------------");
 
         if ("OK".equals(resultat)) {
             redirAttrs.addFlashAttribute("message", "Coup joué !");
         } else {
-            // On renvoie le message d'erreur précis à l'écran
             redirAttrs.addFlashAttribute("message", "⚠️ Mouvement impossible : " + resultat);
         }
-
         return "redirect:/puzzle";
     }
-    // =========================================================================
-    // UTILITAIRES
-    // =========================================================================
 
     @PostMapping("/reset")
-    String postReset(@ModelAttribute("game") ChessGame game, RedirectAttributes attrs) {
+    public String postReset(@ModelAttribute("game") ChessGame game, RedirectAttributes attrs) {
         game.reinitialiser();
         attrs.addFlashAttribute("message", "Plateau réinitialisé.");
-        // Redirige intelligemment selon le mode actuel
-        if ("puzzle-api".equals(game.getModeDeJeu())) {
+        if ("puzzle-api".equals(game.getModeDeJeu()) || "puzzle".equals(game.getModeDeJeu())) {
             return "redirect:/puzzle";
         }
         return "redirect:/show";
     }
 
-    // Helper pour ne pas répéter le code d'authentification 4 fois
-    private void injecterInfosUtilisateur(Model model, Authentication authentication) {
-        boolean isLoggedIn = authentication != null && authentication.isAuthenticated();
-        model.addAttribute("isLoggedIn", isLoggedIn);
+    // =========================================================================
+    // MÉTHODE D'AIDE (Gère le cas connecté OU non connecté)
+    // =========================================================================
 
-        if (isLoggedIn) {
+    private void injecterInfosUtilisateur(Model model, Authentication authentication) {
+        // Vérifie si l'objet authentication existe et que ce n'est pas un utilisateur anonyme
+        if (authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken)) {
+
+            model.addAttribute("isLoggedIn", true);
             String email = authentication.getName();
-            utilisateurRepository.findByEmail(email).ifPresent(u ->
-                    model.addAttribute("pseudo", u.getPseudo())
+
+            // On récupère le pseudo depuis la BDD
+            utilisateurRepository.findByEmail(email).ifPresentOrElse(
+                    u -> model.addAttribute("pseudo", u.getPseudo()),
+                    () -> model.addAttribute("pseudo", "Utilisateur")
             );
+
+        } else {
+            // Cas NON CONNECTÉ (Invité)
+            model.addAttribute("isLoggedIn", false);
+            model.addAttribute("pseudo", "Invité 🕵️");
         }
     }
 
-    // DTO interne pour l'API JSON
+    // DTO pour l'API
     public record DailyPuzzle(String title, String fen, String pgn, String image) {}
 }
