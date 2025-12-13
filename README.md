@@ -12,10 +12,9 @@
   * **8 Tours :** Le problème classique d'indépendance des tours.
   * **14 Fous :** Optimisation du placement des fous sur les diagonales.
   * **16 Rois :** Problème de pavage maximal avec des rois.
-* **Mode Mixte :** Un défi hybride (ex: 5 Dames + 3 Cavaliers).
-* **🛠️ Mode Personnalisé :**
-  * L'utilisateur définit ses propres règles (ex: "Je veux placer 4 Dames et 2 Tours").
-  * Validation automatique de la faisabilité théorique par le serveur.
+  * **🛠️ Mode Personnalisé :**
+    * L'utilisateur définit ses propres règles (ex: "Je veux placer 4 Dames et 2 Tours").
+    * Validation automatique de la faisabilité théorique par le serveur.
 
 ### 🎮 Expérience Utilisateur (UX)
 * **Interface Réactive (AJAX) :** Toutes les actions (placer, retirer, changer de mode) se font sans recharger la page.
