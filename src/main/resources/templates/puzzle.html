@@ -48,21 +48,19 @@
 
     <div class="board-container">
         <div class="board" id="board">
+            <th:block th:each="i : ${#numbers.sequence(7, 0, -1)}">
 
-            <div th:each="i : ${#numbers.sequence(7, 0, -1)}">
                 <div th:each="j : ${#numbers.sequence(0, 7)}"
-                /* Alternance des couleurs des cases (Noir/Blanc) selon la parité */
-                th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                /* Stockage des coordonnées X,Y dans des attributs data-* pour le JS */
-                th:attr="data-x=${i}, data-y=${j}"
-                /* Affichage du symbole de la pièce */
-                th:text="${board[i][j]}"
-                /* Gestionnaire d'événement click */
-                onclick="clickPuzzleCase(this)">
-            </div>
+                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                     th:attr="data-x=${i}, data-y=${j}"
+                     onclick="clickPuzzleCase(this)"> <span th:if="${board[i][j] != ''}"
+                                                            th:text="${board[i][j]}"
+                                                            class="piece-anim">♕</span>
+                </div>
+
+            </th:block>
         </div>
     </div>
-</div>
 
 <div class="info-panel">
     <h3>Statut du Puzzle</h3>
@@ -80,7 +78,7 @@
         <p>Bravo ! +10 points.</p>
     </div>
 
-    <form method="post" action="/reset" style="margin-top: 20px;">
+    <form method="post" action="/api/puzzle" style="margin-top: 20px;">
         <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <button type="submit" class="action-btn danger">Réinitialiser le plateau</button>
     </form>

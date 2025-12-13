@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // --- CONFIGURATION DES FILTRES DE SÉCURITÉ ---
 
     /**
      * Configure la chaîne de filtres de sécurité HTTP.
@@ -32,17 +31,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        // 1. Ressources statiques (CSS, JS, images...)
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
 
-                        // 2. Auth (Login/Register)
                         .requestMatchers("/login", "/register").permitAll()
 
-                        // 3. Pages du jeu (publiques) - J'ai ajouté /home explicitement
                         .requestMatchers("/", "/home", "/new", "/create", "/show", "/puzzle").permitAll()
 
-                        // 4. Actions du jeu (publiques) - C'EST ICI QU'IL MANQUAIT DES CHOSES
-                        // J'ai ajouté "/changeMode" et "/customConfig"
                         .requestMatchers("/api/puzzle", "/move", "/place", "/remove", "/reset", "/changeMode", "/customConfig").permitAll()
 
                         // 5. Le reste nécessite une connexion
@@ -61,7 +55,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- ENCODAGE DES MOTS DE PASSE ---
 
     /**
      * Fournit un encodeur de mot de passe pour l'application.
