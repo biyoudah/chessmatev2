@@ -1,89 +1,97 @@
-/**
- * Styles de l'interface du jeu ChessMate
- * Cette feuille de style définit l'apparence de l'interface du jeu d'échecs,
- * y compris le plateau, les contrôles et le système de notification.
+/*
+ * Styles de l'Interface de Jeu (ChessMate)
+ *
+ * Ce fichier définit l'apparence visuelle du plateau d'échecs, des panneaux
+ * de contrôle latéraux et du système de notifications (Toasts).
+ * Il gère également l'adaptation complexe du plateau pour les écrans mobiles.
  */
 
-/* Styles de base pour la page */
+
+/* Styles de base de la page */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     text-align: center;
-    background-color: #f4f4f9;
+    background-color: #f4f4f9;      /* Gris très clair pour réduire la fatigue visuelle */
     margin: 0;
     padding: 20px;
     color: #333;
 }
 
-/* Disposition du conteneur principal */
+/*
+ * Conteneur principal (Layout).
+ * Utilise Flexbox pour aligner le plateau (gauche) et les contrôles (droite).
+ * 'flex-wrap: wrap' permet aux éléments de passer à la ligne sur petits écrans.
+ */
 .container {
     display: flex;
     justify-content: center;
     gap: 20px;
-    align-items: flex-start;
+    align-items: flex-start;        /* Aligne les éléments en haut */
     flex-wrap: wrap;
     margin-top: 20px;
 }
 
-/**
- * ===================================
- * STYLES DU PLATEAU D'ÉCHECS
- * ===================================
- */
+
+/* Cadre entourant le plateau (bords boisés) */
 .board-container {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    border: 5px solid #4a3c31;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* Ombre portée pour effet de relief */
+    border: 5px solid #4a3c31;      /* Bordure couleur bois sombre */
     border-radius: 4px;
     background: #333;
 }
 
-/* Disposition en grille pour le plateau d'échecs 8x8 */
+/*
+ * Grille du plateau (8x8).
+ * Utilise CSS Grid pour générer parfaitement les 64 cases.
+ */
 .board {
     display: grid;
-    grid-template-columns: repeat(8, 60px);
-    grid-template-rows: repeat(8, 60px);
+    grid-template-columns: repeat(8, 60px); /* 8 colonnes de 60px */
+    grid-template-rows: repeat(8, 60px);    /* 8 lignes de 60px */
 }
 
-/* Style des cases individuelles du plateau */
+/* Style unitaire d'une case */
 .case {
     width: 60px;
     height: 60px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 45px;
+    align-items: center;            /* Centre la pièce verticalement */
+    justify-content: center;        /* Centre la pièce horizontalement */
+    font-size: 45px;                /* Taille de l'icône de la pièce */
     cursor: pointer;
-    user-select: none;
+    user-select: none;              /* Empêche la sélection de texte lors du clic */
 }
 
-/* Couleurs des cases du plateau */
-.case.white { 
-    background-color: #f0d9b5; 
-    color: black; 
+/* --- Thème de couleurs des cases --- */
+
+.case.white {
+    background-color: #f0d9b5;      /* Beige clair */
+    color: black;
 }
-.case.black { 
-    background-color: #b58863; 
-    color: black; 
+.case.black {
+    background-color: #b58863;      /* Marron bois */
+    color: black;
 }
 
-/* Effet de survol pour les cases du plateau */
-.case:hover { 
-    opacity: 0.8; 
+/* Indication visuelle au survol de la souris */
+.case:hover {
+    opacity: 0.8;
 }
 
-/* Animation pour le placement des pièces */
-.piece-anim { 
-    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-}
-@keyframes popIn { 
-    0% { transform: scale(0); } 
-    100% { transform: scale(1); } 
+/* --- Animations --- */
+
+/* Animation d'apparition "Pop" pour les pièces lorsqu'elles sont placées */
+.piece-anim {
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/**
- * ===================================
- * PANNEAUX DE CONTRÔLE
- * ===================================
- */
+@keyframes popIn {
+    0% { transform: scale(0); }     /* Départ : invisible (taille 0) */
+    100% { transform: scale(1); }   /* Fin : taille normale */
+}
+
+
+/* Conteneur générique pour les sélecteurs et infos */
 .piece-selector, .info-panel {
     background: white;
     padding: 20px;
@@ -93,15 +101,15 @@ body {
     text-align: left;
 }
 
-/* Grille des boutons de sélection des pièces */
+/* Grille pour les boutons de choix de pièces (Roi, Dame, etc.) */
 .piece-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* 3 boutons par ligne */
     gap: 8px;
     margin: 15px 0;
 }
 
-/* Boutons individuels de sélection des pièces */
+/* Bouton individuel de pièce */
 .piece-btn {
     padding: 10px;
     font-size: 28px;
@@ -111,20 +119,24 @@ body {
     border-radius: 8px;
     transition: all 0.1s;
 }
-.piece-btn:hover { 
-    background: #f0f0f0; 
-} /* Effet de survol pour les boutons de pièces */
 
-/* Style de l'état sélectionné (surbrillance verte) */
+.piece-btn:hover {
+    background: #f0f0f0;
+}
+
+/*
+ * État "Sélectionné" (Feedback visuel).
+ * Applique une bordure verte et une légère augmentation de taille.
+ */
 .piece-btn.selected, .color-btn.selected, .action-btn.selected {
-    background-color: #d1fae5 !important;
-    border-color: #10b981 !important;
+    background-color: #d1fae5 !important;   /* Vert très pâle */
+    border-color: #10b981 !important;       /* Vert vif */
     color: #065f46;
-    transform: scale(1.05);
+    transform: scale(1.05);                 /* Zoom léger */
     box-shadow: 0 0 5px rgba(16, 185, 129, 0.4);
 }
 
-/* Boutons de sélection de couleur */
+/* Boutons de bascule de couleur (Blanc/Noir) */
 .color-btn {
     padding: 8px 15px;
     margin-right: 5px;
@@ -134,7 +146,7 @@ body {
     border-radius: 5px;
 }
 
-/* Boutons d'action (placer/retirer) */
+/* Boutons d'action globaux (Placer, Retirer, Vider) */
 .action-btn {
     width: 100%;
     padding: 12px;
@@ -146,11 +158,8 @@ body {
     background: #e5e7eb;
 }
 
-/**
- * ===================================
- * CUSTOM CONFIGURATION PANEL
- * ===================================
- */
+
+/* Panneau flottant pour les réglages avancés */
 #customConfigPanel {
     background: #fff;
     padding: 15px;
@@ -159,53 +168,49 @@ body {
     margin-top: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     position: relative;
-    z-index: 100;
+    z-index: 100;           /* S'assure qu'il apparait au-dessus des autres éléments */
 }
 
-/* Input groups for custom piece configuration */
+/* Groupes d'inputs pour la configuration */
 .custom-input-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
 }
-.custom-input-group input { 
-    width: 50px; 
-    text-align: center; 
-    padding: 4px; 
+
+.custom-input-group input {
+    width: 50px;
+    text-align: center;
+    padding: 4px;
 }
 
-/**
- * ===================================
- * TOAST NOTIFICATION SYSTEM
- * ===================================
- */
+/* Conteneur fixe pour empiler les notifications */
 #toast-container {
     position: fixed;
-    /* Positioned at the bottom center of the screen */
-    bottom: 80px;
-    left: 50%;
+    bottom: 80px;           /* Positionné en bas */
+    left: 50%;              /* Centré horizontalement */
     transform: translateX(-50%);
-    z-index: 9999;
+    z-index: 9999;          /* Toujours au premier plan */
 
     display: flex;
-    flex-direction: column-reverse; /* New messages appear at the bottom of the stack */
+    flex-direction: column-reverse; /* Les nouveaux messages apparaissent en bas de la pile */
     gap: 10px;
     align-items: center;
 }
 
-/* Toast notification styling */
+/* Style de la notification individuelle */
 .toast {
     background: #333;
     color: white;
     padding: 12px 24px;
-    border-radius: 50px;
+    border-radius: 50px;    /* Forme de pilule */
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     font-weight: 600;
     font-size: 1rem;
-    opacity: 0;
+    opacity: 0;             /* Invisible au départ pour l'animation */
 
-    /* Animation sequence: slide up and fade in, then fade out */
+    /* Séquence d'animation : Monte -> Reste -> Disparait après 3s */
     animation: slideUpFade 0.4s forwards, fadeOut 0.4s forwards 3s;
 
     display: flex;
@@ -215,59 +220,30 @@ body {
     justify-content: center;
 }
 
-/* Toast notification types */
-.toast.success { background-color: #10b981; } /* Green */
-.toast.error { background-color: #ef4444; }   /* Red */
-.toast.warning { background-color: #f59e0b; } /* Orange */
+/* Variantes de couleurs selon le type de message */
+.toast.success { background-color: #10b981; } /* Vert (Succès) */
+.toast.error { background-color: #ef4444; }   /* Rouge (Erreur) */
+.toast.warning { background-color: #f59e0b; } /* Orange (Attention) */
 
-/* Toast animations */
+/* Keyframes pour l'apparition des Toasts */
 @keyframes slideUpFade {
     0% { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
 
+/* Keyframes pour la disparition */
 @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; visibility: hidden; }
 }
 
-/**
- * ===================================
- * RESPONSIVE DESIGN
- * ===================================
+
+/*
+ * Adaptation pour Tablettes (max 768px).
+ * Passe d'une disposition horizontale à verticale.
  */
-
-/* Tablet devices (768px and below) */
 @media screen and (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .piece-selector, .info-panel {
-        width: 90%;
-        max-width: 400px;
-        margin-bottom: 20px;
-    }
-
-    .board {
-        grid-template-columns: repeat(8, 50px);
-        grid-template-rows: repeat(8, 50px);
-    }
-
-    .case {
-        width: 50px;
-        height: 50px;
-        font-size: 38px;
-    }
-}
-
-/* ==========================================================================
-   RESPONSIVE : SHOW.CSS (Plateau de jeu)
-   ========================================================================== */
-
-@media screen and (max-width: 768px) {
-    /* Réorganisation : Plateau au-dessus, panneaux de contrôle en dessous */
+    /* Le conteneur passe en colonne : Plateau en haut, contrôles en dessous */
     .container {
         flex-direction: column;
         align-items: center;
@@ -275,26 +251,42 @@ body {
         margin-top: 10px;
     }
 
-    /* Les panneaux de contrôle prennent toute la largeur disponible */
+    /* Les panneaux de contrôle s'élargissent */
     .piece-selector, .info-panel {
-        width: 95%;
+        width: 90%;
         max-width: none;
         box-sizing: border-box;
+        margin-bottom: 20px;
     }
 
-    /* Grille de sélection des pièces plus large (6 colonnes pour gagner de la hauteur) */
+    /* Réduction légère de la taille des cases */
+    .board {
+        grid-template-columns: repeat(8, 50px);
+        grid-template-rows: repeat(8, 50px);
+    }
+    .case {
+        width: 50px;
+        height: 50px;
+        font-size: 38px;
+    }
+
+    /* Grille de sélection des pièces plus large pour gagner de la hauteur */
     .piece-buttons {
         grid-template-columns: repeat(6, 1fr);
     }
 }
 
+/*
+ * Adaptation pour Mobiles (max 480px).
+ * Mode "Strict" où la taille des cases dépend de la largeur de l'écran (Viewport Width).
+ */
 @media screen and (max-width: 480px) {
-    /* --- MODE MOBILE STRICT --- */
 
-    /* Calcul dynamique de la taille du plateau */
-    /* On utilise 'vw' (Viewport Width). 11vw = 11% de la largeur de l'écran par case */
-    /* 11% * 8 cases = 88% de l'écran utilisé + les bordures */
-
+    /*
+     * Calcul dynamique de la taille du plateau.
+     * Utilisation de l'unité 'vw' (Viewport Width).
+     * 11vw * 8 cases = 88% de la largeur de l'écran utilisée.
+     */
     .board {
         grid-template-columns: repeat(8, 11vw);
         grid-template-rows: repeat(8, 11vw);
@@ -303,10 +295,10 @@ body {
     .case {
         width: 11vw;
         height: 11vw;
-        font-size: 24px; /* Réduit la taille des icônes (pions/rois...) */
+        font-size: 24px; /* Réduit la taille des icônes pour qu'elles rentrent */
     }
 
-    /* Retour à 3 colonnes pour les boutons de pièces car l'écran est étroit */
+    /* Retour à 3 colonnes pour les boutons car l'écran est trop étroit pour 6 */
     .piece-buttons {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -316,7 +308,7 @@ body {
         padding: 8px;
     }
 
-    /* Ajustement des notifications (Toasts) */
+    /* Repositionnement des notifications sur mobile */
     #toast-container {
         bottom: 20px;
         width: 90%;

@@ -1,50 +1,40 @@
 <!DOCTYPE html>
-<!-- 
-  ChessMate Application - Home Page
-  This is the main landing page for the ChessMate chess application.
-  It features a sidebar navigation with links to different sections of the app.
--->
 <html lang="fr"
-      xmlns:th="http://www.thymeleaf.org">
-
-<head>
+      xmlns:th="http://www.thymeleaf.org"> <head>
   <meta charset="UTF-8">
-  <!-- Viewport meta tag for responsive design -->
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Accueil</title>
-  <!-- Font Awesome for icons -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <!-- Custom CSS for home page -->
+
   <link rel="stylesheet" th:href="@{/css/home.css}">
 </head>
 
 <body>
-<!-- Sidebar navigation -->
+
 <div class="sidebar">
-  <!-- Logo section -->
+
   <div class="logo">
     <img src="img/ChessMate.png" alt="Chessmate">
     <span>Chessmate</span>
   </div>
 
-  <!-- Navigation links -->
   <a href="/show"><i class="fa fa-chess-board"></i> Jouer</a>
   <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
   <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
   <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
   <a href="#"><i class="fa fa-ellipsis-h"></i> Plus</a>
 
-  <!-- Authentication section -->
-  <!-- Display for non-logged in users -->
   <div th:if="${!isLoggedIn}">
     <a href="/register"><button class="green-btn">Créer un compte</button></a>
     <a href="/login"><button class="grey-btn">Se connecter</button></a>
   </div>
 
-  <!-- Display for logged in users -->
   <div th:if="${isLoggedIn}" class="welcome-box">
     <p><strong>Bienvenue</strong> <span th:text="${pseudo}">Pseudo</span></p>
   </div>
+
 </div>
 </body>
 </html>

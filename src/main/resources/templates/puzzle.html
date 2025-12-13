@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Chessmate - Mode Puzzle</title>
+
     <link rel="stylesheet" th:href="@{/css/show.css}">
+
     <style>
-        /* CSS spécifique pour le mode puzzle */
+
         .case {
-            cursor: pointer; /* Indique qu'on peut cliquer */
+            cursor: pointer;
         }
 
-        /* Quand une case est sélectionnée (1er clic) */
+
         .case.selected-start {
-            background-color: rgba(255, 215, 0, 0.7) !important; /* Jaune */
+            background-color: rgba(255, 215, 0, 0.7) !important; /* Jaune doré semi-transparent */
             box-shadow: inset 0 0 10px #b8860b;
             border: 2px solid orange;
         }
 
-        /* Message de succès */
         .message.success {
             background-color: #d4edda;
             color: #155724;
@@ -28,12 +29,13 @@
     </style>
 </head>
 <body>
-<h1>🧠 Chessmate - Puzzle du Jour ♟</h1>
+<h1>🧠 Chessmate - Puzzle Aléatoire ♟</h1>
 
 <div th:if="${message}" class="message" th:text="${message}"
      style="text-align:center; padding:10px; margin:10px; background:#333; color:white; border-radius:5px;"></div>
 
 <div class="action-buttons-container" style="margin-bottom: 20px; text-align: center;">
+
     <form action="/api/puzzle" method="post" style="display:inline;">
         <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
         <button type="submit" class="btn btn-warning">🧩 Charger un Nouveau Puzzle</button>
@@ -46,38 +48,43 @@
 
     <div class="board-container">
         <div class="board" id="board">
+
             <div th:each="i : ${#numbers.sequence(7, 0, -1)}">
                 <div th:each="j : ${#numbers.sequence(0, 7)}"
-                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                     th:attr="data-x=${i}, data-y=${j}"
-                     th:text="${board[i][j]}"
-                     onclick="clickPuzzleCase(this)">
-                </div>
+                /* Alternance des couleurs des cases (Noir/Blanc) selon la parité */
+                th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                /* Stockage des coordonnées X,Y dans des attributs data-* pour le JS */
+                th:attr="data-x=${i}, data-y=${j}"
+                /* Affichage du symbole de la pièce */
+                th:text="${board[i][j]}"
+                /* Gestionnaire d'événement click */
+                onclick="clickPuzzleCase(this)">
             </div>
         </div>
     </div>
+</div>
 
-    <div class="info-panel">
-        <h3>Statut du Puzzle</h3>
-        <p><strong>Joueur :</strong> <span th:text="${pseudo}"></span></p>
+<div class="info-panel">
+    <h3>Statut du Puzzle</h3>
+    <p><strong>Joueur :</strong> <span th:text="${pseudo}"></span></p>
 
-        <p><strong>Au trait :</strong>
-            <span th:if="${traitAuBlanc}" style="color:blue; font-weight:bold;">BLANCS ⚪</span>
-            <span th:unless="${traitAuBlanc}" style="color:red; font-weight:bold;">NOIRS ⚫</span>
-        </p>
+    <p><strong>Au trait :</strong>
+        <span th:if="${traitAuBlanc}" style="color:blue; font-weight:bold;">BLANCS ⚪</span>
+        <span th:unless="${traitAuBlanc}" style="color:red; font-weight:bold;">NOIRS ⚫</span>
+    </p>
 
-        <p style="margin-top: 20px;"><strong>Objectif :</strong> Trouvez le meilleur coup !</p>
+    <p style="margin-top: 20px;"><strong>Objectif :</strong> Trouvez le meilleur coup !</p>
 
-        <div th:if="${game.estPuzzleResolu()}" class="message success">
-            <h2>🎉 Puzzle Résolu !</h2>
-            <p>Bravo ! +10 points.</p>
-        </div>
-
-        <form method="post" action="/reset" style="margin-top: 20px;">
-            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit" class="action-btn danger">Réinitialiser le plateau</button>
-        </form>
+    <div th:if="${game.estPuzzleResolu()}" class="message success">
+        <h2>🎉 Puzzle Résolu !</h2>
+        <p>Bravo ! +10 points.</p>
     </div>
+
+    <form method="post" action="/reset" style="margin-top: 20px;">
+        <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit" class="action-btn danger">Réinitialiser le plateau</button>
+    </form>
+</div>
 </div>
 
 <form method="post" action="/move" id="moveForm">
@@ -91,56 +98,49 @@
 </form>
 
 <script>
-    // Variable pour mémoriser la case de départ (clic 1)
     let startCase = null;
 
     /**
-     * Gestion des clics :
-     * 1er clic = Sélection (Départ)
-     * 2ème clic = Action (Arrivée)
+     * Gestionnaire de clics pour le puzzle.
+     * Implémente une logique en deux étapes :
+     * 1. Sélection (highlight jaune)
+     * 2. Action (Déplacement et soumission)
+     *
+     * @param {HTMLElement} element - L'élément DOM de la case cliquée.
      */
     function clickPuzzleCase(element) {
-        // Récupère les coordonnées depuis les attributs data-x et data-y
         const x = element.getAttribute('data-x');
         const y = element.getAttribute('data-y');
 
-        // --- CLIC 1 : SÉLECTION ---
         if (startCase === null) {
-            // On ne peut sélectionner qu'une case qui contient une pièce (texte non vide)
+
             if (element.textContent.trim() !== '') {
                 startCase = element;
-                element.classList.add('selected-start'); // Ajoute le style jaune
+                element.classList.add('selected-start'); // Feedback visuel pour l'utilisateur
             } else {
-                // Optionnel : ne rien faire si on clique sur du vide
+                // Ignore les clics sur les cases vides si aucune pièce n'est sélectionnée
                 console.log("Clic sur case vide ignoré");
             }
         }
-        // --- CLIC 2 : DÉPLACEMENT ---
         else {
-            // Récupère les coords de la case de départ mémorisée
             const departX = startCase.getAttribute('data-x');
             const departY = startCase.getAttribute('data-y');
 
-            // Les coords de la case actuelle (destination)
             const arriveeX = x;
             const arriveeY = y;
 
-            // Nettoyage visuel
             startCase.classList.remove('selected-start');
             startCase = null;
 
-            // Si on a cliqué deux fois sur la même case, on annule juste la sélection
             if (departX === arriveeX && departY === arriveeY) {
                 return;
             }
 
-            // Remplissage du formulaire caché
             document.getElementById('departX').value = departX;
             document.getElementById('departY').value = departY;
             document.getElementById('arriveeX').value = arriveeX;
             document.getElementById('arriveeY').value = arriveeY;
 
-            // Envoi au serveur
             document.getElementById('moveForm').submit();
         }
     }

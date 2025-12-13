@@ -1,96 +1,124 @@
-/* 
+/*
  * ChessMate Application Styles
- * Main stylesheet for the sidebar navigation and home page
+ *
+ * Feuille de style principale pour l'interface de navigation de l'application.
+ * Ce fichier gère la barre latérale (Sidebar) pour les écrans de bureau
+ * et sa transformation en barre supérieure (Topbar) pour les mobiles.
  */
 
-/* Base styles for the sidebar navigation */
+/*
+ * Conteneur principal de la barre latérale.
+ *
+ * Positionnée de manière fixe sur la gauche de l'écran avec une hauteur minimale
+ * couvrant toute la fenêtre (100vh). Utilise Flexbox pour aligner verticalement
+ * les éléments (Logo, Recherche, Liens).
+ */
 .sidebar {
-    background: #23231f;
-    width: 220px;
+    background: #23231f;           /* Fond sombre principal */
+    width: 220px;                  /* Largeur fixe sur Desktop */
     min-height: 100vh;
     padding: 18px 0;
-    position: fixed;
+    position: fixed;               /* Reste visible lors du défilement */
     font-family: 'Segoe UI', sans-serif;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: column;        /* Empilement vertical des éléments */
+    align-items: center;           /* Centrage horizontal du contenu */
 }
 
-/* Logo container styling */
+/* --- Section Logo --- */
+
+/* Conteneur du logo et du titre */
 .logo {
     display: flex;
     align-items: center;
     margin-bottom: 24px;
 }
 
-/* Logo image styling */
+/* Image/Icône du logo */
 .logo img {
     width: 32px;
     margin-right: 7px;
 }
 
-/* Logo text styling */
+/* Typographie du nom de l'application */
 .logo span {
     color: #fff;
     font-size: 20px;
     font-weight: bold;
 }
 
-/* Navigation links styling */
+/* --- Navigation --- */
+
+/*
+ * Liens de navigation du menu.
+ *
+ * Définit l'apparence des boutons de menu (Tableau de bord, Profil, etc.).
+ * Inclut une transition douce pour l'effet de survol.
+ */
 .sidebar a {
     color: #fff;
     text-decoration: none;
     width: 85%;
-    padding: 13px 0 13px 15px;
+    padding: 13px 0 13px 15px;     /* Espace interne pour le clic */
     margin: 3px 0;
-    border-radius: 8px;
+    border-radius: 8px;            /* Coins arrondis */
     font-size: 15px;
     display: flex;
     align-items: center;
-    transition: background 0.18s;
+    transition: background 0.18s;  /* Animation fluide du background */
 }
 
-/* Icon styling within navigation links */
+/* Icônes FontAwesome ou similaires dans les liens */
 .sidebar a i {
     margin-right: 14px;
     font-size: 19px;
 }
 
-/* Hover effect for navigation links */
+/* Changement d'apparence au survol de la souris */
 .sidebar a:hover {
-    background: #333329;
+    background: #333329;           /* Éclaircissement léger du fond */
 }
 
-/* Search container styling */
+/* --- Barre de Recherche --- */
+
+/*
+ * Conteneur de la recherche.
+ * Utilise Flexbox pour coller le champ de saisie et le bouton.
+ */
 .search-container {
     display: flex;
-    gap: 0;
+    gap: 0;                        /* Pas d'espace entre l'input et le bouton */
     margin: 16px 0 10px 0;
     width: 85%;
 }
 
-/* Search input field styling */
+/* Champ de saisie texte */
 .search-container input {
-    flex: 1;
+    flex: 1;                       /* Prend tout l'espace disponible restant */
     padding: 8px 10px;
     border: none;
-    border-radius: 6px 0 0 6px;
+    border-radius: 6px 0 0 6px;    /* Arrondi uniquement à gauche */
     background: #353533;
     color: #fff;
     font-size: 14px;
 }
 
-/* Search button styling */
+/* Bouton de validation de recherche */
 .search-container button {
     background: #353533;
     border: none;
     color: #03224c;
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 6px 6px 0;    /* Arrondi uniquement à droite */
     padding: 0 12px;
     cursor: pointer;
 }
 
-/* Primary action button (green) */
+/* --- Boutons d'Action --- */
+
+/*
+ * Bouton d'action principale (ex: "Jouer", "Nouveau Défi").
+ * Malgré le nom de classe 'green-btn', la couleur appliquée est un bleu profond (#03224c).
+ */
 .green-btn {
     margin: 10px 0 6px 0;
     padding: 13px 0;
@@ -105,12 +133,14 @@
     transition: background 0.15s;
 }
 
-/* Hover effect for primary action button */
 .green-btn:hover {
-    background: #1e3f5a;
+    background: #1e3f5a;           /* Éclaircissement au survol */
 }
 
-/* Secondary action button (grey) */
+/*
+ * Bouton d'action secondaire (ex: "Paramètres", "Annuler").
+ * Style plus discret avec bordure fine.
+ */
 .grey-btn {
     margin-bottom: 8px;
     padding: 11px 0;
@@ -122,15 +152,14 @@
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    border: 1px solid #444;
+    border: 1px solid #444;        /* Bordure subtile */
 }
 
-/* Hover effect for secondary action button */
 .grey-btn:hover {
     background: #353533;
 }
 
-/* Welcome box for logged-in users */
+/* Message de bienvenue ou statut utilisateur */
 .welcome-box {
     color: #ffffff;
     text-align: center;
@@ -138,9 +167,11 @@
     width: 85%;
 }
 
-/* Media Queries for Responsive Design */
 
-/* Tablet devices (768px and up) */
+/*
+ * Ajustements intermédiaires pour Tablettes.
+ * Réduit légèrement la largeur de la sidebar pour les écrans moyens.
+ */
 @media screen and (max-width: 768px) {
     .sidebar {
         width: 180px;
@@ -155,52 +186,58 @@
     }
 }
 
+/*
+ * Transformation Mobile (Sidebar -> Topbar).
+ *
+ * Pour les petits écrans (Tablettes mode portrait et Mobiles),
+ * la barre latérale verticale devient une barre de navigation horizontale
+ * située en haut de page pour optimiser l'espace de jeu.
+ */
 @media screen and (max-width: 768px) {
-    /* Transformation de la Sidebar verticale en Topbar horizontale */
+    /* Reconfiguration du conteneur principal */
     .sidebar {
-        width: 100%;          /* Prend toute la largeur */
-        height: auto;         /* Hauteur automatique selon le contenu */
-        min-height: auto;
-        position: relative;   /* N'est plus fixée, suit le flux de la page */
+        width: 100%;          /* Prend toute la largeur de l'écran */
+        height: auto;         /* Hauteur dynamique selon le contenu */
+        min-height: auto;     /* Annule la hauteur min de 100vh */
+        position: relative;   /* Rentre dans le flux normal du document */
         padding: 10px 0;
 
-        /* Flexbox pour aligner le contenu horizontalement */
+        /* Passage en Flexbox horizontal (Row) */
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap;      /* Permet aux boutons de passer à la ligne */
+        flex-wrap: wrap;      /* Permet aux éléments de passer à la ligne si nécessaire */
         justify-content: center;
-        z-index: 1000;
+        z-index: 1000;        /* Assure que la nav reste au-dessus du contenu */
     }
 
-    /* Gestion du logo en haut de page */
+    /* Le logo prend toute la largeur de la première ligne */
     .logo {
         width: 100%;
         justify-content: center;
         margin-bottom: 10px;
     }
 
-    /* Les liens deviennent des petits boutons côte à côte */
+    /* Transformation des liens en boutons "pilules" horizontaux */
     .sidebar a {
-        width: auto;          /* Largeur s'adapte au texte */
-        margin: 5px;          /* Petit espace entre les boutons */
+        width: auto;          /* Largeur adaptative au texte */
+        margin: 5px;
         padding: 8px 15px;
-        border-radius: 20px;  /* Forme arrondie */
-        background: #353533;  /* Fond gris pour les distinguer */
+        border-radius: 20px;  /* Style très arrondi */
+        background: #353533;  /* Fond visible pour distinguer les boutons */
         justify-content: center;
     }
 
     .sidebar a i {
-        margin-right: 8px;    /* Réduit l'espace icône/texte */
+        margin-right: 8px;
     }
 
-    /* Adaptation de la barre de recherche */
+    /* Centrage de la barre de recherche */
     .search-container {
         width: 90%;
         margin: 10px auto;
     }
 
-    /* On cache les boutons d'action secondaires sur mobile pour gagner de la place */
-    /* (Optionnel : supprimez ces lignes si vous voulez garder les boutons verts/gris) */
+    /* Masquage des éléments non essentiels sur mobile pour gagner de la place */
     .green-btn, .grey-btn, .welcome-box {
         display: none;
     }

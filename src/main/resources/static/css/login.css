@@ -1,17 +1,34 @@
-body {         /*arrière-plan*/
-    height: 100vh;
+/*
+ * Styles de la page de Connexion (Login)
+ *
+ * Ce fichier gère la mise en page spécifique à l'écran d'authentification.
+ * Il inclut un fond complexe en pur CSS (motif damier), le centrage de la
+ * carte de connexion et l'adaptation mobile.
+ */
+
+/*
+ * Style du corps de la page (Body).
+ *
+ * Définit un conteneur Flexbox pleine page pour centrer parfaitement
+ * le formulaire de connexion au milieu de l'écran.
+ * Génère également un motif de damier (checkerboard) via des dégradés CSS.
+ */
+body {
+    height: 100vh;                  /* Occupe toute la hauteur de la fenêtre */
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center;        /* Centrage horizontal */
+    align-items: center;            /* Centrage vertical */
 
-    /* couleurs des cases */
-    --case1: rgba(205, 204, 204, 0.95);  /*gris*/
-    --case2: #839ab3; /*bleu*/
+    /* -- Variables de couleurs pour le motif damier -- */
+    --case1: rgba(205, 204, 204, 0.95);  /* Gris clair */
+    --case2: #839ab3;                    /* Bleu gris */
 
+    /* Application du fond */
     background-color: var(--case1);
     background-image:
+        /* Première couche du motif (carrés) */
             linear-gradient(45deg,
             var(--case2) 25%,
             transparent 25%,
@@ -19,6 +36,7 @@ body {         /*arrière-plan*/
             var(--case2) 75%,
             var(--case2) 100%
             ),
+                /* Deuxième couche décalée pour compléter le damier */
             linear-gradient(45deg,
             var(--case2) 25%,
             var(--case1) 25%,
@@ -26,86 +44,116 @@ body {         /*arrière-plan*/
             var(--case2) 75%,
             var(--case2) 100%
             );
-    background-size: 210px 210px;          /* taille des cases*/
-    background-position: 0 0, 105px 105px; /* décale la deuxième couche pour l’effet damier mette moitié taille cases */
-
+    background-size: 210px 210px;          /* Taille globale d'un motif complet (4 cases) */
+    background-position: 0 0, 105px 105px; /* Décalage de la 2e couche (moitié de la taille) */
 }
 
+/*
+ * Conteneur principal de la page de login.
+ * Sert à aligner verticalement le logo et la carte de formulaire.
+ */
 .page-login {
     display: flex;
     flex-direction: column;
-    align-items: center;    /* centre logo et container de connexion*/
+    align-items: center;
 }
 
-.login-card {       /*container logo+connexion*/
+/*
+ * Carte externe (gris clair).
+ *
+ * Contient le logo et le conteneur du formulaire.
+ * Donne l'effet "popup" avec une ombre portée et des bords arrondis.
+ */
+.login-card {
     background-color: #cacaca;
-    /* haut | droite/gauche | bas */
+    /* Padding: haut | droite/gauche | bas */
     padding: 20px 44px 44px;
     border-radius: 18px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); /* Ombre douce */
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 460px;
-    max-width: 90vw;
+    max-width: 90vw; /* Sécurité pour ne pas dépasser la largeur d'écran */
 }
 
-.login-container {     /*container pour formulaire de connexion*/
+/*
+ * Conteneur interne du formulaire (fond sombre).
+ * C'est la zone noire où l'utilisateur saisit ses infos.
+ */
+.login-container {
     background: #2b2b2b;
     padding: 30px 30px;
     border-radius: 14px;
-    box-shadow: 0 2px 20px #000100;
+    box-shadow: 0 2px 20px #000100; /* Ombre forte pour détacher du fond gris */
     min-width: 350px;
     max-width: 400px;
     width: 100%;
     margin-top: 10px;
 }
 
+/* Logo affiché au-dessus du formulaire */
+.logo-login {
+    display: block;
+    margin-bottom: 2px;
+    width: 260px;
+    height: auto;
+}
 
-.login-container h1 {    /*titre Connexion*/
+/* Titre "Connexion" */
+.login-container h1 {
     color: #fff;
     text-align: center;
     margin-bottom: 30px;
     font-size: 3em;
 }
 
+/* Messages de retour (Erreur ou Succès/Déconnexion) */
 .message-erreur {
     color: red;
     margin-bottom: 10px;
 }
 
 .deconnexion {
-    color: #005a00;
+    color: #005a00; /* Vert foncé */
     margin-bottom: 10px;
 }
 
-.form-group {           /*intitulés e-mail et mdp*/
+/* Groupe contenant label et input */
+.form-group {
     margin-top: 18px;
     color: #fff;
 }
 
-.form-control {          /*champs de saisie*/
+/*
+ * Champs de saisie (Input).
+ * Style sombre pour correspondre au thème "Dark Mode" du formulaire.
+ */
+.form-control {
     width: 100%;
     padding: 12px 14px;
     border-radius: 6px;
     border: 1px solid #444;
     background: #393939;
     color: #ddd;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Inclut padding et border dans la largeur totale */
     font-size: 1em;
     margin-top: 4px;
     margin-bottom: 4px;
 }
 
-
-.form-control:focus {    /*quand un champ de saisie est actif*/
-    outline: none;
-    background: #5a5a5a;
+/* État actif du champ de saisie (Focus) */
+.form-control:focus {
+    outline: none;       /* Supprime le contour bleu par défaut du navigateur */
+    background: #5a5a5a; /* Éclaircit légèrement le fond */
     color: #fff;
 }
 
-
-button[type="submit"] {         /*bouton “Se connecter”*/
+/*
+ * Bouton de soumission (Se connecter).
+ * Style bleu vif avec effet de relief (box-shadow).
+ */
+button[type="submit"] {
     background: #0542c8;
     border: none;
     border-radius: 8px;
@@ -114,67 +162,72 @@ button[type="submit"] {         /*bouton “Se connecter”*/
     font-size: 1.25em;
     padding: 14px 0;
     width: 100%;
-    box-shadow: 0 2px 0 #042c84;
+    box-shadow: 0 2px 0 #042c84; /* Bordure inférieure pour effet 3D */
     cursor: pointer;
     margin-top: 14px;
     transition: background 0.2s;
 }
 
-button[type="submit"]:hover {          /*quand bouton "Se connecter" est survolé*/
-    background: #0639a8;
+/* Survol du bouton */
+button[type="submit"]:hover {
+    background: #0639a8; /* Bleu plus foncé */
 }
 
-.logo-login {           /*logo*/
-    display: block;
-    margin-bottom: 2px;
-    width: 260px;
-    height: auto;
-}
+/* =========================================
+   Liens et Pied de page
+   ========================================= */
 
-.register-text {        /*texte pas encore de compte ?*/
+/* Texte "Pas encore de compte ?" */
+.register-text {
     color: #717171;
     margin-top: 16px;
 }
 
+/* États du lien d'inscription */
 .register-text a:link {
-    color: #bbbbbb;           /* gris clair si jamais visité*/
+    color: #bbbbbb;           /* Gris clair par défaut */
 }
 
 .register-text a:visited {
-    color: #0066ff;           /* bleu si déjà visité au moins 1 fois*/
+    color: #0066ff;           /* Bleu si déjà cliqué */
 }
 
 .register-text a:hover {
-    color: #ffffff;           /*blanc au survol */
+    color: #ffffff;           /* Blanc brillant au survol */
     text-decoration: underline;
 }
+
+/*
+ * Adaptation pour les écrans de moins de 600px.
+ * Maximise l'espace utilisé par le formulaire et améliore l'ergonomie tactile.
+ */
 @media screen and (max-width: 600px) {
-    /* La carte de connexion prend presque toute la largeur disponible */
+    /* La carte de connexion s'élargit pour remplir l'écran mobile */
     .login-card {
         width: 92%;
-        padding: 20px 15px;   /* Réduit l'espacement interne */
-        max-width: none;      /* Annule la limite fixe en pixels */
+        padding: 20px 15px;   /* Réduit les marges internes latérales */
+        max-width: none;
     }
 
-    /* Le conteneur noir à l'intérieur s'adapte aussi */
+    /* Le conteneur noir interne s'adapte en conséquence */
     .login-container {
-        min-width: auto;      /* Permet de rétrécir en dessous de 350px */
+        min-width: auto;      /* Supprime la largeur min pour éviter le débordement */
         padding: 20px 15px;
         box-sizing: border-box;
     }
 
-    /* Réduction de la taille du titre */
+    /* Réduction de la typographie pour les petits écrans */
     .login-container h1 {
         font-size: 2em;
         margin-bottom: 20px;
     }
 
-    /* Réduction du logo pour qu'il ne prenne pas trop de place */
+    /* Ajustement de la taille du logo */
     .logo-login {
         width: 180px;
     }
 
-    /* Bouton de connexion plus facile à cliquer (plus haut) */
+    /* Agrandissement de la zone tactile du bouton pour le doigt */
     button[type="submit"] {
         padding: 16px 0;
         font-size: 1.1em;

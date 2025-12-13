@@ -19,22 +19,20 @@
 
             <h1>Connexion</h1>
 
-            <!-- message succès inscription -->
             <div th:if="${param.success}" style="color: green; margin-bottom: 10px;">
                 <span>L'inscription a bien été prise en compte.</span>
             </div>
 
-            <!-- message erreur login -->
             <div th:if="${param.error}" class="message-erreur" style="color: red; margin-bottom: 10px;">
                 <span>Email ou mot de passe incorrect.</span>
             </div>
 
-            <!-- message logout -->
             <div th:if="${param.logout}" class="deconnexion">
                 <span>Vous avez été déconnecté avec succès.</span>
             </div>
 
             <form th:action="@{/login}" method="post">
+
                 <div class="form-group">
                     <label for="username">Email :</label>
                     <input id="username" name="username" type="text"

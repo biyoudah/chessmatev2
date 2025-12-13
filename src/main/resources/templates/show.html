@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Chessmate - Puzzle</title>
+
     <link rel="stylesheet" th:href="@{/css/show.css}">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♟️</text></svg>">
 </head>
 <body>
@@ -29,7 +31,6 @@
             <button class="piece-btn" data-piece="cavalier" onclick="selectPiece(this)">♘</button>
             <button class="piece-btn" data-piece="tour" onclick="selectPiece(this)">♖</button>
             <button class="piece-btn" data-piece="roi" onclick="selectPiece(this)">♔</button>
-            <button class="piece-btn" data-piece="pion" onclick="selectPiece(this)">♙</button>
             <button class="piece-btn" data-piece="fou" onclick="selectPiece(this)">♗</button>
         </div>
 
@@ -50,68 +51,70 @@
         <div class="board" id="board">
             <div th:each="i : ${#numbers.sequence(7, 0, -1)}">
                 <div th:each="j : ${#numbers.sequence(0, 7)}"
-                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                     th:attr="data-x=${i}, data-y=${j}"
-                     onclick="clickCase(this)">
-                    <span th:if="${board[i][j] != ''}" th:text="${board[i][j]}" class="piece-anim">♕</span>
-                </div>
-            </div>
-        </div>
-    </div>
+                /* Calcul de la couleur de la case (Noir/Blanc) basé sur la parité des indices */
+                th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                /* Stockage des coordonnées pour le clic */
+                th:attr="data-x=${i}, data-y=${j}"
+                onclick="clickCase(this)">
 
-    <div class="info-panel">
-        <h3>Informations</h3>
-        <p><strong>Joueur :</strong> <span th:text="${pseudo}">Invité</span></p>
-
-        <div class="objectives-box">
-            <h4>Objectifs :</h4>
-            <ul th:if="${not #maps.isEmpty(configRequise)}">
-                <li th:each="obj : ${configRequise}">
-                    <strong th:text="${obj.key}">Type</strong> :
-                    <span th:class="${compteActuel[obj.key] == obj.value} ? 'count-ok' : 'count-nok'">
-                        <span th:text="${compteActuel[obj.key] ?: 0}">0</span> / <span th:text="${obj.value}">8</span>
-                    </span>
-                    <span th:if="${compteActuel[obj.key] > obj.value}" style="color:red; font-size:0.8em;">(Trop!)</span>
-                </li>
-            </ul>
-            <p th:if="${#maps.isEmpty(configRequise)}">Aucun objectif.</p>
-        </div>
-
-        <div class="controls-box">
-            <form method="post" action="/reset">
-                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" class="action-btn warning" style="background:#f59e0b; color:white;">Réinitialiser</button>
-            </form>
-            <hr>
-
-            <label for="modeSelect"><strong>Mode de jeu :</strong></label>
-            <select id="modeSelect" onchange="changeMode(this)" style="width:100%; padding:8px; margin-bottom:5px; border-radius:5px;">
-                <option value="8-dames" th:selected="${game.modeDeJeu == '8-dames'}">8 Dames</option>
-                <option value="8-tours" th:selected="${game.modeDeJeu == '8-tours'}">8 Tours</option>
-                <option value="14-fous" th:selected="${game.modeDeJeu == '14-fous'}">14 Fous</option>
-                <option value="16-rois" th:selected="${game.modeDeJeu == '16-rois'}">16 Rois</option>
-                <option value="custom" th:selected="${game.modeDeJeu == 'custom'}">🛠️ Personnaliser...</option>
-            </select>
-
-            <div id="customConfigPanel" style="display:none;">
-                <h4 style="margin-top:0; font-size:0.9em;">Votre composition :</h4>
-                <div class="custom-input-group"><label>♕ Dames</label> <input type="number" id="c_dame" min="0" max="64" value="0"></div>
-                <div class="custom-input-group"><label>♖ Tours</label> <input type="number" id="c_tour" min="0" max="64" value="0"></div>
-                <div class="custom-input-group"><label>♗ Fous</label> <input type="number" id="c_fou" min="0" max="64" value="0"></div>
-                <div class="custom-input-group"><label>♘ Cavaliers</label> <input type="number" id="c_cavalier" min="0" max="64" value="0"></div>
-                <div class="custom-input-group"><label>♔ Rois</label> <input type="number" id="c_roi" min="0" max="64" value="0"></div>
-
-                <button class="action-btn" onclick="submitCustomConfig()" style="background:#2196F3; color:white; margin-top:10px;">Valider</button>
-                <button class="action-btn danger" onclick="cancelCustom()" style="margin-top:5px; font-size:0.8em;">Annuler</button>
+                <span th:if="${board[i][j] != ''}" th:text="${board[i][j]}" class="piece-anim">♕</span>
             </div>
         </div>
     </div>
 </div>
 
+<div class="info-panel">
+    <h3>Informations</h3>
+    <p><strong>Joueur :</strong> <span th:text="${pseudo}">Invité</span></p>
+
+    <div class="objectives-box">
+        <h4>Objectifs :</h4>
+        <ul th:if="${not #maps.isEmpty(configRequise)}">
+            <li th:each="obj : ${configRequise}">
+                <strong th:text="${obj.key}">Type</strong> :
+                <span th:class="${compteActuel[obj.key] == obj.value} ? 'count-ok' : 'count-nok'">
+                        <span th:text="${compteActuel[obj.key] ?: 0}">0</span> / <span th:text="${obj.value}">8</span>
+                    </span>
+                <span th:if="${compteActuel[obj.key] > obj.value}" style="color:red; font-size:0.8em;">(Trop!)</span>
+            </li>
+        </ul>
+        <p th:if="${#maps.isEmpty(configRequise)}">Aucun objectif.</p>
+    </div>
+
+    <div class="controls-box">
+        <form method="post" action="/reset">
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="action-btn warning" style="background:#f59e0b; color:white;">Réinitialiser</button>
+        </form>
+        <hr>
+
+        <label for="modeSelect"><strong>Mode de jeu :</strong></label>
+        <select id="modeSelect" onchange="changeMode(this)" style="width:100%; padding:8px; margin-bottom:5px; border-radius:5px;">
+            <option value="8-dames" th:selected="${game.modeDeJeu == '8-dames'}">8 Dames</option>
+            <option value="8-tours" th:selected="${game.modeDeJeu == '8-tours'}">8 Tours</option>
+            <option value="14-fous" th:selected="${game.modeDeJeu == '14-fous'}">14 Fous</option>
+            <option value="16-rois" th:selected="${game.modeDeJeu == '16-rois'}">16 Rois</option>
+            <option value="custom" th:selected="${game.modeDeJeu == 'custom'}">🛠️ Personnaliser...</option>
+        </select>
+
+        <div id="customConfigPanel" style="display:none;">
+            <h4 style="margin-top:0; font-size:0.9em;">Votre composition :</h4>
+            <div class="custom-input-group"><label>♕ Dames</label> <input type="number" id="c_dame" min="0" max="64" value="0"></div>
+            <div class="custom-input-group"><label>♖ Tours</label> <input type="number" id="c_tour" min="0" max="64" value="0"></div>
+            <div class="custom-input-group"><label>♗ Fous</label> <input type="number" id="c_fou" min="0" max="64" value="0"></div>
+            <div class="custom-input-group"><label>♘ Cavaliers</label> <input type="number" id="c_cavalier" min="0" max="64" value="0"></div>
+            <div class="custom-input-group"><label>♔ Rois</label> <input type="number" id="c_roi" min="0" max="64" value="0"></div>
+
+            <button class="action-btn" onclick="submitCustomConfig()" style="background:#2196F3; color:white; margin-top:10px;">Valider</button>
+            <button class="action-btn danger" onclick="cancelCustom()" style="margin-top:5px; font-size:0.8em;">Annuler</button>
+        </div>
+    </div>
+</div>
+</div>
+
 <script th:src="@{/js/show.js}"></script>
 
 <style>
-    /* CSS d'ajustement local */
     .custom-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
     .custom-input-group label { font-size: 0.9em; }
     .custom-input-group input { width: 50px; padding: 2px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }

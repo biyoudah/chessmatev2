@@ -1,226 +1,205 @@
 /**
- * ChessMate Game Interface Script
- * This script handles the interactive chess game interface, including piece placement,
- * board interaction, game mode selection, and communication with the server.
+ * Script de l'Interface de Jeu (ChessMate)
+ *
+ * Ce script pilote toute la logique côté client de la page de jeu.
+ * Il gère les interactions avec le plateau, la sélection des pièces,
+ * la communication asynchrone (AJAX/Fetch) avec le serveur Spring Boot,
+ * et la persistance des préférences utilisateur.
  */
 
 /**
- * Global application state
- * Manages the current state of the game interface with localStorage persistence
- * for user preferences across sessions.
+ * État global de l'application.
+ *
+ * Stocke les préférences de l'utilisateur (pièce sélectionnée, couleur, mode)
+ * et utilise le `localStorage` pour les conserver même après un rafraîchissement de page.
  */
 let appState = {
-    piece: localStorage.getItem('chessPiece') || 'dame',  // Selected chess piece type
-    isWhite: localStorage.getItem('chessColor') !== 'false',  // Selected piece color (white/black)
-    mode: localStorage.getItem('chessMode') || 'place',  // Current interaction mode (place/remove)
-    isLoading: false  // Flag to prevent multiple simultaneous requests
+    piece: localStorage.getItem('chessPiece') || 'dame',      // Type de pièce actif (ex: 'dame')
+    isWhite: localStorage.getItem('chessColor') !== 'false',  // Couleur active (true = blanc)
+    mode: localStorage.getItem('chessMode') || 'place',       // Mode d'interaction ('place' ou 'remove')
+    isLoading: false  // Verrou pour empêcher les requêtes simultanées (anti-spam clic)
 };
 
 /**
- * Initialize the game interface when the DOM is fully loaded
+ * Point d'entrée : Initialisation au chargement de la page.
  */
 document.addEventListener("DOMContentLoaded", () => {
-    // Update the UI to reflect the current state
+    // Applique les états visuels (boutons sélectionnés) selon les préférences stockées
     updateVisuals();
-    // Check for any server messages that need to be displayed
+    // Vérifie s'il y a des messages du serveur (succès/erreur) à afficher immédiatement
     checkServerMessage();
 });
 
 /**
- * ===================================
- * UI INTERACTION FUNCTIONS
- * ===================================
- */
-
-/**
- * Selects a chess piece type when a piece button is clicked
- * 
- * @param {HTMLElement} btn - The button element that was clicked
+ * Gère le clic sur un bouton de sélection de pièce.
+ *
+ * @param {HTMLElement} btn - L'élément bouton cliqué.
  */
 function selectPiece(btn) {
-    // Update the selected piece in the application state
+    // Met à jour l'état interne
     appState.piece = btn.getAttribute('data-piece');
-    // Save the selection to localStorage for persistence
+    // Persistance
     localStorage.setItem('chessPiece', appState.piece);
-    // Automatically switch to 'place' mode when selecting a piece
+    // Bascule automatiquement en mode "Placer" pour une meilleure UX
     setModePlace();
 }
 
 /**
- * Selects a piece color (white or black) when a color button is clicked
- * 
- * @param {HTMLElement} btn - The button element that was clicked
+ * Gère le clic sur un bouton de sélection de couleur.
+ *
+ * @param {HTMLElement} btn - L'élément bouton cliqué.
  */
 function selectColor(btn) {
-    // Update the selected color in the application state
     appState.isWhite = btn.getAttribute('data-color') === 'true';
-    // Save the selection to localStorage for persistence
     localStorage.setItem('chessColor', appState.isWhite);
-    // Update the UI to reflect the new color selection
     updateVisuals();
 }
 
 /**
- * Sets the interaction mode to 'place' (for placing pieces on the board)
+ * Active le mode "Placer une pièce".
  */
 function setModePlace() {
-    // Update the mode in the application state
     appState.mode = 'place';
-    // Save the mode to localStorage for persistence
     localStorage.setItem('chessMode', 'place');
-    // Update the UI to reflect the new mode
     updateVisuals();
 }
 
 /**
- * Sets the interaction mode to 'remove' (for removing pieces from the board)
+ * Active le mode "Retirer une pièce".
  */
 function setModeRemove() {
-    // Update the mode in the application state
     appState.mode = 'remove';
-    // Save the mode to localStorage for persistence
     localStorage.setItem('chessMode', 'remove');
-    // Update the UI to reflect the new mode
     updateVisuals();
 }
 
 /**
- * Updates the visual state of UI elements based on the current application state
- * This includes highlighting selected pieces, colors, and modes
+ * Met à jour l'apparence des boutons de contrôle.
+ *
+ * Parcourt tous les boutons (pièces, couleurs, modes) et ajoute/retire
+ * la classe CSS 'selected' en fonction de l'état actuel `appState`.
  */
 function updateVisuals() {
-    // Update piece selection buttons
+    // Gestion des boutons de pièces
     document.querySelectorAll('.piece-btn').forEach(btn => {
         if (btn.getAttribute('data-piece') === appState.piece) btn.classList.add('selected');
         else btn.classList.remove('selected');
     });
 
-    // Update color selection buttons
+    // Gestion des boutons de couleur
     document.querySelectorAll('.color-btn').forEach(btn => {
         if ((btn.getAttribute('data-color') === 'true') === appState.isWhite) btn.classList.add('selected');
         else btn.classList.remove('selected');
     });
 
-    // Update mode selection buttons
+    // Gestion des boutons de mode (Placer vs Retirer)
     const btnPlace = document.getElementById('modePlace');
     const btnRemove = document.getElementById('modeRemove');
     if (btnPlace && btnRemove) {
-        if (appState.mode === 'place') { 
-            btnPlace.classList.add('selected'); 
-            btnRemove.classList.remove('selected'); 
-        } else { 
-            btnRemove.classList.add('selected'); 
-            btnPlace.classList.remove('selected'); 
+        if (appState.mode === 'place') {
+            btnPlace.classList.add('selected');
+            btnRemove.classList.remove('selected');
+        } else {
+            btnRemove.classList.add('selected');
+            btnPlace.classList.remove('selected');
         }
     }
 }
 
 /**
- * ===================================
- * BOARD INTERACTION & SERVER COMMUNICATION
- * ===================================
- */
-
-/**
- * Handles a click on a chess board square
- * Sends the appropriate request to the server based on the current mode
- * 
- * @param {HTMLElement} caseElem - The board square element that was clicked
+ * Gère le clic sur une case du plateau d'échecs.
+ *
+ * Cette fonction construit une requête POST vers le serveur pour appliquer
+ * l'action (placer ou retirer) sans recharger la page.
+ *
+ * @param {HTMLElement} caseElem - L'élément DOM de la case cliquée.
  */
 async function clickCase(caseElem) {
-    // Prevent multiple simultaneous requests
+    // Protection contre les doubles clics rapides
     if (appState.isLoading) return;
 
-    // Get the coordinates of the clicked square
+    // Récupération des données contextuelles
     const x = caseElem.getAttribute('data-x');
     const y = caseElem.getAttribute('data-y');
+    // Récupération du token CSRF (sécurité Spring Security obligatoire pour les POST)
     const csrfToken = document.querySelector('input[name="_csrf"]').value;
 
-    // Prepare the form data to send to the server
+    // Préparation des données du formulaire
     const formData = new FormData();
     formData.append('_csrf', csrfToken);
     formData.append('x', x);
     formData.append('y', y);
 
-    // Determine the endpoint based on the current mode
+    // Détermination de l'endpoint API selon le mode
     let url = (appState.mode === 'place') ? '/place' : '/remove';
 
-    // Add additional data for piece placement
+    // Ajout des infos spécifiques si on place une pièce
     if (appState.mode === 'place') {
         formData.append('pieceType', appState.piece);
         formData.append('estBlanc', appState.isWhite);
     }
 
-    // Set loading state and visual feedback
+    // Feedback visuel immédiat (la case s'assombrit)
     appState.isLoading = true;
     caseElem.style.opacity = '0.5';
 
     try {
-        // Send the request to the server
+        // Envoi asynchrone
         const response = await fetch(url, { method: 'POST', body: formData });
+        // Si succès, on met à jour le HTML de la page
         if (response.ok) await updatePageContent(response);
-    } catch (e) { 
-        console.error('Error during board interaction:', e); 
+    } catch (e) {
+        console.error('Erreur lors de l\'interaction avec le plateau:', e);
     } finally {
-        // Reset loading state and visual feedback
+        // Nettoyage de l'état
         appState.isLoading = false;
         caseElem.style.opacity = '1';
     }
 }
 
 /**
- * ===================================
- * GAME MODE MANAGEMENT
- * ===================================
- */
-
-/**
- * Changes the game mode based on the selected option
- * 
- * @param {HTMLSelectElement} selectElem - The select element containing the mode options
+ * Gère le changement de mode via le menu déroulant (Select).
+ *
+ * @param {HTMLSelectElement} selectElem - L'élément <select> modifié.
  */
 async function changeMode(selectElem) {
     const val = selectElem.value;
 
-    // Handle custom mode selection
+    // Cas spécial : Mode personnalisé (ouvre une modale/panneau)
     if (val === 'custom') {
         document.getElementById('customConfigPanel').style.display = 'block';
-        selectElem.disabled = true;
+        selectElem.disabled = true; // Empêche de changer pendant la config
         return;
     }
 
-    // Prepare the form data for mode change
+    // Cas standard : Changement de défi (ex: 8 Reines, Cavaliers...)
     const csrfToken = document.querySelector('input[name="_csrf"]').value;
     const formData = new FormData();
     formData.append('_csrf', csrfToken);
     formData.append('modeDeJeu', val);
 
-    // Visual feedback during mode change
+    // Feedback visuel global
     document.querySelector('.container').style.opacity = '0.6';
 
     try {
-        // Send the mode change request to the server
         const response = await fetch('/changeMode', { method: 'POST', body: formData });
         if (response.ok) await updatePageContent(response);
-    } catch (e) { 
-        console.error('Error changing game mode:', e); 
-    } finally { 
-        // Reset visual feedback
-        document.querySelector('.container').style.opacity = '1'; 
+    } catch (e) {
+        console.error('Erreur changement de mode:', e);
+    } finally {
+        document.querySelector('.container').style.opacity = '1';
     }
 }
 
 /**
- * Submits custom game configuration to the server
+ * Soumet la configuration personnalisée (nombre de pièces max).
  */
 async function submitCustomConfig() {
-    // Prepare the form data with custom configuration
     const csrfToken = document.querySelector('input[name="_csrf"]').value;
     const formData = new FormData();
     formData.append('_csrf', csrfToken);
 
-    // Add each piece configuration value
-    // IMPORTANT: The field names must match what the server controller expects
+    // Récupération des valeurs des inputs (IMPORTANT : doit correspondre au Controller Java)
     formData.append('dame', document.getElementById('c_dame').value);
     formData.append('tour', document.getElementById('c_tour').value);
     formData.append('fou', document.getElementById('c_fou').value);
@@ -228,104 +207,93 @@ async function submitCustomConfig() {
     formData.append('roi', document.getElementById('c_roi').value);
 
     try {
-        // Send the custom configuration to the server
         const response = await fetch('/customConfig', { method: 'POST', body: formData });
         if (response.ok) {
             await updatePageContent(response);
 
-            // Check if there was an error in the response
+            // Vérification s'il y a une erreur renvoyée par le serveur
             const errorMsg = document.getElementById('server-data-message');
 
-            // If there's an error, keep the panel open for correction
+            // Si erreur, on laisse le panneau ouvert pour correction
             if (errorMsg && errorMsg.dataset.type === 'error') {
-                // Do nothing, user needs to correct the input
+                // Ne rien faire, l'utilisateur doit corriger
             } else {
-                // Success: close the custom configuration panel
+                // Succès : on ferme le panneau
                 cancelCustom();
             }
         }
-    } catch (e) { 
-        console.error('Error submitting custom configuration:', e); 
+    } catch (e) {
+        console.error('Erreur config custom:', e);
     }
 }
 
 /**
- * Cancels custom mode configuration and closes the panel
+ * Annule la configuration personnalisée et ferme le panneau.
  */
 function cancelCustom() {
-    // Hide the custom configuration panel
     document.getElementById('customConfigPanel').style.display = 'none';
-    // Re-enable the mode selection dropdown
     const select = document.getElementById('modeSelect');
     select.disabled = false;
-    // Note: The select will visually remain on "Custom" if the server validated the change
+    // Note : Le select reste visuellement sur "Custom" si le serveur a validé le changement
 }
 
 /**
- * ===================================
- * DOM UPDATES & NOTIFICATIONS
- * ===================================
- */
-
-/**
- * Updates the page content based on the server response
- * 
- * @param {Response} response - The fetch response from the server
+ * Met à jour le contenu de la page dynamiquement.
+ *
+ * Cette fonction simule une SPA (Single Page Application) en remplaçant
+ * uniquement les parties modifiées du HTML (le plateau et le panneau d'infos)
+ * à partir de la réponse complète renvoyée par le serveur.
+ *
+ * @param {Response} response - La réponse fetch brute du serveur.
  */
 async function updatePageContent(response) {
-    // Parse the HTML response
+    // Conversion de la réponse texte en document HTML virtuel
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    // 1. Replace the chess board
+    // 1. Remplacement à chaud du plateau de jeu
     document.querySelector('.board-container').innerHTML = doc.querySelector('.board-container').innerHTML;
 
-    // 2. Replace the info panel (contains objectives and mode selector)
+    // 2. Remplacement du panneau d'informations (Objectifs, Compteurs)
     document.querySelector('.info-panel').innerHTML = doc.querySelector('.info-panel').innerHTML;
 
-    // 3. Process any server messages
+    // 3. Traitement des messages flash (Toast)
     const messageData = doc.getElementById('server-data-message');
     if (messageData) {
         showToast(messageData.dataset.msg, messageData.dataset.type);
     }
 
-    // 4. Restore the visual state (selected buttons) after HTML changes
+    // 4. Réapplication des états visuels (car le HTML a été écrasé)
     updateVisuals();
 }
 
 /**
- * Checks for server messages on page load and displays them as toasts
+ * Vérifie la présence de messages serveur au chargement initial.
+ * (Utilisé pour les redirections ou chargements de page classiques).
  */
 function checkServerMessage() {
     const messageData = document.getElementById('server-data-message');
     if (messageData) {
         showToast(messageData.dataset.msg, messageData.dataset.type);
-        messageData.remove();
+        messageData.remove(); // Nettoyage pour ne pas réafficher
     }
 }
 
 /**
- * ===================================
- * TOAST NOTIFICATION SYSTEM
- * ===================================
- */
-
-/**
- * Displays a toast notification message
- * 
- * @param {string} message - The message to display
- * @param {string} type - The type of message (success, error, info, etc.)
+ * Affiche une notification flottante (Toast).
+ *
+ * @param {string} message - Le texte à afficher.
+ * @param {string} type - Le type de message ('success', 'error', 'warning').
  */
 function showToast(message, type) {
     if (!message) return;
 
-    // Create and append the toast element
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    toast.className = `toast ${type}`; // ex: class="toast success"
     toast.innerText = message;
     container.appendChild(toast);
 
-    // Automatically remove the toast after a delay
+    // Suppression automatique après 3.5 secondes
     setTimeout(() => { toast.remove(); }, 3500);
 }
