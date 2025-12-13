@@ -1,10 +1,10 @@
-# ♟️ ChessMate - Puzzle Solver
+# ♟️ ChessMate - Puzzle Solver (Work In Progress)
 
 **ChessMate** est une application web interactive de résolution de puzzles d'échecs. Elle se concentre sur des problèmes de logique combinatoire et de placement (comme le problème des N-Dames), permettant aux utilisateurs de résoudre des défis classiques ou de créer leurs propres configurations.
 
 ![Aperçu de ChessMate](src/main/resources/static/img/ChessMateWithoutBackground.png)
 
-## 🚀 Fonctionnalités
+## 🚀 Fonctionnalités (pour le moment...)
 
 ### 🧩 Modes de Jeu Variés
 * **Les Classiques :**
