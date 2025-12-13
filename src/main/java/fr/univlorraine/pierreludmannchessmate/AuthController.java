@@ -13,32 +13,67 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.validation.FieldError;
 
+/**
+ * Contrôleur de gestion de l'authentification.
+ * Cette classe gère les fonctionnalités liées à l'authentification des utilisateurs,
+ * notamment l'affichage des formulaires de connexion et d'inscription,
+ * ainsi que le traitement des demandes d'inscription.
+ */
 @Controller
 public class AuthController {
+
+    // --- INJECTION DE DÉPENDANCES ---
 
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Constructeur avec injection des dépendances nécessaires.
+     * 
+     * @param utilisateurRepository Repository pour accéder aux données des utilisateurs
+     * @param passwordEncoder Encodeur pour le hachage des mots de passe
+     */
     public AuthController(UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder) {
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
 
-    // Affiche le formulaire de connexion
+    // --- GESTION DE L'AUTHENTIFICATION ---
+
+    /**
+     * Affiche le formulaire de connexion.
+     * 
+     * @return Le nom de la vue à afficher
+     */
     @GetMapping("/login")
     public String login() {
         return "login";
     }
 
-    // Affiche le formulaire d'inscription (GET)
+    /**
+     * Affiche le formulaire d'inscription.
+     * Initialise un nouvel objet DTO pour le formulaire.
+     * 
+     * @param model Le modèle pour la vue
+     * @return Le nom de la vue à afficher
+     */
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("utilisateur", new InscriptionUtilisateurDTO());
         return "register";
     }
 
-    // Traite la soumission du formulaire d'inscription (POST)
+    /**
+     * Traite la soumission du formulaire d'inscription.
+     * Vérifie la validité des données, l'unicité de l'email,
+     * puis crée un nouvel utilisateur avec les informations fournies.
+     * 
+     * @param registrationDto DTO contenant les informations d'inscription
+     * @param bindingResult Résultat de la validation des données
+     * @param model Le modèle pour la vue
+     * @return Redirection vers la page de connexion en cas de succès, ou retour au formulaire en cas d'erreur
+     */
     @PostMapping("/register")
     public String processRegistration(@Valid @ModelAttribute("utilisateur") InscriptionUtilisateurDTO registrationDto,
                                       BindingResult bindingResult,

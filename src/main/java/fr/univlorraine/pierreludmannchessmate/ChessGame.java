@@ -3,6 +3,18 @@ package fr.univlorraine.pierreludmannchessmate;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Classe principale représentant une partie d'échecs.
+ * Cette classe gère la logique du jeu, notamment le placement des pièces,
+ * la vérification des règles (pièces qui s'attaquent), et la validation
+ * des configurations de puzzle (comme le problème des 8 dames).
+ * Elle maintient l'état du plateau et les règles du mode de jeu actuel.
+ */
 public class ChessGame {
 
     private Echiquier echiquier;
@@ -14,174 +26,72 @@ public class ChessGame {
     private int score;
 
     @Getter @Setter
-    private String modeDeJeu; // "puzzle-api", "custom", etc.
+    private String modeDeJeu;
 
     @Getter @Setter
-    private String solutionPuzzle; // Stocke le PGN (la solution)
+    private boolean traitAuBlanc;
 
     @Getter @Setter
-    private boolean traitAuBlanc; // true = aux blancs de jouer, false = noirs
+    private Map<String, Integer> configurationRequise;
 
     // --- CONSTRUCTEURS ---
 
+    /**
+     * Constructeur par défaut.
+     * Initialise une nouvelle partie avec un échiquier vide, un joueur par défaut,
+     * et le mode de jeu "8-dames" (problème des 8 dames).
+     */
     public ChessGame() {
         this.echiquier = new Echiquier();
         this.joueur = new Joueur("Joueur", true);
         this.score = 0;
-        this.modeDeJeu = "custom";
+        this.modeDeJeu = "8-dames"; // Par défaut
         this.traitAuBlanc = true;
+        this.configurationRequise = new HashMap<>();
+        this.configurationRequise.put("Dame", 8);
     }
 
+    /**
+     * Constructeur avec pseudo du joueur.
+     * Initialise une nouvelle partie avec un échiquier vide et le pseudo spécifié.
+     * 
+     * @param pseudo Le pseudo du joueur
+     */
     public ChessGame(String pseudo) {
-        this.echiquier = new Echiquier();
+        this();
         this.joueur = new Joueur(pseudo, true);
-        this.score = 0;
-        this.modeDeJeu = "custom";
-        this.traitAuBlanc = true;
     }
 
-    // =========================================================================
-    // SECTION 1 : LOGIQUE DE MOUVEMENT (POUR LE PUZZLE)
-    // =========================================================================
+    // --- ACTIONS JEU ---
 
     /**
-     * Tente de déplacer une pièce existante du point A (depart) au point B (arrivee).
-     * Utilisé dans le mode Puzzle.
-     * @return un code statut : "OK", "VIDE", "INVALID", "BLOCAGE" ou "AMI".
+     * Réinitialise la partie.
+     * Vide l'échiquier, remet le score à zéro et donne le trait aux blancs.
      */
-    public String deplacerPiece(int xDepart, int yDepart, int xArrivee, int yArrivee) {
-
-        Case caseDepart = echiquier.getCase(xDepart, yDepart);
-        Case caseArrivee = echiquier.getCase(xArrivee, yArrivee);
-
-        // 1. Vérifier s'il y a bien une pièce à déplacer
-        if (caseDepart.isEstVide() || caseDepart.getPiece() == null) {
-            return "VIDE";
-        }
-
-        Piece piece = caseDepart.getPiece();
-
-        // (Optionnel) Vérifier si c'est bien au tour de cette couleur de jouer
-        // if (piece.estBlanc() != this.traitAuBlanc) return "MAUVAIS_TOUR";
-
-        // 2. Vérifier la géométrie du coup
-        if (!piece.deplacementValide(xDepart, yDepart, xArrivee, yArrivee)) {
-            return "INVALID";
-        }
-
-        // 3. Vérifier si le chemin est bloqué (sauf Cavalier)
-        if (!piece.getClass().getSimpleName().equalsIgnoreCase("Cavalier")) {
-            if (!cheminEstLibre(xDepart, yDepart, xArrivee, yArrivee)) {
-                return "BLOCAGE";
-            }
-        }
-
-        // 4. Vérifier la case d'arrivée (pièce alliée ?)
-        if (!caseArrivee.isEstVide()) {
-            Piece pieceCible = caseArrivee.getPiece();
-            if (pieceCible.estBlanc() == piece.estBlanc()) {
-                return "AMI"; // Impossible de manger sa propre pièce
-            }
-            // Sinon capture autorisée
-        }
-
-        // --- EXÉCUTION DU MOUVEMENT ---
-        echiquier.placerPiece(xArrivee, yArrivee, piece);
-        caseDepart.setPiece(null);
-        caseDepart.setEstVide(true);
-
-        // Change le trait
-        this.traitAuBlanc = !this.traitAuBlanc;
-
-        return "OK";
+    public void reinitialiser() {
+        echiquier.initialiser();
+        score = 0;
+        traitAuBlanc = true;
     }
 
     /**
-     * Vérifie qu'il n'y a pas d'obstacle entre (x1,y1) et (x2,y2).
-     * Fonctionne pour les lignes droites et les diagonales.
-     */
-    private boolean cheminEstLibre(int x1, int y1, int x2, int y2) {
-        int dx = Integer.compare(x2, x1); // -1, 0, ou 1
-        int dy = Integer.compare(y2, y1); // -1, 0, ou 1
-
-        int x = x1 + dx;
-        int y = y1 + dy;
-
-        while (x != x2 || y != y2) {
-            if (!echiquier.getCase(x, y).isEstVide()) {
-                return false;
-            }
-            x += dx;
-            y += dy;
-        }
-        return true;
-    }
-
-    // =========================================================================
-    // SECTION 2 : LOGIQUE API CHESS.COM (FEN)
-    // =========================================================================
-
-    /**
-     * Initialise le plateau à partir d'une chaîne FEN.
-     */
-    public void chargerDepuisFen(String fen) {
-        this.reinitialiser();
-
-        String[] parties = fen.split(" ");
-        String position = parties[0];
-
-        // Gestion du trait (qui doit jouer ?)
-        if (parties.length > 1) {
-            this.traitAuBlanc = parties[1].equals("w");
-        }
-
-        String[] rangees = position.split("/");
-
-        for (int row = 0; row < 8; row++) {
-            String ligne = rangees[row];
-            int col = 0;
-
-            for (char c : ligne.toCharArray()) {
-                if (Character.isDigit(c)) {
-                    col += Character.getNumericValue(c);
-                } else {
-                    boolean estBlanc = Character.isUpperCase(c);
-                    String type = getTypeFromFenChar(c);
-
-                    Piece p = creerPiece(type, estBlanc);
-                    if (p != null) {
-                        echiquier.placerPiece(row, col, p);
-                    }
-                    col++;
-                }
-            }
-        }
-    }
-
-    private String getTypeFromFenChar(char c) {
-        return switch (Character.toLowerCase(c)) {
-            case 'p' -> "pion";
-            case 'r' -> "tour";
-            case 'n' -> "cavalier";
-            case 'b' -> "fou";
-            case 'q' -> "dame";
-            case 'k' -> "roi";
-            default -> "pion";
-        };
-    }
-
-    // =========================================================================
-    // SECTION 3 : LOGIQUE PLACEMENT LIBRE (MODE 8-REINES / CUSTOM)
-    // =========================================================================
-
-    /**
-     * Crée et place une nouvelle pièce (Mode Éditeur / 8 Reines).
+     * Place une pièce sur l'échiquier.
+     * Vérifie si la case est vide et si la pièce ne serait pas menacée par une autre pièce.
+     * 
+     * @param x Coordonnée X de la case (0-7)
+     * @param y Coordonnée Y de la case (0-7)
+     * @param typePiece Type de pièce à placer (Dame, Tour, Fou, etc.)
+     * @param estBlanc Indique si la pièce est blanche (true) ou noire (false)
+     * @return Code de résultat: "OK" si réussi, "OCCUPEE" si case occupée, "INVALID" si case menacée, "ERREUR" si type invalide
      */
     public String placerPiece(int x, int y, String typePiece, boolean estBlanc) {
-        Case caseDestination = echiquier.getCase(x, y);
+        Case c = echiquier.getCase(x, y);
+        if (!c.isEstVide()) return "OCCUPEE";
 
-        if (!caseDestination.isEstVide()) return "OCCUPEE";
-        if (estEnConflit(x, y)) return "INVALID";
+        // Vérification immédiate : Est-ce que je pose la pièce sur une case attaquée ?
+        if (estCaseMenacee(x, y)) {
+            return "INVALID";
+        }
 
         Piece piece = creerPiece(typePiece, estBlanc);
         if (piece == null) return "ERREUR";
@@ -190,84 +100,185 @@ public class ChessGame {
         return "OK";
     }
 
+    /**
+     * Retire une pièce de l'échiquier.
+     * 
+     * @param x Coordonnée X de la case (0-7)
+     * @param y Coordonnée Y de la case (0-7)
+     * @return true si une pièce a été retirée, false si la case était déjà vide
+     */
     public boolean retirerPiece(int x, int y) {
-        Case caseSource = echiquier.getCase(x, y);
-        if (caseSource.isEstVide()) return false;
-
-        caseSource.setPiece(null);
-        caseSource.setEstVide(true);
+        Case c = echiquier.getCase(x, y);
+        if (c.isEstVide()) return false;
+        c.setPiece(null);
+        c.setEstVide(true);
         return true;
     }
 
     /**
-     * Vérifie si la case (x, y) est menacée par une pièce existante.
+     * Vérifie si la case (targetX, targetY) est attaquée par une pièce déjà présente.
+     * Parcourt toutes les pièces sur l'échiquier et vérifie si l'une d'elles peut
+     * attaquer la case cible selon les règles de déplacement des pièces d'échecs.
+     * 
+     * @param targetX Coordonnée X de la case cible (0-7)
+     * @param targetY Coordonnée Y de la case cible (0-7)
+     * @return true si la case est menacée par au moins une pièce, false sinon
      */
-    private boolean estEnConflit(int x, int y) {
+    private boolean estCaseMenacee(int targetX, int targetY) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
                 if (!c.isEstVide() && c.getPiece() != null) {
-                    if (c.getPiece().deplacementValide(i, j, x, y)) {
-                        return true;
-                    }
+                    // La pièce en (i,j) attaque-t-elle (targetX, targetY) ?
+                    String typeAttaquant = c.getPiece().getClass().getSimpleName();
+                    int dx = Math.abs(i - targetX);
+                    int dy = Math.abs(j - targetY);
+
+                    if (attaque(typeAttaquant, dx, dy)) return true;
                 }
             }
         }
         return false;
     }
 
+    /**
+     * Vérifie si la configuration demandée par l'utilisateur est théoriquement possible.
+     * Contrôle le nombre de pièces de chaque type et le nombre total de pièces.
+     * 
+     * @param config Map contenant le nombre de pièces par type
+     * @return "OK" si la configuration est valide, sinon un message d'erreur explicatif
+     */
+    public String validerConfiguration(Map<String, Integer> config) {
+        int total = 0;
+        Map<String, Integer> maxs = Map.of("Dame", 8, "Tour", 8, "Fou", 14, "Cavalier", 32, "Roi", 16, "Pion", 8);
+
+        for (Map.Entry<String, Integer> e : config.entrySet()) {
+            if (e.getValue() < 0) return "Négatif interdit";
+            int max = maxs.getOrDefault(e.getKey(), 64);
+            if (e.getValue() > max) return "Impossible : Max " + max + " " + e.getKey() + "s";
+            total += e.getValue();
+        }
+        if (total == 0) return "Choisissez au moins une pièce.";
+        if (total > 64) return "Impossible : Plus de 64 pièces.";
+        return "OK";
+    }
+
+    /**
+     * Vérifie si le puzzle actuel est résolu.
+     * Un puzzle est résolu lorsque toutes les pièces requises sont placées
+     * sur l'échiquier sans qu'aucune ne soit menacée par une autre.
+     * 
+     * @return true si le puzzle est résolu, false sinon
+     */
     public boolean estPuzzleResolu() {
-        if ("custom".equals(modeDeJeu)) {
-            return verifier8Reines();
+        return verifierSolution(this.configurationRequise);
+    }
+
+    /**
+     * Vérifie si la configuration actuelle de l'échiquier correspond à la configuration requise.
+     * Contrôle que le nombre exact de pièces de chaque type est présent et qu'il n'y a pas de pièces supplémentaires.
+     * 
+     * @param configRequise Map contenant le nombre de pièces requis par type
+     * @return true si la configuration actuelle correspond à la configuration requise, false sinon
+     */
+    public boolean verifierSolution(Map<String, Integer> configRequise) {
+        Map<String, Integer> compte = getCompteActuelCalculated();
+
+        // 1. Vérif quantités exactes
+        for (Map.Entry<String, Integer> entry : configRequise.entrySet()) {
+            if (!compte.getOrDefault(entry.getKey(), 0).equals(entry.getValue())) return false;
         }
-        return false; // TODO : logique pour puzzle-api
+
+        // 2. Vérif pas de pièces intruses
+        long typesRequis = configRequise.values().stream().filter(v -> v > 0).count();
+        long typesPresents = compte.values().stream().filter(v -> v > 0).count();
+
+        return typesRequis == typesPresents;
+        // Note : Les conflits sont déjà gérés par "placerPiece" qui empêche de poser si menacé.
     }
 
-    private boolean verifier8Reines() {
-        int countDames = 0;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (!echiquier.getCase(i, j).isEstVide()) countDames++;
-            }
-        }
-        return countDames == 8;
+    /**
+     * Détermine si une pièce d'un type donné peut attaquer une case à une distance donnée.
+     * Implémente les règles de déplacement des différentes pièces d'échecs.
+     * 
+     * @param type Type de la pièce (Dame, Tour, Fou, Roi, Cavalier)
+     * @param dx Distance horizontale absolue entre la pièce et la case cible
+     * @param dy Distance verticale absolue entre la pièce et la case cible
+     * @return true si la pièce peut attaquer la case, false sinon
+     */
+    private boolean attaque(String type, int dx, int dy) {
+        return switch (type) {
+            case "Dame" -> (dx == 0 || dy == 0) || (dx == dy);
+            case "Tour" -> (dx == 0 || dy == 0);
+            case "Fou" -> (dx == dy);
+            case "Roi" -> (dx <= 1 && dy <= 1);
+            case "Cavalier" -> (dx * dy == 2);
+            default -> false;
+        };
     }
 
-    // =========================================================================
-    // UTILITAIRES
-    // =========================================================================
+    // --- UTILITAIRES ---
 
-    public void reinitialiser() {
-        echiquier.initialiser();
-        score = 0;
-        traitAuBlanc = true;
-    }
-
+    /**
+     * Retourne une représentation du plateau sous forme de tableau 2D de chaînes.
+     * Chaque case contient soit une chaîne vide (case vide), soit la représentation
+     * de la pièce qui s'y trouve.
+     * 
+     * @return Tableau 2D 8x8 représentant l'état actuel du plateau
+     */
     public String[][] getBoard() {
         String[][] board = new String[8][8];
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Case c = echiquier.getCase(i, j);
-                if (c.isEstVide() || c.getPiece() == null) {
-                    board[i][j] = "";
-                } else {
-                    board[i][j] = c.getPiece().dessiner();
-                }
+                board[i][j] = (!c.isEstVide() && c.getPiece() != null) ? c.getPiece().dessiner() : "";
             }
         }
         return board;
     }
 
-    public int compterPieces() {
-        int count = 0;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (!echiquier.getCase(i, j).isEstVide()) count++;
-            }
+    /**
+     * Retourne le décompte actuel des pièces sur l'échiquier.
+     * Initialise le compteur avec toutes les pièces requises à 0,
+     * puis ajoute le compte réel des pièces présentes.
+     * 
+     * @return Map contenant le nombre de pièces de chaque type présentes sur l'échiquier
+     */
+    public Map<String, Integer> getCompteActuel() {
+        Map<String, Integer> counts = new HashMap<>();
+        if (configurationRequise != null) {
+            for (String k : configurationRequise.keySet()) counts.put(k, 0);
         }
-        return count;
+        counts.putAll(getCompteActuelCalculated());
+        return counts;
     }
 
+    /**
+     * Calcule le nombre actuel de pièces de chaque type sur l'échiquier.
+     * Parcourt toutes les cases de l'échiquier et compte les pièces par type.
+     * 
+     * @return Map contenant le nombre de pièces de chaque type présentes sur l'échiquier
+     */
+    private Map<String, Integer> getCompteActuelCalculated() {
+        Map<String, Integer> c = new HashMap<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (!echiquier.getCase(i, j).isEstVide()) {
+                    String t = echiquier.getCase(i, j).getPiece().getClass().getSimpleName();
+                    c.put(t, c.getOrDefault(t, 0) + 1);
+                }
+            }
+        }
+        return c;
+    }
+
+    /**
+     * Crée une nouvelle pièce du type spécifié.
+     * 
+     * @param type Type de la pièce à créer (roi, dame, tour, fou, cavalier, pion)
+     * @param estBlanc Indique si la pièce est blanche (true) ou noire (false)
+     * @return La pièce créée, ou null si le type est invalide
+     */
     private Piece creerPiece(String type, boolean estBlanc) {
         return switch (type.toLowerCase()) {
             case "roi" -> new Roi(estBlanc);

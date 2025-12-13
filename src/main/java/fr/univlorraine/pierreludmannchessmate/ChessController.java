@@ -1,217 +1,270 @@
 package fr.univlorraine.pierreludmannchessmate;
 
-import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
 import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Contrôleur principal du jeu d'échecs.
+ * Cette classe gère les interactions utilisateur avec le jeu d'échecs,
+ * notamment l'affichage du plateau, le placement des pièces, et la gestion
+ * des différents modes de jeu (8 dames, 8 tours, etc.).
+ * Elle maintient l'état du jeu dans la session utilisateur.
+ */
 @Controller
 @SessionAttributes("game")
 public class ChessController {
 
     private final UtilisateurRepository utilisateurRepository;
 
-    // Client API Chess.com
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl("https://api.chess.com/pub")
-            .build();
-
+    /**
+     * Constructeur avec injection du repository des utilisateurs.
+     * 
+     * @param utilisateurRepository Repository pour accéder aux données des utilisateurs
+     */
     public ChessController(UtilisateurRepository utilisateurRepository) {
         this.utilisateurRepository = utilisateurRepository;
     }
 
-    // Initialisation de la session "game"
+    /**
+     * Initialise une nouvelle partie d'échecs pour la session.
+     * Cette méthode est appelée automatiquement par Spring pour créer
+     * l'attribut de session "game".
+     * 
+     * @return Une nouvelle instance de ChessGame
+     */
     @ModelAttribute("game")
-    ChessGame createGame() {
+    public ChessGame initGame() {
         return new ChessGame();
     }
 
-    // --- NAVIGATION ---
-
+    /**
+     * Gère la redirection depuis la racine vers la page d'accueil.
+     * 
+     * @return Redirection vers la page d'accueil
+     */
     @GetMapping("/")
     public String root() {
         return "redirect:/home";
     }
 
+    /**
+     * Affiche la page d'accueil de l'application.
+     * Injecte les informations de l'utilisateur connecté dans le modèle.
+     * 
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
     @GetMapping("/home")
-    public String getHomePage(Model model, Authentication authentication,
-                              @ModelAttribute("game") ChessGame game) {
-        injecterInfosUtilisateur(model, authentication);
+    public String home(Model model, Authentication auth) {
+        // IMPORTANT : On doit injecter isLoggedIn ici aussi pour éviter le crash
+        injecterInfosUtilisateur(model, auth);
         return "home";
     }
 
-    @GetMapping("/new")
-    public String getNew(Model model, Authentication authentication) {
-        injecterInfosUtilisateur(model, authentication);
-        return "new";
-    }
-
-    // --- CRÉATION DE PARTIE ---
-
-    @PostMapping("/create")
-    public String postCreate(@RequestParam(required = false) String pseudo,
-                             @RequestParam String modeDeJeu,
-                             Model model) {
-
-        ChessGame game = (pseudo != null && !pseudo.isEmpty())
-                ? new ChessGame(pseudo)
-                : new ChessGame("Invité");
-
-        game.setModeDeJeu(modeDeJeu);
-        model.addAttribute("game", game);
-
-        if ("puzzle".equals(modeDeJeu) || "puzzle-api".equals(modeDeJeu)) {
-            return "redirect:/puzzle";
-        }
-        return "redirect:/show";
-    }
-
-    // =========================================================================
-    // MODE 8 REINES (SHOW)
-    // =========================================================================
-
+    /**
+     * Affiche la vue principale du jeu d'échecs.
+     * Prépare le modèle avec les données nécessaires pour afficher le plateau et l'état du jeu.
+     * 
+     * @param game L'instance du jeu stockée en session
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
     @GetMapping("/show")
     public String getShow(@ModelAttribute("game") ChessGame game,
-                          Model model,
-                          Authentication authentication) {
-        injecterInfosUtilisateur(model, authentication);
-
-        model.addAttribute("board", game.getBoard());
-        model.addAttribute("nbPieces", game.compterPieces());
-        model.addAttribute("score", game.getScore());
+                          Model model, Authentication auth) {
+        updateGameModel(model, game, auth);
         return "show";
     }
 
+
+    /**
+     * Traite la demande de placement d'une pièce sur le plateau.
+     * Vérifie si le placement est valide et ajoute un message approprié au modèle.
+     * 
+     * @param x Coordonnée X de la case (0-7)
+     * @param y Coordonnée Y de la case (0-7)
+     * @param pieceType Type de pièce à placer (Dame, Tour, Fou, etc.)
+     * @param estBlanc Indique si la pièce est blanche (true) ou noire (false)
+     * @param game L'instance du jeu stockée en session
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
     @PostMapping("/place")
-    public String postPlace(@RequestParam int x,
-                            @RequestParam int y,
-                            @RequestParam String pieceType,
+    public String postPlace(@RequestParam int x, @RequestParam int y, @RequestParam String pieceType,
                             @RequestParam(defaultValue = "true") boolean estBlanc,
-                            RedirectAttributes redirAttrs,
-                            @ModelAttribute("game") ChessGame game) {
+                            @ModelAttribute("game") ChessGame game,
+                            Model model, Authentication auth) {
+        String res = game.placerPiece(x, y, pieceType, estBlanc);
+        if ("OCCUPEE".equals(res)) model.addAttribute("message", "❌ Case déjà occupée !");
+        else if ("INVALID".equals(res)) model.addAttribute("message", "⚠️ Impossible : Case menacée !");
 
-        String resultat = game.placerPiece(x, y, pieceType, estBlanc);
-
-        switch (resultat) {
-            case "OCCUPEE" -> redirAttrs.addFlashAttribute("message", "❌ Case occupée !");
-            case "INVALID" -> redirAttrs.addFlashAttribute("message", "⚠️ Case menacée !");
-            case "OK" -> {
-                if (game.estPuzzleResolu())
-                    redirAttrs.addFlashAttribute("message", "🏆 BRAVO ! Gagné !");
-                else
-                    redirAttrs.addFlashAttribute("message", "✅ Pièce placée.");
-            }
-            case "MENACANT" -> redirAttrs.addFlashAttribute("message", "⚠️ Menace une autre pièce.");
-            default -> redirAttrs.addFlashAttribute("message", "Erreur.");
-        }
-        return "redirect:/show";
+        updateGameModel(model, game, auth);
+        return "show";
     }
 
+    /**
+     * Traite la demande de retrait d'une pièce du plateau.
+     * 
+     * @param x Coordonnée X de la case (0-7)
+     * @param y Coordonnée Y de la case (0-7)
+     * @param game L'instance du jeu stockée en session
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
     @PostMapping("/remove")
-    public String postRemove(@RequestParam int x,
-                             @RequestParam int y,
-                             RedirectAttributes redirAttrs,
-                             @ModelAttribute("game") ChessGame game) {
-        if (game.retirerPiece(x, y))
-            redirAttrs.addFlashAttribute("message", "🗑️ Pièce retirée.");
-        else
-            redirAttrs.addFlashAttribute("message", "❌ Case déjà vide.");
-        return "redirect:/show";
+    public String postRemove(@RequestParam int x, @RequestParam int y,
+                             @ModelAttribute("game") ChessGame game,
+                             Model model, Authentication auth) {
+        game.retirerPiece(x, y);
+        updateGameModel(model, game, auth);
+        return "show";
     }
 
-    // =========================================================================
-    // MODE PUZZLE API (PUZZLE)
-    // =========================================================================
-
-    @GetMapping("/puzzle")
-    public String getPuzzlePage(@ModelAttribute("game") ChessGame game,
-                                Model model,
-                                Authentication authentication) {
-        injecterInfosUtilisateur(model, authentication);
-
-        model.addAttribute("board", game.getBoard());
-        model.addAttribute("score", game.getScore());
-        model.addAttribute("traitAuBlanc", game.isTraitAuBlanc());
-        return "puzzle";
-    }
-
-    @PostMapping("/api/puzzle")
-    public String loadApiPuzzle(@ModelAttribute("game") ChessGame game,
-                                RedirectAttributes redirAttrs) {
-        try {
-            DailyPuzzle puzzle = restClient.get()
-                    .uri("/puzzle/random")
-                    .retrieve()
-                    .body(DailyPuzzle.class);
-
-            if (puzzle != null) {
-                game.chargerDepuisFen(puzzle.fen());
-                game.setSolutionPuzzle(puzzle.pgn());
-                game.setModeDeJeu("puzzle-api");
-                redirAttrs.addFlashAttribute("message", "🧩 Puzzle chargé : " + puzzle.title());
-            }
-        } catch (Exception e) {
-            redirAttrs.addFlashAttribute("message", "❌ Erreur API Chess.com");
-        }
-        return "redirect:/puzzle";
-    }
-
-    @PostMapping("/move")
-    public String postMove(@RequestParam int departX,
-                           @RequestParam int departY,
-                           @RequestParam int arriveeX,
-                           @RequestParam int arriveeY,
-                           RedirectAttributes redirAttrs,
-                           @ModelAttribute("game") ChessGame game) {
-
-        String resultat = game.deplacerPiece(departX, departY, arriveeX, arriveeY);
-
-        if ("OK".equals(resultat)) {
-            redirAttrs.addFlashAttribute("message", "Coup joué !");
-        } else {
-            redirAttrs.addFlashAttribute("message", "⚠️ Mouvement impossible : " + resultat);
-        }
-        return "redirect:/puzzle";
-    }
-
+    /**
+     * Réinitialise le jeu en cours.
+     * Vide le plateau et remet les compteurs à zéro.
+     * 
+     * @param game L'instance du jeu stockée en session
+     * @return Redirection vers la vue du jeu
+     */
     @PostMapping("/reset")
-    public String postReset(@ModelAttribute("game") ChessGame game,
-                            RedirectAttributes attrs) {
+    public String postReset(@ModelAttribute("game") ChessGame game) {
         game.reinitialiser();
-        attrs.addFlashAttribute("message", "Plateau réinitialisé.");
-        if ("puzzle-api".equals(game.getModeDeJeu()) || "puzzle".equals(game.getModeDeJeu())) {
-            return "redirect:/puzzle";
-        }
         return "redirect:/show";
     }
 
-    // =========================================================================
-    // MÉTHODE D'AIDE (Gère le cas connecté OU non connecté)
-    // =========================================================================
 
-    private void injecterInfosUtilisateur(Model model,
-                                          Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-
-            model.addAttribute("isLoggedIn", true);
-            String email = authentication.getName();
-
-            utilisateurRepository.findByEmail(email).ifPresentOrElse(
-                    u -> model.addAttribute("pseudo", u.getPseudo()),
-                    () -> model.addAttribute("pseudo", "Utilisateur")
-            );
+    /**
+     * Change le mode de jeu actuel.
+     * Configure les règles spécifiques au mode sélectionné et réinitialise le plateau.
+     * 
+     * @param modeDeJeu Le mode de jeu à activer (8-dames, 8-tours, 14-fous, 16-rois, mix-dame-cavalier, custom)
+     * @param game L'instance du jeu stockée en session
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
+    @PostMapping("/changeMode")
+    public String postChangeMode(@RequestParam String modeDeJeu,
+                                 @ModelAttribute("game") ChessGame game,
+                                 Model model, Authentication auth) {
+        if (!"custom".equals(modeDeJeu)) {
+            configurerRegles(game, modeDeJeu);
+            game.setModeDeJeu(modeDeJeu);
+            game.reinitialiser();
         } else {
-            model.addAttribute("isLoggedIn", false);
-            model.addAttribute("pseudo", "Invité 🕵️");
+            game.setModeDeJeu("custom");
         }
+        updateGameModel(model, game, auth);
+        return "show";
     }
 
-    // DTO pour l'API
-    public record DailyPuzzle(String title, String fen, String pgn, String image) {}
+    /**
+     * Configure un mode de jeu personnalisé.
+     * Permet à l'utilisateur de définir le nombre de pièces de chaque type à placer.
+     * Valide la configuration et affiche un message approprié.
+     * 
+     * @param params Map contenant les paramètres de configuration (nombre de pièces par type)
+     * @param game L'instance du jeu stockée en session
+     * @param model Le modèle pour la vue
+     * @param auth Les informations d'authentification de l'utilisateur
+     * @return Le nom de la vue à afficher
+     */
+    @PostMapping("/customConfig")
+    public String postCustomConfig(@RequestParam Map<String, String> params,
+                                   @ModelAttribute("game") ChessGame game,
+                                   Model model, Authentication auth) {
+        Map<String, Integer> newConfig = new HashMap<>();
+        String[] types = {"Dame", "Tour", "Fou", "Cavalier", "Roi", "Pion"};
+
+        for (String t : types) {
+            try {
+                String val = params.get(t.toLowerCase());
+                if (val != null && !val.isEmpty()) {
+                    int nb = Integer.parseInt(val);
+                    if (nb > 0) newConfig.put(t, nb);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+
+        String validation = game.validerConfiguration(newConfig);
+        if (!"OK".equals(validation)) {
+            model.addAttribute("message", "❌ " + validation);
+        } else {
+            game.setModeDeJeu("custom");
+            game.setConfigurationRequise(newConfig);
+            game.reinitialiser();
+            model.addAttribute("message", "✅ Config personnalisée active !");
+        }
+        updateGameModel(model, game, auth);
+        return "show";
+    }
+
+    /**
+     * Met à jour le modèle avec les données du jeu.
+     * Prépare toutes les données nécessaires pour l'affichage du plateau et de l'état du jeu.
+     * Vérifie également si le puzzle est résolu et ajoute un message de félicitation si c'est le cas.
+     * 
+     * @param model Le modèle pour la vue
+     * @param game L'instance du jeu stockée en session
+     * @param auth Les informations d'authentification de l'utilisateur
+     */
+    private void updateGameModel(Model model, ChessGame game, Authentication auth) {
+        injecterInfosUtilisateur(model, auth); // Appelle la méthode corrigée ci-dessous
+        model.addAttribute("board", game.getBoard());
+        model.addAttribute("configRequise", game.getConfigurationRequise());
+        model.addAttribute("compteActuel", game.getCompteActuel());
+        boolean gagne = game.estPuzzleResolu();
+        model.addAttribute("gagne", gagne);
+        if (gagne) model.addAttribute("message", "🏆 BRAVO ! Configuration réussie !");
+    }
+
+    /**
+     * Configure les règles du jeu en fonction du mode sélectionné.
+     * Définit le nombre et le type de pièces requises pour chaque mode de jeu.
+     * 
+     * @param game L'instance du jeu à configurer
+     * @param mode Le mode de jeu à configurer (8-dames, 8-tours, etc.)
+     */
+    private void configurerRegles(ChessGame game, String mode) {
+        Map<String, Integer> config = new HashMap<>();
+        switch (mode) {
+            case "8-dames" -> config.put("Dame", 8);
+            case "8-tours" -> config.put("Tour", 8);
+            case "14-fous" -> config.put("Fou", 14);
+            case "16-rois" -> config.put("Roi", 16);
+            case "mix-dame-cavalier" -> { config.put("Dame", 5); config.put("Cavalier", 3); }
+            default -> config.put("Dame", 8);
+        }
+        game.setConfigurationRequise(config);
+    }
+
+    /**
+     * Injecte les informations de l'utilisateur dans le modèle.
+     * Détermine si l'utilisateur est connecté et ajoute son pseudo au modèle.
+     * Cette méthode est critique pour le bon fonctionnement des templates.
+     * 
+     * @param model Le modèle pour la vue
+     * @param authentication Les informations d'authentification de l'utilisateur
+     */
+    private void injecterInfosUtilisateur(Model model, Authentication authentication) {
+        boolean isConnected = authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken);
+
+        // On ajoute la variable manquante qui faisait planter le template home.html
+        model.addAttribute("isLoggedIn", isConnected);
+
+        model.addAttribute("pseudo", isConnected ? authentication.getName() : "Invité");
+    }
 }
