@@ -79,3 +79,37 @@
 .start-btn:hover {
     background: #03224c;
 }
+
+@media screen and (max-width: 600px) {
+    /* Ajustement du conteneur principal */
+    .main-content {
+        padding: 20px 15px;   /* Marges réduites */
+        width: 100%;
+        margin-top: 0;        /* Colle au menu du haut */
+    }
+
+    /* Empilement vertical des boutons de mode de jeu */
+    .modes-container {
+        flex-direction: column; /* Colonne au lieu de ligne */
+        width: 100%;
+        gap: 8px;
+    }
+
+    /* Les boutons prennent toute la largeur pour être faciles à toucher */
+    .game-btn {
+        width: 100%;
+        padding: 14px;        /* Zone de clic plus confortable */
+        box-sizing: border-box;
+    }
+
+    /* Le bouton "Commencer" prend aussi toute la largeur */
+    .start-btn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 15px;
+    }
+
+    .main-content h1 {
+        font-size: 24px;      /* Titre un peu plus petit */
+    }
+}

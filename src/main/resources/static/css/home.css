@@ -1,3 +1,9 @@
+/* 
+ * ChessMate Application Styles
+ * Main stylesheet for the sidebar navigation and home page
+ */
+
+/* Base styles for the sidebar navigation */
 .sidebar {
     background: #23231f;
     width: 220px;
@@ -10,23 +16,27 @@
     align-items: center;
 }
 
+/* Logo container styling */
 .logo {
     display: flex;
     align-items: center;
     margin-bottom: 24px;
 }
 
+/* Logo image styling */
 .logo img {
     width: 32px;
     margin-right: 7px;
 }
 
+/* Logo text styling */
 .logo span {
     color: #fff;
     font-size: 20px;
     font-weight: bold;
 }
 
+/* Navigation links styling */
 .sidebar a {
     color: #fff;
     text-decoration: none;
@@ -40,15 +50,18 @@
     transition: background 0.18s;
 }
 
+/* Icon styling within navigation links */
 .sidebar a i {
     margin-right: 14px;
     font-size: 19px;
 }
 
+/* Hover effect for navigation links */
 .sidebar a:hover {
     background: #333329;
 }
 
+/* Search container styling */
 .search-container {
     display: flex;
     gap: 0;
@@ -56,6 +69,7 @@
     width: 85%;
 }
 
+/* Search input field styling */
 .search-container input {
     flex: 1;
     padding: 8px 10px;
@@ -66,6 +80,7 @@
     font-size: 14px;
 }
 
+/* Search button styling */
 .search-container button {
     background: #353533;
     border: none;
@@ -75,6 +90,7 @@
     cursor: pointer;
 }
 
+/* Primary action button (green) */
 .green-btn {
     margin: 10px 0 6px 0;
     padding: 13px 0;
@@ -89,10 +105,12 @@
     transition: background 0.15s;
 }
 
+/* Hover effect for primary action button */
 .green-btn:hover {
     background: #1e3f5a;
 }
 
+/* Secondary action button (grey) */
 .grey-btn {
     margin-bottom: 8px;
     padding: 11px 0;
@@ -107,9 +125,83 @@
     border: 1px solid #444;
 }
 
+/* Hover effect for secondary action button */
 .grey-btn:hover {
     background: #353533;
 }
-.welcome-box{
-    color : #ffffff;
+
+/* Welcome box for logged-in users */
+.welcome-box {
+    color: #ffffff;
+    text-align: center;
+    margin-top: 15px;
+    width: 85%;
+}
+
+/* Media Queries for Responsive Design */
+
+/* Tablet devices (768px and up) */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .sidebar a {
+        font-size: 14px;
+    }
+
+    .logo span {
+        font-size: 18px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    /* Transformation de la Sidebar verticale en Topbar horizontale */
+    .sidebar {
+        width: 100%;          /* Prend toute la largeur */
+        height: auto;         /* Hauteur automatique selon le contenu */
+        min-height: auto;
+        position: relative;   /* N'est plus fixée, suit le flux de la page */
+        padding: 10px 0;
+
+        /* Flexbox pour aligner le contenu horizontalement */
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;      /* Permet aux boutons de passer à la ligne */
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    /* Gestion du logo en haut de page */
+    .logo {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    /* Les liens deviennent des petits boutons côte à côte */
+    .sidebar a {
+        width: auto;          /* Largeur s'adapte au texte */
+        margin: 5px;          /* Petit espace entre les boutons */
+        padding: 8px 15px;
+        border-radius: 20px;  /* Forme arrondie */
+        background: #353533;  /* Fond gris pour les distinguer */
+        justify-content: center;
+    }
+
+    .sidebar a i {
+        margin-right: 8px;    /* Réduit l'espace icône/texte */
+    }
+
+    /* Adaptation de la barre de recherche */
+    .search-container {
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    /* On cache les boutons d'action secondaires sur mobile pour gagner de la place */
+    /* (Optionnel : supprimez ces lignes si vous voulez garder les boutons verts/gris) */
+    .green-btn, .grey-btn, .welcome-box {
+        display: none;
+    }
 }

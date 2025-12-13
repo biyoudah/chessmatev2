@@ -1,3 +1,10 @@
+/**
+ * Styles de l'interface du jeu ChessMate
+ * Cette feuille de style définit l'apparence de l'interface du jeu d'échecs,
+ * y compris le plateau, les contrôles et le système de notification.
+ */
+
+/* Styles de base pour la page */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     text-align: center;
@@ -7,6 +14,7 @@ body {
     color: #333;
 }
 
+/* Disposition du conteneur principal */
 .container {
     display: flex;
     justify-content: center;
@@ -16,18 +24,26 @@ body {
     margin-top: 20px;
 }
 
-/* --- PLATEAU --- */
+/**
+ * ===================================
+ * STYLES DU PLATEAU D'ÉCHECS
+ * ===================================
+ */
 .board-container {
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     border: 5px solid #4a3c31;
     border-radius: 4px;
     background: #333;
 }
+
+/* Disposition en grille pour le plateau d'échecs 8x8 */
 .board {
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
 }
+
+/* Style des cases individuelles du plateau */
 .case {
     width: 60px;
     height: 60px;
@@ -38,13 +54,36 @@ body {
     cursor: pointer;
     user-select: none;
 }
-.case.white { background-color: #f0d9b5; color: black; }
-.case.black { background-color: #b58863; color: black; }
-.case:hover { opacity: 0.8; }
-.piece-anim { animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-@keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
-/* --- PANNEAUX --- */
+/* Couleurs des cases du plateau */
+.case.white { 
+    background-color: #f0d9b5; 
+    color: black; 
+}
+.case.black { 
+    background-color: #b58863; 
+    color: black; 
+}
+
+/* Effet de survol pour les cases du plateau */
+.case:hover { 
+    opacity: 0.8; 
+}
+
+/* Animation pour le placement des pièces */
+.piece-anim { 
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+@keyframes popIn { 
+    0% { transform: scale(0); } 
+    100% { transform: scale(1); } 
+}
+
+/**
+ * ===================================
+ * PANNEAUX DE CONTRÔLE
+ * ===================================
+ */
 .piece-selector, .info-panel {
     background: white;
     padding: 20px;
@@ -54,13 +93,15 @@ body {
     text-align: left;
 }
 
-/* BOUTONS PIECES */
+/* Grille des boutons de sélection des pièces */
 .piece-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     margin: 15px 0;
 }
+
+/* Boutons individuels de sélection des pièces */
 .piece-btn {
     padding: 10px;
     font-size: 28px;
@@ -70,9 +111,11 @@ body {
     border-radius: 8px;
     transition: all 0.1s;
 }
-.piece-btn:hover { background: #f0f0f0; }
+.piece-btn:hover { 
+    background: #f0f0f0; 
+} /* Effet de survol pour les boutons de pièces */
 
-/* SELECTION VERTE */
+/* Style de l'état sélectionné (surbrillance verte) */
 .piece-btn.selected, .color-btn.selected, .action-btn.selected {
     background-color: #d1fae5 !important;
     border-color: #10b981 !important;
@@ -81,6 +124,7 @@ body {
     box-shadow: 0 0 5px rgba(16, 185, 129, 0.4);
 }
 
+/* Boutons de sélection de couleur */
 .color-btn {
     padding: 8px 15px;
     margin-right: 5px;
@@ -90,6 +134,7 @@ body {
     border-radius: 5px;
 }
 
+/* Boutons d'action (placer/retirer) */
 .action-btn {
     width: 100%;
     padding: 12px;
@@ -101,7 +146,11 @@ body {
     background: #e5e7eb;
 }
 
-/* FORMULAIRE CUSTOM */
+/**
+ * ===================================
+ * CUSTOM CONFIGURATION PANEL
+ * ===================================
+ */
 #customConfigPanel {
     background: #fff;
     padding: 15px;
@@ -112,29 +161,40 @@ body {
     position: relative;
     z-index: 100;
 }
+
+/* Input groups for custom piece configuration */
 .custom-input-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
 }
-.custom-input-group input { width: 50px; text-align: center; padding: 4px; }
+.custom-input-group input { 
+    width: 50px; 
+    text-align: center; 
+    padding: 4px; 
+}
 
-/* --- TOAST NOTIFICATIONS (POP-UPS) --- */
+/**
+ * ===================================
+ * TOAST NOTIFICATION SYSTEM
+ * ===================================
+ */
 #toast-container {
     position: fixed;
-    /* On le place en bas, centré */
+    /* Positioned at the bottom center of the screen */
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
 
     display: flex;
-    flex-direction: column-reverse; /* Les nouveaux messages apparaissent "au-dessus" de la pile en partant du bas */
+    flex-direction: column-reverse; /* New messages appear at the bottom of the stack */
     gap: 10px;
     align-items: center;
 }
 
+/* Toast notification styling */
 .toast {
     background: #333;
     color: white;
@@ -145,7 +205,7 @@ body {
     font-size: 1rem;
     opacity: 0;
 
-    /* Animation qui vient du bas */
+    /* Animation sequence: slide up and fade in, then fade out */
     animation: slideUpFade 0.4s forwards, fadeOut 0.4s forwards 3s;
 
     display: flex;
@@ -155,10 +215,12 @@ body {
     justify-content: center;
 }
 
-.toast.success { background-color: #10b981; } /* Vert */
-.toast.error { background-color: #ef4444; }   /* Rouge */
+/* Toast notification types */
+.toast.success { background-color: #10b981; } /* Green */
+.toast.error { background-color: #ef4444; }   /* Red */
 .toast.warning { background-color: #f59e0b; } /* Orange */
 
+/* Toast animations */
 @keyframes slideUpFade {
     0% { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
@@ -167,4 +229,102 @@ body {
 @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; visibility: hidden; }
+}
+
+/**
+ * ===================================
+ * RESPONSIVE DESIGN
+ * ===================================
+ */
+
+/* Tablet devices (768px and below) */
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .piece-selector, .info-panel {
+        width: 90%;
+        max-width: 400px;
+        margin-bottom: 20px;
+    }
+
+    .board {
+        grid-template-columns: repeat(8, 50px);
+        grid-template-rows: repeat(8, 50px);
+    }
+
+    .case {
+        width: 50px;
+        height: 50px;
+        font-size: 38px;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE : SHOW.CSS (Plateau de jeu)
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+    /* Réorganisation : Plateau au-dessus, panneaux de contrôle en dessous */
+    .container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* Les panneaux de contrôle prennent toute la largeur disponible */
+    .piece-selector, .info-panel {
+        width: 95%;
+        max-width: none;
+        box-sizing: border-box;
+    }
+
+    /* Grille de sélection des pièces plus large (6 colonnes pour gagner de la hauteur) */
+    .piece-buttons {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* --- MODE MOBILE STRICT --- */
+
+    /* Calcul dynamique de la taille du plateau */
+    /* On utilise 'vw' (Viewport Width). 11vw = 11% de la largeur de l'écran par case */
+    /* 11% * 8 cases = 88% de l'écran utilisé + les bordures */
+
+    .board {
+        grid-template-columns: repeat(8, 11vw);
+        grid-template-rows: repeat(8, 11vw);
+    }
+
+    .case {
+        width: 11vw;
+        height: 11vw;
+        font-size: 24px; /* Réduit la taille des icônes (pions/rois...) */
+    }
+
+    /* Retour à 3 colonnes pour les boutons de pièces car l'écran est étroit */
+    .piece-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .piece-btn {
+        font-size: 22px;
+        padding: 8px;
+    }
+
+    /* Ajustement des notifications (Toasts) */
+    #toast-container {
+        bottom: 20px;
+        width: 90%;
+    }
+
+    .toast {
+        min-width: auto;
+        width: 100%;
+        font-size: 0.85rem;
+    }
 }

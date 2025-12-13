@@ -148,3 +148,35 @@ button[type="submit"]:hover {          /*quand bouton "Se connecter" est survol�
     color: #ffffff;           /*blanc au survol */
     text-decoration: underline;
 }
+@media screen and (max-width: 600px) {
+    /* La carte de connexion prend presque toute la largeur disponible */
+    .login-card {
+        width: 92%;
+        padding: 20px 15px;   /* Réduit l'espacement interne */
+        max-width: none;      /* Annule la limite fixe en pixels */
+    }
+
+    /* Le conteneur noir à l'intérieur s'adapte aussi */
+    .login-container {
+        min-width: auto;      /* Permet de rétrécir en dessous de 350px */
+        padding: 20px 15px;
+        box-sizing: border-box;
+    }
+
+    /* Réduction de la taille du titre */
+    .login-container h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    /* Réduction du logo pour qu'il ne prenne pas trop de place */
+    .logo-login {
+        width: 180px;
+    }
+
+    /* Bouton de connexion plus facile à cliquer (plus haut) */
+    button[type="submit"] {
+        padding: 16px 0;
+        font-size: 1.1em;
+    }
+}
