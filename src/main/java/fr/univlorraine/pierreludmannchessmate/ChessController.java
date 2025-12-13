@@ -14,7 +14,7 @@ import java.util.Map;
  * Contrôleur principal du jeu d'échecs.
  * Cette classe gère les interactions utilisateur avec le jeu d'échecs,
  * notamment l'affichage du plateau, le placement des pièces, et la gestion
- * des différents modes de jeu (8 dames, 8 tours, etc.).
+ * des différents modes de jeu (Huit dames, Huit tours, etc.).
  * Elle maintient l'état du jeu dans la session utilisateur.
  */
 @Controller
