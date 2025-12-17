@@ -1,0 +1,146 @@
+body { /*arrière-plan*/
+    height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* couleurs des cases */
+    --case1: rgba(205, 204, 204, 0.95); /*gris*/
+    --case2: #839ab3; /*bleu*/
+
+    background-color: var(--case1);
+    background-image: linear-gradient(45deg,
+    var(--case2) 25%,
+    transparent 25%,
+    transparent 75%,
+    var(--case2) 75%,
+    var(--case2) 100%
+    ),
+    linear-gradient(45deg,
+            var(--case2) 25%,
+            var(--case1) 25%,
+            var(--case1) 75%,
+            var(--case2) 75%,
+            var(--case2) 100%
+    );
+    background-size: 210px 210px; /* taille des cases*/
+    background-position: 0 0, 105px 105px; /* décale la deuxième couche pour l’effet damier mette moitié taille cases */
+}
+
+
+.page-register {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* centre logo et container de connexion*/
+}.login-card {       /*container logo+connexion*/
+     background-color: #cacaca;
+     /* haut | droite/gauche | bas */
+     padding: 20px 44px 44px;
+     border-radius: 18px;
+     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     width: 460px;
+     max-width: 90vw;
+ }
+
+.register-card {       /*container logo+connexion*/
+    background-color: #cacaca;
+    /* haut | droite/gauche | bas */
+    padding: 20px 44px 44px;
+    border-radius: 18px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 460px;
+    max-width: 90vw;
+}
+
+.register-container {     /*container pour formulaire de connexion*/
+    background: #2b2b2b;
+    padding: 30px 30px;
+    border-radius: 14px;
+    box-shadow: 0 2px 20px #000100;
+    min-width: 350px;
+    max-width: 400px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.register-container h1 {    /*titre Connexion*/
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 3em;
+}
+
+.logo-register {           /*logo*/
+    display: block;
+    margin-bottom: 2px;
+    width: 260px;
+    height: auto;
+}
+
+.form-group {           /*intitulés e-mail et mdp*/
+    margin-top: 18px;
+    color: #fff;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.login-text {        /*texte pas encore de compte ?*/
+    color: #717171;
+    margin-top: 16px;
+}
+
+.login-text a:visited {
+    color: #0066ff;           /* bleu si déjà visité au moins 1 fois*/
+}
+
+.login-text a:hover {
+    color: #ffffff;           /*blanc au survol */
+    text-decoration: underline;
+}
+
+.login-text a:link {
+    color: #bbbbbb;           /* gris clair si jamais visité*/
+}
+
+button[type="submit"] {         /*bouton “Se connecter”*/
+    background: #0542c8;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25em;
+    padding: 14px 0;
+    width: 100%;
+    box-shadow: 0 2px 0 #042c84;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover {          /*quand bouton "Se connecter" est survolé*/
+    background: #0639a8;
+}
+
+.form-control {          /*champs de saisie*/
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #393939;
+    color: #ddd;
+    box-sizing: border-box;
+    font-size: 1em;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
