@@ -11,4 +11,10 @@ public class JoueurTest {
         assertTrue(j.estBlanc());
         assertFalse(j.isEnEchec());
     }
+
+    @Test
+    public void toStringTest() {
+        Joueur j = new Joueur("Joueur",true);
+        assertEquals("Joueur (Blancs)",j.toString());
+    }
 }
