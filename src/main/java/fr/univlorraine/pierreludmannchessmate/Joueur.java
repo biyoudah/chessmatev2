@@ -12,22 +12,6 @@ public class Joueur {
     private boolean estBlanc; // true = blancs, false = noirs
     private boolean enEchec; // pour gérer l'état d'échec
 
-    /**
-     * Constructeur complet pour le contexte de jeu en ligne.
-     *
-     * Initialise un joueur avec ses informations d'authentification et sa couleur.
-     * L'état "en échec" est initialisé à {@code false} par défaut.
-     *
-     * @param pseudo Le pseudonyme du joueur.
-     * @param mdp Le mot de passe du joueur.
-     * @param estBlanc La couleur des pièces ({@code true} pour les Blancs, {@code false} pour les Noirs).
-     */
-    public Joueur(String pseudo, String mdp, boolean estBlanc) {
-        this.pseudo = pseudo;
-        this.mdp = mdp;
-        this.estBlanc = estBlanc;
-        this.enEchec = false;
-    }
 
     /**
      * Constructeur simplifié.
