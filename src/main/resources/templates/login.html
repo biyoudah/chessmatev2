@@ -19,15 +19,15 @@
 
             <h1>Connexion</h1>
 
-            <div th:if="${param.success}" style="color: green; margin-bottom: 10px;">
+            <div th:if="${param.success}" class="message-validation">
                 <span>L'inscription a bien été prise en compte.</span>
             </div>
 
-            <div th:if="${param.error}" class="message-erreur" style="color: red; margin-bottom: 10px;">
+            <div th:if="${param.error}" class="message-erreur">
                 <span>Email ou mot de passe incorrect.</span>
             </div>
 
-            <div th:if="${param.logout}" class="deconnexion">
+            <div th:if="${param.logout}" class="message-validation">
                 <span>Vous avez été déconnecté avec succès.</span>
             </div>
 
