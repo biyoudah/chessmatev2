@@ -10,58 +10,49 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Configuration de la sécurité de l'application.
- * Cette classe définit les règles d'accès aux différentes ressources de l'application,
- * configure l'authentification par formulaire et gère la déconnexion.
+ * Définit les accès aux nouveaux contrôleurs de placement et de puzzle.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-
-    /**
-     * Configure la chaîne de filtres de sécurité HTTP.
-     * Définit les règles d'accès aux ressources, les pages publiques et protégées,
-     * ainsi que la configuration du formulaire de connexion et de la déconnexion.
-     * 
-     * @param http L'objet HttpSecurity à configurer
-     * @return La chaîne de filtres de sécurité configurée
-     * @throws Exception Si une erreur survient lors de la configuration
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
+                        // 1. Ressources statiques (toujours publiques)
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
 
+                        // 2. Authentification (publique)
                         .requestMatchers("/login", "/register").permitAll()
 
-                        .requestMatchers("/", "/home", "/new", "/create", "/show", "/puzzle").permitAll()
+                        // 3. Navigation principale (publique)
+                        .requestMatchers("/", "/home").permitAll()
 
-                        .requestMatchers("/api/puzzle", "/move", "/place", "/remove", "/reset", "/changeMode", "/customConfig").permitAll()
+                        // 4. Nouveau Mode Placement (Bac à sable)
+                        // Autorise l'accès à la page et aux actions associées (/placement, /placement/action, /placement/reset, etc.)
+                        .requestMatchers("/placement/**").permitAll()
 
-                        // 5. Le reste nécessite une connexion
+                        // 5. Nouveau Mode Puzzle
+                        // Autorise l'accès à la page et aux actions associées (/puzzle, /puzzle/move, /puzzle/reset)
+                        .requestMatchers("/puzzle/**").permitAll()
+
+                        // 6. Le reste nécessite une connexion
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true) // "true" force la redirection vers home après login
+                        .defaultSuccessUrl("/home", true)
                         .permitAll()
                 )
                 .logout((logout) -> logout
-                        .logoutSuccessUrl("/") // Redirige vers la racine après logout
+                        .logoutSuccessUrl("/")
                         .permitAll()
                 );
 
         return http.build();
     }
 
-
-    /**
-     * Fournit un encodeur de mot de passe pour l'application.
-     * Utilise l'algorithme BCrypt pour le hachage sécurisé des mots de passe.
-     * 
-     * @return Un encodeur de mot de passe BCrypt
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

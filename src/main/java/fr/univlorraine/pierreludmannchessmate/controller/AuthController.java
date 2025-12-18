@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.controller;
 
 import fr.univlorraine.pierreludmannchessmate.DTO.InscriptionUtilisateurDTO;
 import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
