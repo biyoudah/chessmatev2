@@ -1,14 +1,13 @@
 package fr.univlorraine.pierreludmannchessmate.controller;
 
 import fr.univlorraine.pierreludmannchessmate.JeuPuzzle;
+import jakarta.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.BufferedReader;
@@ -16,7 +15,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Controller
@@ -26,81 +24,68 @@ public class PuzzleController {
 
     @ModelAttribute("jeuPuzzle")
     public JeuPuzzle initPuzzle() {
-        System.out.println("--- NOUVELLE SESSION PUZZLE INITIALISÉE ---");
         return new JeuPuzzle();
     }
 
     @GetMapping
-    public String showPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             Model model,
-                             Authentication auth) {
-        injecterInfosUtilisateur(model, auth);
+    public String showPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game, Model model, Authentication auth, HttpSession session) {
+        model.addAttribute("pseudo", auth != null ? auth.getName() : "Invité");
 
-        // 1. Vérification robuste : Est-ce que le plateau contient des pièces ?
+        // Vérification si plateau vide
+        // SAFETY CHECK: If solutionMoves is null, we MUST load a puzzle
+        // We access the field via reflection or simply rely on the existing logic if we add a getter,
+        // but the easiest way is to modify your emptiness check:
+
         boolean plateauVide = true;
-
-        // On vérifie si au moins une pièce existe sur le plateau
-        verification:
+        // Check pieces...
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                // ATTENTION : On suppose ici que game.getPieceObject(i, j) renvoie null si vide
-                // ou que game.getBoard()[i][j] n'est pas null mais sa toString est vide.
-                // Adaptez selon votre classe AbstractChessGame.
-                if(game.getBoard()[i][j] != null && !game.getBoard()[i][j].toString().isEmpty()) {
-                    plateauVide = false;
-                    break verification;
-                }
+                if(game.getBoard()[i][j] != null) { plateauVide = false; break; }
             }
         }
 
+        // FORCE LOAD if board is empty OR if the game state is invalid (solutionMoves is null)
+        // Since we can't easily check solutionMoves from outside without a getter,
+        // let's rely on the fix in JeuPuzzle.java to prevent the crash,
+        // and ensure we load if the board is empty.
+
         if (plateauVide) {
-            System.out.println("Plateau vide détecté, chargement d'un puzzle...");
-            chargerPuzzleAleatoire(game);
+            chargerPuzzleSelonDifficulte(game);
         }
 
-        // --- LOGIQUE D'ORIENTATION ---
-
-        List<Integer> rows;
-        List<Integer> cols;
-
-        if (game.isVueJoueurEstBlanc()) {
-            // Vue fixe BLANCS en bas
-            rows = IntStream.rangeClosed(0, 7).map(i -> 7 - i).boxed().toList();
-            cols = IntStream.rangeClosed(0, 7).boxed().toList();
-        } else {
-            // Vue fixe NOIRS en bas
-            rows = IntStream.rangeClosed(0, 7).boxed().toList();
-            cols = IntStream.rangeClosed(0, 7).map(i -> 7 - i).boxed().toList();
+        Object msg = session.getAttribute("flashMessage");
+        if (msg != null) {
+            model.addAttribute("message", msg); // On l'envoie à la vue
+            session.removeAttribute("flashMessage"); // On le supprime de la session
         }
+
+        // Orientation
+        List<Integer> rows = game.isVueJoueurEstBlanc()
+                ? IntStream.rangeClosed(0, 7).map(i -> 7 - i).boxed().toList()
+                : IntStream.rangeClosed(0, 7).boxed().toList();
+        List<Integer> cols = game.isVueJoueurEstBlanc()
+                ? IntStream.rangeClosed(0, 7).boxed().toList()
+                : IntStream.rangeClosed(0, 7).map(i -> 7 - i).boxed().toList();
 
         model.addAttribute("rows", rows);
         model.addAttribute("cols", cols);
-
         model.addAttribute("board", game.getBoard());
         model.addAttribute("traitAuBlanc", game.isTraitAuBlanc());
 
         return "jeuPuzzle";
     }
 
+    // --- Actions existantes ---
     @PostMapping("/move")
     public String handleMove(@RequestParam int departX, @RequestParam int departY,
                              @RequestParam int arriveeX, @RequestParam int arriveeY,
                              @ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             RedirectAttributes redirectAttributes) {
-
-        // CORRECTION CRITIQUE : On inverse X et Y.
-        // HTML envoie : departX (Ligne), departY (Colonne)
-        // JeuPuzzle attend : Col, Ligne, Col, Ligne
+                             HttpSession session) {
+        // Attention à l'ordre X/Y selon votre logique précédente
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
 
-        if("GAGNE".equals(resultat)) {
-            redirectAttributes.addFlashAttribute("message", "✅ Bravo !");
-        } else if("RATE".equals(resultat)) {
-            redirectAttributes.addFlashAttribute("message", "❌ Mauvais coup !");
-        }
-
-        // Si le résultat est "RATE", le plateau ne bouge pas, c'est normal.
-        // Si le résultat est "CONTINUE" ou "GAGNE", la pièce bouge.
+        if("GAGNE".equals(resultat)) session.setAttribute("flashMessage", "✅ Bravo !");
+        else if("RATE".equals(resultat)) session.setAttribute("flashMessage", "❌ Mauvais coup !");
 
         return "redirect:/puzzle";
     }
@@ -111,65 +96,122 @@ public class PuzzleController {
         return "redirect:/puzzle";
     }
 
-    @PostMapping("/reset")
-    public String resetPuzzle(SessionStatus status) {
-        status.setComplete();
+    // --- Endpoint : Changement de difficulté ---
+    @PostMapping("/changeMode")
+    public String changeMode(@RequestParam("difficulte") String difficulte,
+                             @ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                             HttpSession session) {
+        game.setDifficulte(difficulte);
+
+        // On tente de charger. Si ça échoue, on prévient l'utilisateur.
+        boolean succes = chargerPuzzleSelonDifficulte(game);
+
+        if (!succes) {
+            session.setAttribute("flashMessage", "⚠️ Aucun puzzle trouvé...");
+        } else {
+            session.setAttribute("flashMessage", "Puzzle chargé !");
+        }
         return "redirect:/puzzle";
     }
 
-    private void injecterInfosUtilisateur(Model model, Authentication authentication) {
-        boolean isConnected = authentication != null
-                && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken);
-        model.addAttribute("pseudo", isConnected ? authentication.getName() : "Invité");
+    // --- Endpoint : Reset / Nouveau Puzzle ---
+    @PostMapping("/reset")
+    public String resetPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                              RedirectAttributes redirectAttributes) {
+
+        boolean succes = chargerPuzzleSelonDifficulte(game);
+
+        if (!succes) {
+            game.viderPlateau();
+            redirectAttributes.addFlashAttribute("message", "⚠️ Impossible de charger un puzzle.");
+        }
+        return "redirect:/puzzle";
     }
 
-    private void chargerPuzzleAleatoire(JeuPuzzle game) {
+    // --- LOGIQUE DE CHARGEMENT STRICTE ---
+    // Retourne TRUE si un puzzle a été trouvé et chargé, FALSE sinon.
+    private boolean chargerPuzzleSelonDifficulte(JeuPuzzle game) {
         try {
             ClassPathResource resource = new ClassPathResource("puzzle.csv");
-
-            if (!resource.exists()) {
-                System.err.println("ERREUR CRITIQUE : Le fichier puzzle.csv est introuvable dans src/main/resources !");
-                return;
-            }
+            if (!resource.exists()) return false;
 
             List<String> lines = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
                 String line;
-                while ((line = reader.readLine()) != null) lines.add(line);
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty() && !line.startsWith("PuzzleId")) lines.add(line);
+                }
             }
 
-            if (lines.isEmpty()) {
-                System.err.println("ERREUR : Le fichier puzzle.csv est vide !");
-                return;
+            if (lines.isEmpty()) return false;
+
+            String diff = game.getDifficulte();
+            List<String> candidats = new ArrayList<>();
+
+            // 1. On récupère l'ID du puzzle actuel pour ne pas le rejouer tout de suite
+            String currentId = game.getPuzzleId();
+
+            for (String line : lines) {
+                try {
+                    String[] tokens = line.split(",");
+                    if (tokens.length < 3) continue;
+
+                    String id = tokens[0].trim(); // L'ID est la première colonne
+
+                    // NOUVEAU : Si c'est le même ID que celui en cours, on l'ignore direct
+                    if (id.equals(currentId)) {
+                        continue;
+                    }
+
+                    String moves = tokens[2].trim();
+                    int nbMoves = moves.split("\\s+").length;
+
+                    boolean match = switch (diff) {
+                        case "1" -> nbMoves <= 2;
+                        case "2" -> nbMoves > 2 && nbMoves <= 4;
+                        case "3" -> nbMoves > 4;
+                        default -> true;
+                    };
+
+                    if (match) candidats.add(line);
+
+                } catch (Exception ignored) {}
             }
 
+            // --- Si la liste est vide ---
+            // Cela veut dire qu'il n'y a plus AUCUN puzzle "nouveau" disponible.
+            if (candidats.isEmpty()) {
+                System.out.println("Aucun nouveau puzzle trouvé pour diff=" + diff);
+                return false;
+            }
+
+            // Sélection
             Random rand = new Random();
-            // On ignore la première ligne (en-tête) si elle contient "PuzzleId"
-            int start = lines.get(0).startsWith("PuzzleId") ? 1 : 0;
-            int index = rand.nextInt(lines.size() - start) + start;
+            String chosenLine = candidats.get(rand.nextInt(candidats.size()));
 
-            String line = lines.get(index);
-            System.out.println("Chargement du puzzle : " + line); // LOG pour vérifier
+            String[] tokens = chosenLine.split(",");
 
-            String[] tokens = line.split(",");
-            // Token 1 = FEN, Token 2 = Moves
-            // Attention aux virgules dans le CSV, parfois le split simple échoue si les données contiennent des virgules
-            if (tokens.length < 3) {
-                System.err.println("Format CSV invalide pour la ligne : " + line);
-                return;
-            }
+            // NOUVEAU : On enregistre l'ID du nouveau puzzle
+            game.setPuzzleId(tokens[0]);
 
             JSONObject json = new JSONObject();
             json.put("fen", tokens[1]);
             json.put("moves", tokens[2]);
 
             game.dechiffre_pb(json);
-            System.out.println("Puzzle chargé avec succès !");
+            return true;
 
         } catch (Exception e) {
-            System.err.println("Exception lors du chargement du puzzle :");
             e.printStackTrace();
+            return false;
         }
+    }
+
+    @PostMapping("/clear")
+    public String clearBoard(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                             RedirectAttributes redirectAttributes) {
+        game.viderPlateau();
+        redirectAttributes.addFlashAttribute("message", "Plateau vidé.");
+        return "redirect:/puzzle";
     }
 }

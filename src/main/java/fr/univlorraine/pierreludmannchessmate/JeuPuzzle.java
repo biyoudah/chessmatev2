@@ -1,7 +1,8 @@
 package fr.univlorraine.pierreludmannchessmate;
 
-import org.json.JSONObject;
 import lombok.Getter;
+import lombok.Setter;
+import org.json.JSONObject;
 
 public class JeuPuzzle extends AbstractChessGame {
 
@@ -11,12 +12,18 @@ public class JeuPuzzle extends AbstractChessGame {
     @Getter
     private boolean partieCommencee = false;
 
-    // Nouvel attribut pour le pilotage du délai
     @Getter
     private boolean ordiDoitJouer = false;
 
     @Getter
-    private boolean vueJoueurEstBlanc; // Pour fixer l'orientation
+    private boolean vueJoueurEstBlanc;
+
+    // Filtre de difficulté (1, 2, 3 ou "any")
+    @Getter @Setter
+    private String difficulte = "any";
+
+    @Getter @Setter
+    private String puzzleId = "";
 
     public JeuPuzzle() {
         super();
@@ -24,26 +31,25 @@ public class JeuPuzzle extends AbstractChessGame {
     }
 
     public void dechiffre_pb(JSONObject le_pb) {
-        // 1. Charger la position AVANT l'erreur de l'adversaire
+        // 1. On vide proprement le plateau avant de charger
+        viderPlateau();
+
+        // 2. Charger la position
         super.chargerFen(le_pb.getString("fen"));
         this.solutionMoves = le_pb.getString("moves").split(" ");
 
         if (solutionMoves.length > 0) {
-            // 2. L'adversaire fait son erreur (ex: il joue un coup noir)
-            // La méthode jouerCoupInterne va automatiquement mettre traitAuBlanc = true
             jouerCoupInterne(solutionMoves[0]);
-
-            this.indexCoupActuel = 1; // Le coup suivant (index 1) est votre réponse
+            this.indexCoupActuel = 1;
         }
 
-        // 3. On fixe la vue du joueur sur la couleur qui doit jouer maintenant
         this.vueJoueurEstBlanc = this.isTraitAuBlanc();
         this.partieCommencee = true;
     }
 
     public String jouerCoupJoueur(int xDep, int yDep, int xArr, int yArr) {
         String coupJoue = coordsToUci(xDep, yDep) + coordsToUci(xArr, yArr);
-        if (indexCoupActuel >= solutionMoves.length) return "FINI";
+        if (solutionMoves == null || indexCoupActuel >= solutionMoves.length) return "FINI";
 
         String coupAttendu = solutionMoves[indexCoupActuel];
 
@@ -59,23 +65,51 @@ public class JeuPuzzle extends AbstractChessGame {
             return "GAGNE";
         }
 
-        // On active le drapeau pour le JavaScript
         this.ordiDoitJouer = true;
         return "CONTINUE";
     }
 
     public void reponseOrdinateur() {
-        if (this.ordiDoitJouer && indexCoupActuel < solutionMoves.length) {
+        if (this.ordiDoitJouer && solutionMoves != null && indexCoupActuel < solutionMoves.length) {
             jouerCoupInterne(solutionMoves[indexCoupActuel]);
             indexCoupActuel++;
             this.ordiDoitJouer = false;
-            // Pas besoin de setTraitAuBlanc ici, jouerCoupInterne s'en occupe.
         }
     }
 
     @Override
     public boolean estPuzzleResolu() {
+        // PROTECTION ANTI-CRASH : Si pas de puzzle chargé, ce n'est pas résolu
+        if (solutionMoves == null) return false;
         return indexCoupActuel >= solutionMoves.length;
+    }
+
+    public boolean isPuzzleLoaded() {
+        return solutionMoves != null && solutionMoves.length > 0;
+    }
+
+    /**
+     * Vide le plateau en utilisant les méthodes de la classe mère AbstractChessGame.
+     */
+    public void viderPlateau() {
+        // 1. On parcourt toutes les cases pour retirer les pièces une par une
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                // retirerPiece est une méthode de AbstractChessGame
+                retirerPiece(x, y);
+            }
+        }
+
+        // 2. Réinitialisation des variables du puzzle
+        this.solutionMoves = null;
+        this.indexCoupActuel = 0;
+        this.partieCommencee = false;
+        this.ordiDoitJouer = false;
+
+        // 3. On remet le trait aux Blancs par défaut pour l'affichage
+        this.setTraitAuBlanc(true);
+
+        this.puzzleId = "";
     }
 
     private void jouerCoupInterne(String uciMove) {
@@ -84,27 +118,22 @@ public class JeuPuzzle extends AbstractChessGame {
         int xArr = uciToX(uciMove.charAt(2));
         int yArr = uciToY(uciMove.charAt(3));
 
-        Piece p = getPieceObject(xDep, yDep);
+        Piece p = getPieceObject(xDep, yDep); // Méthode de la classe mère
         if (p == null) return;
 
-        retirerPiece(xDep, yDep);
-        retirerPiece(xArr, yArr);
+        retirerPiece(xDep, yDep); // Méthode de la classe mère
+        retirerPiece(xArr, yArr); // Méthode de la classe mère
 
+        // Gestion de la promotion simple (dame par défaut)
         if (uciMove.length() > 4) {
             p = new Dame(p.estBlanc());
         }
 
-        placerPieceInterne(xArr, yArr, p);
-
-        // CHANGE LE TRAIT AUTOMATIQUEMENT
-        // Si une pièce blanche a bougé, le trait passe aux noirs, et inversement.
+        placerPieceInterne(xArr, yArr, p); // Méthode de la classe mère
         this.setTraitAuBlanc(!p.estBlanc());
     }
 
-    private String coordsToUci(int x, int y) {
-        return "" + (char) ('a' + x) + (char) ('1' + y);
-    }
-
+    private String coordsToUci(int x, int y) { return "" + (char) ('a' + x) + (char) ('1' + y); }
     private int uciToX(char c) { return c - 'a'; }
     private int uciToY(char c) { return c - '1'; }
 }

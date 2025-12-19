@@ -42,6 +42,8 @@ public class SecurityConfig {
                         // Autorise l'accès à la page et aux actions associées
                         .requestMatchers("/puzzle/**").permitAll()
 
+                        .requestMatchers("/error").permitAll()
+
                         // 6. Le reste nécessite une connexion
                         .anyRequest().authenticated()
                 )

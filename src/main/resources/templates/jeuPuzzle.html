@@ -2,42 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Chessmate - Mode Puzzle</title>
+    <title>Chessmate - Puzzles Tactiques</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
-
     <style>
-        .case { cursor: pointer; }
-        .case.selected-start {
-            background-color: rgba(255, 215, 0, 0.7) !important;
-            box-shadow: inset 0 0 10px #b8860b;
-            border: 2px solid orange;
+        /* Ajout de styles pour le sélecteur */
+        .settings-panel {
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 200px; text-align: left;
+            height: fit-content;
         }
+        .settings-panel label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .settings-panel select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+
         .message-box {
-            text-align:center; padding:10px; margin:10px;
+            text-align:center; padding:10px; margin:10px auto; max-width: 600px;
             background:#333; color:white; border-radius:5px;
         }
-        .message-success {
-            background-color: #d4edda; color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        /* Classe pour bloquer l'écran pendant le chargement */
-        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+        .message-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     </style>
 </head>
 <body id="page-body">
 
-<h1>🧠 Chessmate - Puzzle Aléatoire ♟</h1>
+<h1>🧩 Entraînement Tactique</h1>
 
-<div th:if="${message}" class="message-box" th:text="${message}"></div>
-
-<div class="action-buttons-container" style="margin-bottom: 20px; text-align: center;">
-    <form th:action="@{/puzzle/reset}" method="post" style="display:inline;">
-        <button type="submit" class="action-btn warning">🧩 Nouveau Puzzle</button>
-    </form>
-    <a th:href="@{/home}" class="action-btn" style="background-color:#6c757d; text-decoration:none; padding: 10px; color: white;">🏠 Accueil</a>
-</div>
+<div th:if="${message}" class="message-box"
+     th:classappend="${message.contains('Bravo') ? 'message-success' : ''}"
+     th:text="${message}"></div>
 
 <div class="container" id="main-container">
+
+    <div class="settings-panel">
+        <h3>🎯 Objectif</h3>
+        <p style="font-size:0.9em; color:gray; margin-bottom:15px;">Choisissez la difficulté.</p>
+
+        <form id="modeForm">
+            <label for="diffSelect">Type de Mat :</label>
+            <select name="difficulte" id="diffSelect" onchange="triggerChangeMode(this.value)">
+                <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
+                <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">⚡ Mat en 1</option>
+                <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🧠 Mat en 2</option>
+                <option value="3" th:selected="${jeuPuzzle.difficulte == '3'}">🔥 Mat en 3+</option>
+            </select>
+        </form>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <button class="action-btn" onclick="triggerReset()" style="margin-bottom: 5px;">
+            <span th:if="${jeuPuzzle.isPuzzleLoaded()}">🔄 Nouveau Puzzle</span>
+            <span th:unless="${jeuPuzzle.isPuzzleLoaded()}">▶️ Charger le puzzle</span>
+        </button>
+
+        <button class="action-btn" onclick="triggerClear()">
+            🗑️ Vider Plateau
+        </button>
+
+        <a th:href="@{/home}" class="action-btn">🏠 Accueil</a>
+    </div>
+
     <div class="board-container">
         <div class="board" id="board">
             <th:block th:each="i : ${rows}">
@@ -68,73 +90,52 @@
             <span th:unless="${traitAuBlanc}" style="color:red; font-weight:bold;">NOIRS ⚫</span>
         </p>
 
-        <p id="thinking-msg" style="display:none; color: orange; font-weight: bold;">
-            ⏳ L'ordinateur réfléchit...
+        <p id="thinking-msg" style="display:none; color: orange; font-weight: bold; margin-top:15px;">
+            ⏳ L'ordinateur répond...
         </p>
 
-        <div th:if="${jeuPuzzle?.estPuzzleResolu()}" class="message-box message-success">
+        <div th:if="${jeuPuzzle?.estPuzzleResolu()}" class="message-box message-success" style="margin: 10px 0;">
             <h2>🎉 Puzzle Résolu !</h2>
-            <p>Bravo ! +10 points.</p>
+            <p>Bien joué !</p>
         </div>
-
-        <form method="post" th:action="@{/puzzle/reset}" style="margin-top: 20px;">
-            <button type="submit" class="action-btn danger">Réinitialiser</button>
-        </form>
     </div>
 </div>
 
 <script th:inline="javascript">
     let startCase = null;
+
+    // URLs
     const moveUrl = [[@{/puzzle/move}]];
     const computerMoveUrl = [[@{/puzzle/computer-move}]];
+    const puzzleResetUrl = [[@{/puzzle/reset}]];
+    const changeModeUrl = [[@{/puzzle/changeMode}]];
+    const clearUrl = [[@{/puzzle/clear}]];
 
-    // Fonction d'envoi AJAX robuste
-    async function sendMoveRequest(url, formData = null) {
-        // Bloque l'interface
+    // --- AJAX ---
+    async function sendRequest(url, formData = null) {
         document.getElementById('page-body').classList.add('waiting');
-
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-
-            // Si redirection vers login détectée (au cas où), on suit le lien
-            if (response.url.includes("login")) {
-                window.location.href = response.url;
-                return;
-            }
-
-            if (response.ok) {
-                // Rechargement propre en écrasant l'historique
-                window.location.replace(window.location.href);
-            } else {
-                console.error("Erreur serveur : ", response.status);
-                document.getElementById('page-body').classList.remove('waiting');
-            }
-        } catch (error) {
-            console.error("Erreur réseau :", error);
-            document.getElementById('page-body').classList.remove('waiting');
-        }
+            const response = await fetch(url, { method: 'POST', body: formData });
+            if (response.ok) window.location.replace(window.location.href);
+        } catch (error) { console.error(error); }
+        document.getElementById('page-body').classList.remove('waiting');
     }
 
+    // --- ACTIONS ---
     function clickPuzzleCase(element) {
-        const x = element.getAttribute('data-x'); // Ligne
-        const y = element.getAttribute('data-y'); // Colonne
+        const x = element.getAttribute('data-x');
+        const y = element.getAttribute('data-y');
         const content = element.innerText.trim();
 
         if (startCase === null) {
-            // Sélection
             if (content !== '') {
                 startCase = element;
                 element.classList.add('selected-start');
             }
         } else {
-            // Déplacement
             const departX = startCase.getAttribute('data-x');
             const departY = startCase.getAttribute('data-y');
 
-            // Annulation si clic sur la même case
             if (departX === x && departY === y) {
                 startCase.classList.remove('selected-start');
                 startCase = null;
@@ -147,23 +148,32 @@
             formData.append('arriveeX', x);
             formData.append('arriveeY', y);
 
-            sendMoveRequest(moveUrl, formData);
+            sendRequest(moveUrl, formData);
         }
     }
 
-    // Automatisme ordinateur
+    function triggerChangeMode(val) {
+        const fd = new FormData();
+        fd.append('difficulte', val);
+        sendRequest(changeModeUrl, fd);
+    }
+
+    function triggerReset() {
+        sendRequest(puzzleResetUrl);
+    }
+
+    function triggerClear() {
+        sendRequest(clearUrl);
+    }
+
+    // --- AUTO ---
     const ordiDoitJouer = [[${jeuPuzzle.ordiDoitJouer}]];
     if (ordiDoitJouer) {
         document.getElementById('thinking-msg').style.display = 'block';
-        setTimeout(() => {
-            sendMoveRequest(computerMoveUrl, new FormData());
-        }, 1000);
+        setTimeout(() => sendRequest(computerMoveUrl), 800);
     }
 
-    // Nettoyage historique
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
+    if (window.history.replaceState) window.history.replaceState(null, null, window.location.href);
 </script>
 
 </body>
