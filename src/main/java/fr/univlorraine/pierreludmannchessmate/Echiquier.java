@@ -210,11 +210,21 @@ public class Echiquier {
      * @return Un tableau 2D de Strings contenant les symboles Unicode des pièces.
      */
     public String[][] getBoardUnicode() {
-        String[][] boardUnicode = new String[getTaille()][getTaille()];
-        for (int i = 0; i < getTaille(); i++) {
-            for (int j = 0; j < getTaille(); j++) {
-                Piece p = e[i][j].getPiece();
-                boardUnicode[i][j] = (p == null) ? "" : p.dessiner(); // dessiner() retourne le symbole Unicode
+        // Thymeleaf attend une matrice sous la forme tableau[LIGNE][COLONNE]
+        String[][] boardUnicode = new String[8][8];
+
+        for (int col = 0; col < 8; col++) {        // x = Colonne (A..H)
+            for (int row = 0; row < 8; row++) {    // y = Ligne (1..8)
+
+                // On récupère la pièce stockée en interne à (col, row)
+                // Adaptez 'e[col][row]' ou 'e[row][col]' selon votre déclaration 'Case[][] e'
+                // Si vous avez verticalisé les pions, c'est que l'un est l'inverse de l'autre.
+
+                // HYPOTHÈSE FORTE : Votre 'e' est en format e[colonne][ligne]
+                Piece p = e[row][col].getPiece();
+
+                // IMPORTANT : On remplit le tableau de vue en inversant : [row][col]
+                boardUnicode[row][col] = (p == null) ? "" : p.dessiner();
             }
         }
         return boardUnicode;

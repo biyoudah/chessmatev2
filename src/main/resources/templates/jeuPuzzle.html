@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Chessmate - Mode Puzzle</title>
+    <link rel="stylesheet" th:href="@{/css/show.css}">
+
+    <style>
+        .case { cursor: pointer; }
+        .case.selected-start {
+            background-color: rgba(255, 215, 0, 0.7) !important;
+            box-shadow: inset 0 0 10px #b8860b;
+            border: 2px solid orange;
+        }
+        .message-box {
+            text-align:center; padding:10px; margin:10px;
+            background:#333; color:white; border-radius:5px;
+        }
+        .message-success {
+            background-color: #d4edda; color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        /* Classe pour bloquer l'écran pendant le chargement */
+        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+    </style>
+</head>
+<body id="page-body">
+
+<h1>🧠 Chessmate - Puzzle Aléatoire ♟</h1>
+
+<div th:if="${message}" class="message-box" th:text="${message}"></div>
+
+<div class="action-buttons-container" style="margin-bottom: 20px; text-align: center;">
+    <form th:action="@{/puzzle/reset}" method="post" style="display:inline;">
+        <button type="submit" class="action-btn warning">🧩 Nouveau Puzzle</button>
+    </form>
+    <a th:href="@{/home}" class="action-btn" style="background-color:#6c757d; text-decoration:none; padding: 10px; color: white;">🏠 Accueil</a>
+</div>
+
+<div class="container" id="main-container">
+    <div class="board-container">
+        <div class="board" id="board">
+            <th:block th:each="i : ${rows}">
+                <div th:each="j : ${cols}"
+                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                     th:attr="data-x=${i}, data-y=${j}"
+                     onclick="clickPuzzleCase(this)">
+
+                    <span class="case-coordinate"
+                          th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}">
+                    </span>
+
+                    <span th:if="${board[i][j] != null and board[i][j].toString() != ''}"
+                          th:text="${board[i][j]}"
+                          class="piece-anim">
+                    </span>
+                </div>
+            </th:block>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>Statut</h3>
+        <p><strong>Joueur :</strong> <span th:text="${pseudo}">Invité</span></p>
+
+        <p><strong>Au trait :</strong>
+            <span th:if="${traitAuBlanc}" style="color:blue; font-weight:bold;">BLANCS ⚪</span>
+            <span th:unless="${traitAuBlanc}" style="color:red; font-weight:bold;">NOIRS ⚫</span>
+        </p>
+
+        <p id="thinking-msg" style="display:none; color: orange; font-weight: bold;">
+            ⏳ L'ordinateur réfléchit...
+        </p>
+
+        <div th:if="${jeuPuzzle?.estPuzzleResolu()}" class="message-box message-success">
+            <h2>🎉 Puzzle Résolu !</h2>
+            <p>Bravo ! +10 points.</p>
+        </div>
+
+        <form method="post" th:action="@{/puzzle/reset}" style="margin-top: 20px;">
+            <button type="submit" class="action-btn danger">Réinitialiser</button>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    let startCase = null;
+    const moveUrl = [[@{/puzzle/move}]];
+    const computerMoveUrl = [[@{/puzzle/computer-move}]];
+
+    // Fonction d'envoi AJAX robuste
+    async function sendMoveRequest(url, formData = null) {
+        // Bloque l'interface
+        document.getElementById('page-body').classList.add('waiting');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            // Si redirection vers login détectée (au cas où), on suit le lien
+            if (response.url.includes("login")) {
+                window.location.href = response.url;
+                return;
+            }
+
+            if (response.ok) {
+                // Rechargement propre en écrasant l'historique
+                window.location.replace(window.location.href);
+            } else {
+                console.error("Erreur serveur : ", response.status);
+                document.getElementById('page-body').classList.remove('waiting');
+            }
+        } catch (error) {
+            console.error("Erreur réseau :", error);
+            document.getElementById('page-body').classList.remove('waiting');
+        }
+    }
+
+    function clickPuzzleCase(element) {
+        const x = element.getAttribute('data-x'); // Ligne
+        const y = element.getAttribute('data-y'); // Colonne
+        const content = element.innerText.trim();
+
+        if (startCase === null) {
+            // Sélection
+            if (content !== '') {
+                startCase = element;
+                element.classList.add('selected-start');
+            }
+        } else {
+            // Déplacement
+            const departX = startCase.getAttribute('data-x');
+            const departY = startCase.getAttribute('data-y');
+
+            // Annulation si clic sur la même case
+            if (departX === x && departY === y) {
+                startCase.classList.remove('selected-start');
+                startCase = null;
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('departX', departX);
+            formData.append('departY', departY);
+            formData.append('arriveeX', x);
+            formData.append('arriveeY', y);
+
+            sendMoveRequest(moveUrl, formData);
+        }
+    }
+
+    // Automatisme ordinateur
+    const ordiDoitJouer = [[${jeuPuzzle.ordiDoitJouer}]];
+    if (ordiDoitJouer) {
+        document.getElementById('thinking-msg').style.display = 'block';
+        setTimeout(() => {
+            sendMoveRequest(computerMoveUrl, new FormData());
+        }, 1000);
+    }
+
+    // Nettoyage historique
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+
+</body>
+</html>

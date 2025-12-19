@@ -29,14 +29,11 @@ public abstract class AbstractChessGame {
         reinitialiser();
     }
 
-    // --- Méthodes Abstraites (Le contrat que les enfants doivent remplir) ---
-    /**
-     * Chaque mode de jeu définit sa propre condition de victoire.
-     */
+    // --- Méthodes Abstraites ---
     public abstract boolean estPuzzleResolu();
 
 
-    // --- Méthodes Concrètes (Partagées par tout le monde) ---
+    // --- Méthodes Concrètes ---
 
     public void reinitialiser() {
         echiquier.initialiser();
@@ -45,9 +42,6 @@ public abstract class AbstractChessGame {
         this.score = 0;
     }
 
-    /**
-     * Retourne la pièce logique (Utile pour vérifier les règles ou le type).
-     */
     public Piece getPieceObject(int x, int y) {
         if (x < 0 || x > 7 || y < 0 || y > 7) return null;
         return plateauLogique[x][y];
@@ -55,21 +49,25 @@ public abstract class AbstractChessGame {
 
     /**
      * Retourne la représentation visuelle pour l'interface graphique.
+     * CORRECTION MAJEURE ICI : Inversion [x][y] vers [y][x].
      */
     public String[][] getBoard() {
+        // Le tableau doit être [LIGNE][COLONNE] pour le HTML
         String[][] board = new String[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Case c = echiquier.getCase(i, j);
-                board[i][j] = (!c.isEstVide() && c.getPiece() != null) ? c.getPiece().dessiner() : "";
+
+        for (int x = 0; x < 8; x++) {     // x = Colonne (0..7)
+            for (int y = 0; y < 8; y++) { // y = Ligne (0..7)
+
+                // On récupère la case logique à (x, y)
+                Case c = echiquier.getCase(x, y);
+
+                // On remplit le tableau visuel à [y][x] (Ligne, Colonne)
+                board[y][x] = (!c.isEstVide() && c.getPiece() != null) ? c.getPiece().dessiner() : "";
             }
         }
         return board;
     }
 
-    /**
-     * Retire une pièce (Action physique de base).
-     */
     public boolean retirerPiece(int x, int y) {
         Case c = echiquier.getCase(x, y);
         if (c.isEstVide()) return false;
@@ -80,19 +78,12 @@ public abstract class AbstractChessGame {
         return true;
     }
 
-    /**
-     * Place une pièce physiquement sans vérifier les règles du jeu.
-     * (Utilisé par le setup, le chargement FEN, ou l'IA).
-     */
     protected void placerPieceInterne(int x, int y, Piece piece) {
         if (piece == null) return;
         echiquier.placerPiece(x, y, piece);
         this.plateauLogique[x][y] = piece;
     }
 
-    /**
-     * Compte les pièces pour la validation (Utilisé par JeuPlacement et potentiellement d'autres).
-     */
     public Map<String, Integer> getCompteActuelCalculated() {
         Map<String, Integer> c = new HashMap<>();
         for (int i = 0; i < 8; i++) {
@@ -108,9 +99,11 @@ public abstract class AbstractChessGame {
 
     /**
      * Charge une position FEN.
+     * Cette méthode est correcte mathématiquement (x=col, y=7-i).
+     * Avec le correctif de getBoard() ci-dessus, l'affichage sera bon.
      */
     public void chargerFen(String fen) {
-        reinitialiser(); // On vide tout d'abord
+        reinitialiser();
 
         String[] parties = fen.split(" ");
         String disposition = parties[0];
@@ -128,7 +121,8 @@ public abstract class AbstractChessGame {
                     String type = getTypeFromChar(c);
 
                     if (type != null) {
-                        // i=0 est la rangée 8 (index 7), i=7 est la rangée 1 (index 0)
+                        // i correspond à la ligne visuelle du haut vers le bas (FEN order)
+                        // Donc y = 7 - i
                         placerPieceInterne(col, 7 - i, factoryPiece(type, estBlanc));
                     }
                     col++;
@@ -141,7 +135,7 @@ public abstract class AbstractChessGame {
         }
     }
 
-    // --- Helpers (Usines et conversion) ---
+    // --- Helpers ---
 
     protected Piece factoryPiece(String type, boolean estBlanc) {
         return switch (type.toLowerCase()) {

@@ -15,9 +15,12 @@
         .custom-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .custom-input-group label { font-size: 0.9em; }
         .custom-input-group input { width: 50px; padding: 2px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+
+        /* Bloque l'interface pendant le chargement */
+        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
     </style>
 </head>
-<body>
+<body id="page-body">
 
 <h1>♟ Chessmate - Bac à Sable ♟</h1>
 
@@ -26,7 +29,7 @@
      th:style="${message.contains('⚠️') or message.contains('❌') ? 'background:#dc3545; color:white; padding:10px; border-radius:5px; text-align:center; margin:10px;' : 'background:#28a745; color:white; padding:10px; border-radius:5px; text-align:center; margin:10px;'}">
 </div>
 
-<div class="container">
+<div class="container" id="main-container">
 
     <div class="piece-selector">
         <h3>Pièces</h3>
@@ -57,8 +60,8 @@
                      th:attr="data-x=${i}, data-y=${j}"
                      onclick="clickCase(this)">
 
-                    <span th:if="${board[i][j] != null}"
-                          th:text="${board[i][j]}"
+                    <span th:if="${board[j][i] != null}"
+                          th:text="${board[j][i]}"
                           class="piece-anim"></span>
                 </div>
             </th:block>
@@ -88,25 +91,21 @@
         </div>
 
         <div class="controls-box">
-            <form method="post" th:action="@{/placement/reset}">
-                <button type="submit" class="action-btn warning">Réinitialiser le plateau</button>
-            </form>
+            <button type="button" class="action-btn warning" onclick="triggerReset()">Réinitialiser le plateau</button>
             <hr>
 
-            <form method="post" th:action="@{/placement/changeMode}" id="modeForm">
-                <label for="modeSelect"><strong>Mode de jeu :</strong></label>
-                <select name="modeDeJeu" id="modeSelect" onchange="document.getElementById('modeForm').submit()"
-                        style="width:100%; padding:8px; margin-bottom:5px; border-radius:5px;">
-                    <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
-                    <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
-                    <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
-                    <option value="16-rois" th:selected="${jeuPlacement.modeDeJeu == '16-rois'}">16 Rois</option>
-                    <option value="custom" th:selected="${jeuPlacement.modeDeJeu == 'custom'}">🛠️ Personnaliser...</option>
-                </select>
-            </form>
+            <label for="modeSelect"><strong>Mode de jeu :</strong></label>
+            <select name="modeDeJeu" id="modeSelect" onchange="triggerChangeMode(this.value)"
+                    style="width:100%; padding:8px; margin-bottom:5px; border-radius:5px;">
+                <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
+                <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
+                <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
+                <option value="16-rois" th:selected="${jeuPlacement.modeDeJeu == '16-rois'}">16 Rois</option>
+                <option value="custom" th:selected="${jeuPlacement.modeDeJeu == 'custom'}">🛠️ Personnaliser...</option>
+            </select>
 
             <div id="customConfigPanel" th:style="${jeuPlacement.modeDeJeu == 'custom'} ? 'display:block' : 'display:none'">
-                <form method="post" th:action="@{/placement/customConfig}">
+                <form id="customForm" onsubmit="event.preventDefault(); submitCustomConfig();">
                     <h4 style="margin-top:10px; font-size:0.9em;">Votre composition :</h4>
                     <div class="custom-input-group"><label>♕ Dames</label> <input type="number" name="c_dame" min="0" max="64" value="0"></div>
                     <div class="custom-input-group"><label>♖ Tours</label> <input type="number" name="c_tour" min="0" max="64" value="0"></div>
@@ -121,50 +120,92 @@
     </div>
 </div>
 
-<form method="post" th:action="@{/placement/action}" id="actionForm">
-    <input type="hidden" name="x" id="fieldX">
-    <input type="hidden" name="y" id="fieldY">
-    <input type="hidden" name="type" id="fieldType">
-</form>
-
-<script>
-    // Variable pour stocker le type de pièce sélectionné (ex: "Dame")
+<script th:inline="javascript">
     let currentPieceType = "";
+
+    // URLs pour les actions AJAX
+    const actionUrl = [[@{/placement/action}]];
+    const resetUrl = [[@{/placement/reset}]];
+    const changeModeUrl = [[@{/placement/changeMode}]];
+    const customConfigUrl = [[@{/placement/customConfig}]];
+
+    // --- FONCTION PRINCIPALE D'ENVOI (Anti-Historique) ---
+    async function sendRequest(url, formData = null) {
+        document.getElementById('page-body').classList.add('waiting');
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                // Rafraîchit la page sans empiler l'historique
+                window.location.replace(window.location.href);
+            } else {
+                console.error("Erreur serveur");
+                document.getElementById('page-body').classList.remove('waiting');
+            }
+        } catch (error) {
+            console.error("Erreur réseau:", error);
+            document.getElementById('page-body').classList.remove('waiting');
+        }
+    }
+
+    // --- LOGIQUE IHM ---
 
     function selectPiece(type, btnElement) {
         currentPieceType = type;
-
-        // Mise à jour visuelle des boutons
         document.querySelectorAll('.piece-btn').forEach(btn => btn.classList.remove('selected-piece'));
         if(btnElement) btnElement.classList.add('selected-piece');
 
-        // Mise à jour du texte d'info
-        document.getElementById('selected-info').innerText = "Sélectionné : " + type;
-        document.getElementById('selected-info').style.color = "black";
-
-        // Mise à jour du champ caché pour le formulaire
-        document.getElementById('fieldType').value = type;
+        const info = document.getElementById('selected-info');
+        info.innerText = "Sélectionné : " + type;
+        info.style.color = "black";
     }
 
     function clearSelection() {
         currentPieceType = "";
         document.querySelectorAll('.piece-btn').forEach(btn => btn.classList.remove('selected-piece'));
-        document.getElementById('selected-info').innerText = "Mode Gomme (cliquez pour retirer)";
-        document.getElementById('selected-info').style.color = "red";
-        document.getElementById('fieldType').value = ""; // Vide = retirer
+        const info = document.getElementById('selected-info');
+        info.innerText = "Mode Gomme (cliquez pour retirer)";
+        info.style.color = "red";
     }
 
+    // Clic sur une case -> Appel AJAX
     function clickCase(element) {
         const x = element.getAttribute('data-x');
         const y = element.getAttribute('data-y');
 
-        // On remplit le formulaire caché
-        document.getElementById('fieldX').value = x;
-        document.getElementById('fieldY').value = y;
-        // fieldType est déjà rempli par selectPiece ou clearSelection
+        const formData = new FormData();
+        formData.append('x', x);
+        formData.append('y', y);
+        formData.append('type', currentPieceType);
 
-        // On soumet le formulaire
-        document.getElementById('actionForm').submit();
+        sendRequest(actionUrl, formData);
+    }
+
+    // Reset -> Appel AJAX
+    function triggerReset() {
+        sendRequest(resetUrl);
+    }
+
+    // Changement de mode -> Appel AJAX
+    function triggerChangeMode(modeValue) {
+        const formData = new FormData();
+        formData.append('modeDeJeu', modeValue);
+        sendRequest(changeModeUrl, formData);
+    }
+
+    // Configuration Custom -> Appel AJAX
+    function submitCustomConfig() {
+        const form = document.getElementById('customForm');
+        const formData = new FormData(form);
+        sendRequest(customConfigUrl, formData);
+    }
+
+    // Nettoyage historique au chargement
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
     }
 </script>
 

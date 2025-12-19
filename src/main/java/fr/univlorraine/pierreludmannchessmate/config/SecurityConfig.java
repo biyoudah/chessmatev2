@@ -19,6 +19,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // --- AJOUT CRUCIAL ICI ---
+                // On désactive la protection CSRF uniquement pour les URLs du puzzle.
+                // Cela permet aux requêtes POST (move, computer-move) envoyées par JavaScript (fetch)
+                // de passer sans être bloquées ou redirigées vers le login.
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/puzzle/**", "/placement/**"))
+
                 .authorizeHttpRequests((requests) -> requests
                         // 1. Ressources statiques (toujours publiques)
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
@@ -30,11 +36,10 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home").permitAll()
 
                         // 4. Nouveau Mode Placement (Bac à sable)
-                        // Autorise l'accès à la page et aux actions associées (/placement, /placement/action, /placement/reset, etc.)
                         .requestMatchers("/placement/**").permitAll()
 
                         // 5. Nouveau Mode Puzzle
-                        // Autorise l'accès à la page et aux actions associées (/puzzle, /puzzle/move, /puzzle/reset)
+                        // Autorise l'accès à la page et aux actions associées
                         .requestMatchers("/puzzle/**").permitAll()
 
                         // 6. Le reste nécessite une connexion
