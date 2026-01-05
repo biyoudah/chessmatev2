@@ -81,6 +81,16 @@
         <p th:if="${#maps.isEmpty(configRequise)}">Aucun objectif.</p>
     </div>
 
+    <div class="score-box" style="margin-top:12px;">
+        <h4>Score</h4>
+        <p>
+            Points courants: <strong th:text="${scoreCourant}">0</strong>
+            • Erreurs: <strong th:text="${erreurs}">0</strong>
+            <span th:if="${tentativeParfaite}" style="color:#16a34a; margin-left:8px;">(Tentative parfaite)</span>
+        </p>
+        <p th:if="${gagne}" style="color:#1f2937; font-size:0.9em;">Défi validé ! Vos points sont enregistrés au classement.</p>
+    </div>
+
     <div class="controls-box">
         <form method="post" action="/reset">
             <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -108,6 +118,26 @@
             <button class="action-btn" onclick="submitCustomConfig()" style="background:#2196F3; color:white; margin-top:10px;">Valider</button>
             <button class="action-btn danger" onclick="cancelCustom()" style="margin-top:5px; font-size:0.8em;">Annuler</button>
         </div>
+    </div>
+
+    <div class="leaderboard-box" style="margin-top:16px;">
+        <h4>Classement (Global)</h4>
+        <ol style="margin-top:4px;">
+            <li th:each="row : ${classementGlobal}" style="font-size:0.9em;">
+                <span th:text="${row.pseudo}">Player</span>
+                — <strong th:text="${row.totalPoints}">0</strong> pts
+            </li>
+            <li th:if="${#lists.isEmpty(classementGlobal)}" style="color:#6b7280;">Aucun score pour le moment.</li>
+        </ol>
+
+        <h4 style="margin-top:10px;">Classement (Mode courant)</h4>
+        <ol style="margin-top:4px;">
+            <li th:each="row : ${classementMode}" style="font-size:0.9em;">
+                <span th:text="${row.pseudo}">Player</span>
+                — <strong th:text="${row.totalPoints}">0</strong> pts
+            </li>
+            <li th:if="${#lists.isEmpty(classementMode)}" style="color:#6b7280;">Aucun score pour ce mode.</li>
+        </ol>
     </div>
 </div>
 </div>
