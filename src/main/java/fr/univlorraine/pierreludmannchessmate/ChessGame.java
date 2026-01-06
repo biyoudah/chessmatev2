@@ -256,8 +256,6 @@ public class ChessGame {
         }
     }
 
-    // Surcharge pour chargerFen sans changer la signature complexe
     private void placerPiece(int x, int y, boolean estBlanc) {
-        // Logique simplifiée pour FEN
     }
 }

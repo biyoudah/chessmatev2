@@ -130,7 +130,7 @@
             <li th:if="${#lists.isEmpty(classementGlobal)}" style="color:#6b7280;">Aucun score pour le moment.</li>
         </ol>
 
-        <h4 style="margin-top:10px;">Classement (Mode courant)</h4>
+        <h4 style="margin-top:10px;">Classement (Mode actuel)</h4>
         <ol style="margin-top:4px;">
             <li th:each="row : ${classementMode}" style="font-size:0.9em;">
                 <span th:text="${row.pseudo}">Player</span>

@@ -150,10 +150,11 @@ public class ChessController {
 
         Utilisateur user = userOpt.get();
         String cleSchema = genererCleSchema(game);
-        boolean premiereFois = !scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
+        // Première fois désormais évaluée au niveau de la base (tous utilisateurs confondus)
+        boolean premiereFois = !scoreRepository.existsBySchemaKeyAndReussiTrue(cleSchema);
 
         int base = game.calculerScoreFinalSansBonus();
-        // Calcul du bonus
+
         int bonus = premiereFois ? Math.max(5, (int) Math.round(base * 0.3)) : 0;
         int total = base + bonus;
 
@@ -162,14 +163,11 @@ public class ChessController {
         s.setMode(game.getModeDeJeu());
         s.setSchemaKey(cleSchema);
 
-        // Remplissage des colonnes de score
         s.setPoints(total);
         s.setScore(total);
 
-        // Alimentation du champ qui causait l'erreur
         s.setBonusPremierSchemaAttribue(bonus);
 
-        // Autres colonnes obligatoires
         s.setErreurs(game.getErreurs());
         s.setErreursPlacement(game.getErreurs());
         s.setPerfect(game.estTentativeParfaite());
@@ -182,6 +180,8 @@ public class ChessController {
 
         String msg = "🏆 Configuration réussie ! +" + total + " pts" + (premiereFois ? " (Bonus nouveau schéma incl.)" : "");
         modele.addAttribute("message", msg);
+        game.reinitialiser();
+
     }
 
     private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
