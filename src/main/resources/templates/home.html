@@ -32,7 +32,12 @@
   </div>
 
   <div th:if="${isLoggedIn}" class="welcome-box">
-    <p><strong>Bienvenue</strong> <span th:text="${pseudo}">Pseudo</span></p>
+    <p><strong>Bienvenue</strong> <span th:text="${pseudo}">Pseudo</span> <strong>!</strong> </p>
+
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+      <button type="submit" class="grey-btn">Se déconnecter</button>
+    </form>
+
   </div>
 
 </div>

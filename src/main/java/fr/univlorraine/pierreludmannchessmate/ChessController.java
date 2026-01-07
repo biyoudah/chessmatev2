@@ -202,10 +202,25 @@ public class ChessController {
         return game.getBoard()[0][4] == null || game.getBoard()[0][4].isEmpty();
     }
 
+
     private void injecterInfosUtilisateur(Model modele, Authentication auth) {
-        boolean estConnecte = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
+        boolean estConnecte = auth != null
+                && auth.isAuthenticated()
+                && !(auth instanceof AnonymousAuthenticationToken);
+
         modele.addAttribute("isLoggedIn", estConnecte);
-        modele.addAttribute("pseudo", estConnecte ? auth.getName() : "Invité");
+
+        if (!estConnecte) {
+            modele.addAttribute("pseudo", "Invité");
+            return;
+        }
+
+        String email = auth.getName(); // ce que Spring Security connaît comme username
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElse(null);
+
+        String pseudo = (utilisateur != null) ? utilisateur.getPseudo() : email;
+        modele.addAttribute("pseudo", pseudo);
     }
 
     private void configurerRegles(ChessGame game, String mode) {
