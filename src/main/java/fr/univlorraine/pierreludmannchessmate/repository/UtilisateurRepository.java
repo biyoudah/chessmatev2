@@ -7,4 +7,6 @@
 
     public interface UtilisateurRepository extends CrudRepository<Utilisateur, Long> {
         Optional<Utilisateur> findByEmail(String email);
-    }
+        Optional<Utilisateur> findByPseudo(String pseudo);
+        }
+

@@ -1,244 +1,241 @@
-/*
- * ChessMate Application Styles
- *
- * Feuille de style principale pour l'interface de navigation de l'application.
- * Ce fichier gère la barre latérale (Sidebar) pour les écrans de bureau
- * et sa transformation en barre supérieure (Topbar) pour les mobiles.
- */
+/* VARIABLES ET RESET */
+:root {
+    --sidebar-bg: #1e293b;
+    --main-bg: #f8fafc;
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-/*
- * Conteneur principal de la barre latérale.
- *
- * Positionnée de manière fixe sur la gauche de l'écran avec une hauteur minimale
- * couvrant toute la fenêtre (100vh). Utilise Flexbox pour aligner verticalement
- * les éléments (Logo, Recherche, Liens).
- */
-.sidebar {
-    background: #23231f;           /* Fond sombre principal */
-    width: 220px;                  /* Largeur fixe sur Desktop */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--main-bg);
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
     min-height: 100vh;
-    padding: 18px 0;
-    position: fixed;               /* Reste visible lors du défilement */
-    font-family: 'Segoe UI', sans-serif;
-    display: flex;
-    flex-direction: column;        /* Empilement vertical des éléments */
-    align-items: center;           /* Centrage horizontal du contenu */
 }
 
-/* --- Section Logo --- */
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
 
-/* Conteneur du logo et du titre */
 .logo {
+    padding: 30px 20px;
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    gap: 12px;
 }
 
-/* Image/Icône du logo */
-.logo img {
-    width: 32px;
-    margin-right: 7px;
+.logo img { width: 38px; }
+.logo span { font-size: 1.5rem; font-weight: 700; }
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
 }
 
-/* Typographie du nom de l'application */
-.logo span {
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* --- Navigation --- */
-
-/*
- * Liens de navigation du menu.
- *
- * Définit l'apparence des boutons de menu (Tableau de bord, Profil, etc.).
- * Inclut une transition douce pour l'effet de survol.
- */
-.sidebar a {
-    color: #fff;
+.nav-menu a {
+    padding: 14px 24px;
+    color: #cbd5e1;
     text-decoration: none;
-    width: 85%;
-    padding: 13px 0 13px 15px;     /* Espace interne pour le clic */
-    margin: 3px 0;
-    border-radius: 8px;            /* Coins arrondis */
-    font-size: 15px;
     display: flex;
     align-items: center;
-    transition: background 0.18s;  /* Animation fluide du background */
+    gap: 15px;
+    font-weight: 500;
+    transition: 0.2s;
 }
 
-/* Icônes FontAwesome ou similaires dans les liens */
-.sidebar a i {
-    margin-right: 14px;
-    font-size: 19px;
+.nav-menu a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding-left: 30px;
 }
 
-/* Changement d'apparence au survol de la souris */
-.sidebar a:hover {
-    background: #333329;           /* Éclaircissement léger du fond */
+.auth-section {
+    margin-top: auto;
+    padding: 20px;
 }
 
-/* --- Barre de Recherche --- */
-
-/*
- * Conteneur de la recherche.
- * Utilise Flexbox pour coller le champ de saisie et le bouton.
- */
-.search-container {
-    display: flex;
-    gap: 0;                        /* Pas d'espace entre l'input et le bouton */
-    margin: 16px 0 10px 0;
-    width: 85%;
-}
-
-/* Champ de saisie texte */
-.search-container input {
-    flex: 1;                       /* Prend tout l'espace disponible restant */
-    padding: 8px 10px;
+.btn {
+    width: 100%;
+    padding: 12px;
     border: none;
-    border-radius: 6px 0 0 6px;    /* Arrondi uniquement à gauche */
-    background: #353533;
-    color: #fff;
-    font-size: 14px;
-}
-
-/* Bouton de validation de recherche */
-.search-container button {
-    background: #353533;
-    border: none;
-    color: #03224c;
-    border-radius: 0 6px 6px 0;    /* Arrondi uniquement à droite */
-    padding: 0 12px;
-    cursor: pointer;
-}
-
-/* --- Boutons d'Action --- */
-
-/*
- * Bouton d'action principale (ex: "Jouer", "Nouveau Défi").
- * Malgré le nom de classe 'green-btn', la couleur appliquée est un bleu profond (#03224c).
- */
-.green-btn {
-    margin: 10px 0 6px 0;
-    padding: 13px 0;
-    width: 85%;
-    border: none;
-    border-radius: 7px;
-    background: #03224c;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.green-btn:hover {
-    background: #1e3f5a;           /* Éclaircissement au survol */
-}
-
-/*
- * Bouton d'action secondaire (ex: "Paramètres", "Annuler").
- * Style plus discret avec bordure fine.
- */
-.grey-btn {
-    margin-bottom: 8px;
-    padding: 11px 0;
-    width: 85%;
-    border: none;
-    border-radius: 7px;
-    background: #23231f;
-    color: #ddd;
-    font-size: 16px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    border: 1px solid #444;        /* Bordure subtile */
+    margin-bottom: 10px;
+    transition: transform 0.1s;
 }
 
-.grey-btn:hover {
-    background: #353533;
-}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--accent-green); color: white; }
+.btn-secondary { background: #475569; color: white; }
 
-/* Message de bienvenue ou statut utilisateur */
-.welcome-box {
-    color: #ffffff;
+.user-profile {
     text-align: center;
-    margin-top: 15px;
-    width: 85%;
+    border-top: 1px solid #334155;
+    padding-top: 15px;
 }
 
+.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
 
-/*
- * Ajustements intermédiaires pour Tablettes.
- * Réduit légèrement la largeur de la sidebar pour les écrans moyens.
- */
-@media screen and (max-width: 768px) {
-    .sidebar {
-        width: 180px;
-    }
-
-    .sidebar a {
-        font-size: 14px;
-    }
-
-    .logo span {
-        font-size: 18px;
-    }
+/* MAIN CONTENT */
+.main-content {
+    margin-left: 260px;
+    padding: 40px;
+    width: 100%;
+    max-width: 1100px;
 }
 
-/*
- * Transformation Mobile (Sidebar -> Topbar).
- *
- * Pour les petits écrans (Tablettes mode portrait et Mobiles),
- * la barre latérale verticale devient une barre de navigation horizontale
- * située en haut de page pour optimiser l'espace de jeu.
- */
-@media screen and (max-width: 768px) {
-    /* Reconfiguration du conteneur principal */
-    .sidebar {
-        width: 100%;          /* Prend toute la largeur de l'écran */
-        height: auto;         /* Hauteur dynamique selon le contenu */
-        min-height: auto;     /* Annule la hauteur min de 100vh */
-        position: relative;   /* Rentre dans le flux normal du document */
-        padding: 10px 0;
+.highlight { color: var(--accent-blue); }
 
-        /* Passage en Flexbox horizontal (Row) */
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;      /* Permet aux éléments de passer à la ligne si nécessaire */
-        justify-content: center;
-        z-index: 1000;        /* Assure que la nav reste au-dessus du contenu */
-    }
+.card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
 
-    /* Le logo prend toute la largeur de la première ligne */
-    .logo {
-        width: 100%;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
 
-    /* Transformation des liens en boutons "pilules" horizontaux */
-    .sidebar a {
-        width: auto;          /* Largeur adaptative au texte */
-        margin: 5px;
-        padding: 8px 15px;
-        border-radius: 20px;  /* Style très arrondi */
-        background: #353533;  /* Fond visible pour distinguer les boutons */
-        justify-content: center;
-    }
+.card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-    .sidebar a i {
-        margin-right: 8px;
-    }
+.card-header i { color: #f59e0b; }
 
-    /* Centrage de la barre de recherche */
-    .search-container {
-        width: 90%;
-        margin: 10px auto;
-    }
+.card-body { padding: 0 24px; }
 
-    /* Masquage des éléments non essentiels sur mobile pour gagner de la place */
-    .green-btn, .grey-btn, .welcome-box {
-        display: none;
-    }
+/* LIST ITEMS (Tournaments & Articles) */
+.list-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.list-item:last-child { border-bottom: none; }
+
+.item-info { flex: 1; }
+
+.item-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    display: flex;
+    gap: 15px;
+}
+
+.action-link {
+    background: #eff6ff;
+    color: var(--accent-blue);
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+
+.action-link:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+
+/* SPECIFIC FOR ARTICLES */
+.article-thumb {
+    width: 110px;
+    height: 70px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.article-title {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.article-title:hover { color: var(--accent-blue); }
+
+.article-summary {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.empty-msg {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* Positionnement du Prankeur à droite */
+.gorilla-container {
+    position: fixed;
+    right: -450px; /* Caché par défaut à droite */
+    bottom: 30px;
+    width: 350px;
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
+    z-index: 9999; /* Toujours au-dessus de tout */
+    border: 3px solid #1e293b;
+    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-align: center;
+}
+
+/* Classe activée par le clic */
+.gorilla-container.show-gorilla {
+    right: 30px; /* Apparaît à 30px du bord droit */
+}
+
+.Prankeur {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.gorilla-container p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #334155;
+    margin: 0;
+}
+
+.gorilla-container p span {
+    color: #3b82f6;
+    font-weight: bold;
 }

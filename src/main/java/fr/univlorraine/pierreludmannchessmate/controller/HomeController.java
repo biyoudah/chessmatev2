@@ -60,6 +60,17 @@ public class HomeController {
                 && !(authentication instanceof AnonymousAuthenticationToken);
 
         model.addAttribute("isLoggedIn", isConnected);
-        model.addAttribute("pseudo", isConnected ? authentication.getName() : "Invité");
+
+        if (isConnected) {
+            String emailUtilisateur = authentication.getName();
+
+            String pseudo = utilisateurRepository.findByEmail(emailUtilisateur)
+                    .map(Utilisateur::getPseudo) // On extrait juste le pseudo
+                    .orElse("Joueur");           // Valeur par défaut si non trouvé
+
+            model.addAttribute("pseudo", pseudo);
+        } else {
+            model.addAttribute("pseudo", "Invité");
+        }
     }
 }
