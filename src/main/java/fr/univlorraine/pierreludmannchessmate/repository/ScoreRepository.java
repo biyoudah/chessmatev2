@@ -14,6 +14,8 @@ public interface ScoreRepository extends CrudRepository<Score, Long> {
 
     boolean existsBySchemaKeyAndReussiTrue(String schemaKey);
 
+    boolean existsBySchemaKey(String schemaKey);
+
     @Query("select s.utilisateur.pseudo as pseudo, sum(s.points) as totalPoints from Score s group by s.utilisateur.pseudo order by totalPoints desc")
     List<ClassementRow> getClassementGlobal();
 

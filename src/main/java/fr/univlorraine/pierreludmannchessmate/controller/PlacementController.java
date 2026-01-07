@@ -13,10 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 @Controller
 @RequestMapping("/placement")
@@ -37,53 +34,32 @@ public class PlacementController {
     }
 
     @GetMapping
-    public String afficherPlacement(@ModelAttribute("jeuPlacement") JeuPlacement game,
-                                    Model model,
-                                    Authentication auth,
-                                    HttpSession session) {
+    public String afficher(@ModelAttribute("jeuPlacement") JeuPlacement game, Model model, Authentication auth, HttpSession session) {
+        injecterInfosUtilisateur(model, auth);
 
+        // Nettoyage message flash
         Object msg = session.getAttribute("flashMessage");
         if (msg != null) {
             model.addAttribute("message", msg);
             session.removeAttribute("flashMessage");
         }
 
-        injecterInfosUtilisateur(model, auth);
-
-        // --- C'est ici qu'on injecte le classement ---
-        injecterClassement(model, game);
-
         preparerModele(model, game);
-        return "jeuPlacement";
-    }
-
-    @PostMapping("/reset")
-    public String reset(@ModelAttribute("jeuPlacement") JeuPlacement game,
-                        SessionStatus status, HttpSession session) {
-        game.reinitialiser();
-        game.setScoreEnregistre(false);
-        session.setAttribute("flashMessage", "Plateau réinitialisé.");
-        return "redirect:/placement";
+        return "placement"; // Assure-toi que ton fichier HTML s'appelle placement.html
     }
 
     @PostMapping("/action")
     public String action(@RequestParam int x, @RequestParam int y,
                          @RequestParam(required = false) String type,
                          @ModelAttribute("jeuPlacement") JeuPlacement game,
-                         HttpSession session,
-                         Authentication auth) {
+                         HttpSession session, Authentication auth) {
 
         if (game.getPieceObject(x, y) == null) {
-            // Tentative de Placement
+            // Placement
             if (type != null && !type.isEmpty()) {
-                String resultat = game.placerPieceJoueur(x, y, type, true);
-
-                if (!"OK".equals(resultat)) {
-                    // --- AJOUT IMPORTANT ---
-                    game.incrementerErreurs(); // On compte la faute dans le modèle
-
-                    String msgErreur = "INVALID".equals(resultat) ? "Impossible : Case menacée !" : "Erreur : " + resultat;
-                    session.setAttribute("flashMessage", "⚠️ " + msgErreur);
+                String res = game.placerPieceJoueur(x, y, type, true);
+                if (!"OK".equals(res)) {
+                    session.setAttribute("flashMessage", "INVALID".equals(res) ? "⚠️ Case menacée !" : "❌ Case occupée !");
                 }
             }
         } else {
@@ -92,115 +68,52 @@ public class PlacementController {
         }
 
         if (game.estPuzzleResolu()) {
-            traiterVictoireEtEnregistrerScore(game, session, auth);
+            traiterVictoire(game, session, auth);
         }
 
+        return "redirect:/placement";
+    }
+
+    @PostMapping("/reset")
+    public String reset(@ModelAttribute("jeuPlacement") JeuPlacement game) {
+        game.reinitialiser();
         return "redirect:/placement";
     }
 
     @PostMapping("/changeMode")
-    public String changeMode(@RequestParam("modeDeJeu") String mode,
-                             @ModelAttribute("jeuPlacement") JeuPlacement game,
-                             HttpSession session) {
+    public String changeMode(@RequestParam String modeDeJeu, @ModelAttribute("jeuPlacement") JeuPlacement game) {
         Map<String, Integer> config = new HashMap<>();
-        switch (mode) {
+        switch (modeDeJeu) {
             case "8-dames" -> config.put("Dame", 8);
             case "8-tours" -> config.put("Tour", 8);
             case "14-fous" -> config.put("Fou", 14);
             case "16-rois" -> config.put("Roi", 16);
-            case "custom" -> { }
             default -> config.put("Dame", 8);
         }
-
-        if (!"custom".equals(mode)) {
-            game.setConfigurationRequise(config);
-            game.setModeDeJeu(mode);
-            game.reinitialiser();
-            game.setScoreEnregistre(false);
-            session.setAttribute("flashMessage", "Mode changé : " + mode);
-        } else {
-            game.setModeDeJeu("custom");
-        }
-
+        game.setConfigurationRequise(config);
+        game.setModeDeJeu(modeDeJeu);
+        game.reinitialiser();
         return "redirect:/placement";
     }
 
-    @PostMapping("/customConfig")
-    public String customConfig(@RequestParam Map<String, String> params,
-                               @ModelAttribute("jeuPlacement") JeuPlacement game,
-                               HttpSession session) {
-        Map<String, Integer> newConfig = new HashMap<>();
-        parseConfigParam(params, newConfig, "c_dame", "Dame");
-        parseConfigParam(params, newConfig, "c_tour", "Tour");
-        parseConfigParam(params, newConfig, "c_fou", "Fou");
-        parseConfigParam(params, newConfig, "c_cavalier", "Cavalier");
-        parseConfigParam(params, newConfig, "c_roi", "Roi");
-
-        String validation = game.validerConfiguration(newConfig);
-
-        if ("OK".equals(validation)) {
-            game.setConfigurationRequise(newConfig);
-            game.setModeDeJeu("custom");
-            game.reinitialiser();
-            game.setScoreEnregistre(false);
-            session.setAttribute("flashMessage", "✅ Configuration personnalisée appliquée !");
-        } else {
-            session.setAttribute("flashMessage", "❌ Erreur config : " + validation);
-        }
-
-        return "redirect:/placement";
-    }
-
-    private String genererCleSchema(JeuPlacement game) {
-        TreeMap<String, Integer> tri = new TreeMap<>(game.getConfigurationRequise());
-        return game.getModeDeJeu() + "|" + tri.toString();
-    }
-
-    private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-            return Optional.empty();
-        }
-        return utilisateurRepository.findByEmail(auth.getName());
-    }
-
-    private void parseConfigParam(Map<String, String> params, Map<String, Integer> config, String paramName, String pieceType) {
-        try {
-            String val = params.get(paramName);
-            if (val != null && !val.isEmpty()) {
-                int nb = Integer.parseInt(val);
-                if (nb > 0) config.put(pieceType, nb);
-            }
-        } catch (NumberFormatException ignored) {}
-    }
-
-    private void injecterInfosUtilisateur(Model model, Authentication auth) {
-        String pseudo = (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken))
-                ? auth.getName() : "Invité";
-        model.addAttribute("pseudo", pseudo);
-    }
-
-    private void traiterVictoireEtEnregistrerScore(JeuPlacement game, HttpSession session, Authentication auth) {
+    private void traiterVictoire(JeuPlacement game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
 
+        int baseScore = game.calculerScoreFinalSansBonus();
         Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
 
-        // --- UTILISATION DU CALCUL DU MODÈLE ---
-        int scoreFinal = game.getScoreCourant();
-
         if (userOpt.isEmpty()) {
-            session.setAttribute("flashMessage", "🏆 Gagné ! " + scoreFinal + " pts (Connectez-vous pour sauvegarder)");
+            session.setAttribute("flashMessage", "🏆 Réussi ! " + baseScore + " pts (Connectez-vous pour enregistrer)");
             game.reinitialiser();
-            game.setScoreEnregistre(false);
             return;
         }
 
         Utilisateur user = userOpt.get();
-        String cleSchema = genererCleSchema(game);
-        boolean dejaReussiGlobalement = scoreRepository.existsBySchemaKeyAndReussiTrue(cleSchema);
+        String cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise());
+        boolean premiereFois = !scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
 
-        // Bonus "Première fois" ajouté au score calculé par le jeu
-        int bonus = (!dejaReussiGlobalement) ? 50 : 0;
-        int total = scoreFinal + bonus;
+        int bonus = premiereFois ? Math.max(5, (int) Math.round(baseScore * 0.3)) : 0;
+        int total = baseScore + bonus;
 
         Score s = new Score();
         s.setUtilisateur(user);
@@ -208,44 +121,39 @@ public class PlacementController {
         s.setSchemaKey(cleSchema);
         s.setPoints(total);
         s.setScore(total);
-        s.setReussi(true);
-        s.setFirstTime(!dejaReussiGlobalement);
-
-        // On sauvegarde aussi le détail des erreurs pour les stats
+        s.setBonusPremierSchemaAttribue(bonus);
         s.setErreurs(game.getErreurs());
+        s.setErreursPlacement(game.getErreurs());
         s.setPerfect(game.estTentativeParfaite());
+        s.setFirstTime(premiereFois);
+        s.setReussi(true);
 
         scoreRepository.save(s);
-
+        game.setScoreEnregistre(true);
         game.reinitialiser();
-        game.setScoreEnregistre(false);
 
-        String msg = "🏆 Victoire ! +" + total + " pts";
-        if (!dejaReussiGlobalement) msg += " (🌟 BONUS PIONNIER !)";
-        session.setAttribute("flashMessage", msg);
+        session.setAttribute("flashMessage", "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : ""));
     }
 
     private void preparerModele(Model model, JeuPlacement game) {
         model.addAttribute("board", game.getBoard());
         model.addAttribute("configRequise", game.getConfigurationRequise());
         model.addAttribute("compteActuel", game.getCompteActuelCalculated());
-        model.addAttribute("gagne", game.estPuzzleResolu());
-
-        // --- AJOUT : Données pour le panneau de score en temps réel ---
         model.addAttribute("scoreCourant", game.getScoreCourant());
         model.addAttribute("erreurs", game.getErreurs());
-        model.addAttribute("tentativeParfaite", game.estTentativeParfaite());
+        model.addAttribute("gagne", game.estPuzzleResolu());
+        model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
+        model.addAttribute("classementMode", scoreRepository.getClassementParMode(game.getModeDeJeu()));
     }
 
-    // --- NOUVELLE MÉTHODE ADAPTÉE A TON REPOSITORY ---
-    private void injecterClassement(Model model, JeuPlacement game) {
-        // Utilise getClassementGlobal (retourne List<ClassementRow>)
-        model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
+    private void injecterInfosUtilisateur(Model model, Authentication auth) {
+        boolean estConnecte = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
+        model.addAttribute("isLoggedIn", estConnecte);
+        model.addAttribute("pseudo", estConnecte ? auth.getName() : "Invité");
+    }
 
-        String mode = game.getModeDeJeu();
-        if (mode == null) mode = "8-dames";
-
-        // Utilise getClassementParMode (retourne List<ClassementRow>)
-        model.addAttribute("classementMode", scoreRepository.getClassementParMode(mode));
+    private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) return Optional.empty();
+        return utilisateurRepository.findByEmail(auth.getName());
     }
 }
