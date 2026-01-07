@@ -2,198 +2,141 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Chessmate - Puzzles Tactiques</title>
-    <link rel="stylesheet" th:href="@{/css/show.css}">
+    <title>Chessmate - Tactique</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        .settings-panel {
-            background: white; padding: 20px; border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 200px; text-align: left;
-            height: fit-content;
+        .puzzle-layout {
+            display: flex; justify-content: center; gap: 30px; padding: 20px; flex-wrap: wrap;
         }
-        .settings-panel label { font-weight: bold; display: block; margin-bottom: 5px; }
-        .settings-panel select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+        .puzzle-controls {
+            width: 250px; background: white; padding: 20px; border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: fit-content;
+        }
+        .status-box {
+            text-align: center; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px;
+        }
+        .turn-indicator { font-weight: bold; font-size: 1.1em; }
+        .turn-white { color: #2563eb; } .turn-black { color: #dc2626; }
 
-        .message-box {
-            text-align:center; padding:10px; margin:10px auto; max-width: 600px;
-            background:#333; color:white; border-radius:5px;
-        }
-        .message-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-
-        /* --- STYLE DE L'AIDE --- */
-        .hint-case {
-            background-color: #d63384 !important; /* Rose/Violet */
-            box-shadow: inset 0 0 15px #ff69b4;
-            border: 2px solid #ff1493;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: inset 0 0 10px #ff69b4; }
-            50% { box-shadow: inset 0 0 25px #ff1493; }
-            100% { box-shadow: inset 0 0 10px #ff69b4; }
-        }
+        .hint-anim { animation: pulse-purple 1.5s infinite; background-color: rgba(147, 51, 234, 0.3) !important; }
+        @keyframes pulse-purple { 0% {box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);} 70% {box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);} 100% {box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);} }
     </style>
 </head>
 <body id="page-body">
 
-<h1>🧩 Entraînement Tactique</h1>
+<nav class="navbar">
+    <h1>🧩 Chessmate <span style="font-weight:normal; font-size:0.8em;">| Tactique</span></h1>
+    <div class="user-info">
+        👤 <span th:text="${pseudo}">Joueur</span>
+        <a th:href="@{/home}" class="btn-small">🏠 Accueil</a>
+    </div>
+</nav>
 
-<div th:if="${message}" class="message-box"
-     th:classappend="${message.contains('Bravo') ? 'message-success' : ''}"
-     th:text="${message}"></div>
+<div th:if="${message}" th:text="${message}"
+     th:class="${message.contains('Bravo') or message.contains('pts') ? 'flash-msg success' : (message.contains('Mauvais') ? 'flash-msg error' : 'flash-msg neutral')}">
+</div>
 
-<div class="container" id="main-container">
+<div class="puzzle-layout">
 
-    <div class="settings-panel">
-        <h3>🎯 Objectif</h3>
-        <p style="font-size:0.9em; color:gray; margin-bottom:15px;">Choisissez la difficulté.</p>
+    <div class="puzzle-controls">
+        <div class="status-box">
+            <p class="text-muted small">Au trait :</p>
+            <div th:if="${traitAuBlanc}" class="turn-indicator turn-white">⚪ Les Blancs</div>
+            <div th:unless="${traitAuBlanc}" class="turn-indicator turn-black">⚫ Les Noirs</div>
 
-        <form id="modeForm">
-            <label for="diffSelect">Type de Mat :</label>
-            <select name="difficulte" id="diffSelect" onchange="triggerChangeMode(this.value)">
-                <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
-                <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">⚡ Mat en 1</option>
-                <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🧠 Mat en 2</option>
-                <option value="3" th:selected="${jeuPuzzle.difficulte == '3'}">🔥 Mat en 3+</option>
-            </select>
-        </form>
+            <div id="thinking-loader" style="display:none; margin-top:10px; color:#d97706;">
+                ⏳ L'ordi réfléchit...
+            </div>
+        </div>
 
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <hr class="separator">
 
-        <button class="action-btn" onclick="triggerReset()" style="margin-bottom: 5px;">
-            <span th:if="${jeuPuzzle.isPuzzleLoaded()}">🔄 Nouveau Puzzle</span>
-            <span th:unless="${jeuPuzzle.isPuzzleLoaded()}">▶️ Charger le puzzle</span>
+        <label for="diffSelect" class="form-label">Difficulté</label>
+        <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select">
+            <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
+            <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">🟢 Facile (Mat en 1)</option>
+            <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🟡 Moyen (Mat en 2)</option>
+            <option value="3" th:selected="${jeuPuzzle.difficulte == '3'}">🔴 Difficile (Mat en 3+)</option>
+        </select>
+
+        <button class="btn btn-primary full-width mt-2" onclick="triggerReset()">
+            <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
         </button>
 
-        <button class="action-btn" onclick="triggerHint()" style="background-color: #6610f2; color: white; margin-bottom: 5px;">
-            💡 Aide
-        </button>
-
-        <button class="action-btn" onclick="triggerClear()">🗑️ Vider Plateau</button>
-
-        <a th:href="@{/home}" class="action-btn">🏠 Accueil</a>
+        <button class="btn btn-warning full-width mt-1" onclick="triggerHint()">💡 Indice</button>
+        <button class="btn btn-neutral full-width mt-1" onclick="triggerClear()">🏳️ Abandonner / Vider</button>
     </div>
 
-    <div class="board-container">
+    <div class="board-wrapper">
         <div class="board" id="board">
             <th:block th:each="i : ${rows}">
                 <div th:each="j : ${cols}"
                      th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                     th:classappend="${hintCoords == i + ',' + j} ? ' hint-case' : ''"
+                     th:classappend="${hintCoords == i + ',' + j} ? ' hint-anim' : ''"
                      th:attr="data-x=${i}, data-y=${j}"
                      onclick="clickPuzzleCase(this)">
 
-                    <span class="case-coordinate"
-                          th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}">
-                    </span>
+                    <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
 
-                    <span th:if="${board[i][j] != null and board[i][j].toString() != ''}"
-                          th:text="${board[i][j]}"
-                          class="piece-anim">
-                    </span>
+                    <span th:if="${board[i][j] != null}" th:text="${board[i][j]}" class="piece"></span>
                 </div>
             </th:block>
         </div>
     </div>
 
-    <div class="info-panel">
-        <h3>Statut</h3>
-        <p><strong>Joueur :</strong> <span th:text="${pseudo}">Invité</span></p>
-
-        <p><strong>Au trait :</strong>
-            <span th:if="${traitAuBlanc}" style="color:blue; font-weight:bold;">BLANCS ⚪</span>
-            <span th:unless="${traitAuBlanc}" style="color:red; font-weight:bold;">NOIRS ⚫</span>
-        </p>
-
-        <p id="thinking-msg" style="display:none; color: orange; font-weight: bold; margin-top:15px;">
-            ⏳ L'ordinateur répond...
-        </p>
-
-        <div th:if="${jeuPuzzle?.estPuzzleResolu()}" class="message-box message-success" style="margin: 10px 0;">
-            <h2>🎉 Puzzle Résolu !</h2>
-            <p>Bien joué !</p>
-        </div>
-    </div>
 </div>
 
 <script th:inline="javascript">
-    let startCase = null;
-
-    // URLs
     const moveUrl = [[@{/puzzle/move}]];
-    const computerMoveUrl = [[@{/puzzle/computer-move}]];
-    const puzzleResetUrl = [[@{/puzzle/reset}]];
+    const compMoveUrl = [[@{/puzzle/computer-move}]];
+    const resetUrl = [[@{/puzzle/reset}]];
     const changeModeUrl = [[@{/puzzle/changeMode}]];
     const clearUrl = [[@{/puzzle/clear}]];
-    const hintUrl = [[@{/puzzle/hint}]]; // URL pour l'aide
+    const hintUrl = [[@{/puzzle/hint}]];
 
-    // --- AJAX ---
-    async function sendRequest(url, formData = null) {
-        document.getElementById('page-body').classList.add('waiting');
-        try {
-            const response = await fetch(url, { method: 'POST', body: formData });
-            if (response.ok) window.location.replace(window.location.href);
-        } catch (error) { console.error(error); }
-        document.getElementById('page-body').classList.remove('waiting');
+    let startCase = null;
+
+    async function sendRequest(url, fd) {
+        try { await fetch(url, {method:'POST', body:fd}); window.location.reload(); } catch(e){}
     }
 
-    // Fonction pour retirer visuellement l'indice immédiatement
-    function removeVisualHint() {
-        const hints = document.querySelectorAll('.hint-case');
-        hints.forEach(element => {
-            element.classList.remove('hint-case');
-        });
-    }
+    function clickPuzzleCase(el) {
+        // Enlever l'indice visuel au clic
+        document.querySelectorAll('.hint-anim').forEach(e => e.classList.remove('hint-anim'));
 
-    // --- ACTIONS ---
-    function clickPuzzleCase(element) {
-        removeVisualHint();
+        const x = el.getAttribute('data-x');
+        const y = el.getAttribute('data-y');
+        const hasPiece = el.querySelector('.piece') !== null;
 
-        // ... (votre code clickPuzzleCase inchangé) ...
-        const x = element.getAttribute('data-x');
-        const y = element.getAttribute('data-y');
-        const content = element.innerText.trim();
-
-        if (startCase === null) {
-            if (content !== '') {
-                startCase = element;
-                element.classList.add('selected-start');
+        if (!startCase) {
+            if (hasPiece) {
+                startCase = el;
+                el.classList.add('selected'); // Style à définir en CSS
             }
         } else {
-            const departX = startCase.getAttribute('data-x');
-            const departY = startCase.getAttribute('data-y');
+            const dx = startCase.getAttribute('data-x');
+            const dy = startCase.getAttribute('data-y');
 
-            if (departX === x && departY === y) {
-                startCase.classList.remove('selected-start');
-                startCase = null;
-                return;
-            }
+            // Annuler si clic sur la même case
+            if(dx === x && dy === y) { startCase.classList.remove('selected'); startCase = null; return; }
 
-            const formData = new FormData();
-            formData.append('departX', departX);
-            formData.append('departY', departY);
-            formData.append('arriveeX', x);
-            formData.append('arriveeY', y);
-
-            sendRequest(moveUrl, formData);
+            const fd = new FormData();
+            fd.append('departX', dx); fd.append('departY', dy);
+            fd.append('arriveeX', x); fd.append('arriveeY', y);
+            sendRequest(moveUrl, fd);
         }
     }
 
-    function triggerChangeMode(val) {
-        const fd = new FormData(); fd.append('difficulte', val);
-        sendRequest(changeModeUrl, fd);
-    }
-    function triggerReset() { sendRequest(puzzleResetUrl); }
+    function triggerChangeMode(v) { const fd = new FormData(); fd.append('difficulte', v); sendRequest(changeModeUrl, fd); }
+    function triggerReset() { sendRequest(resetUrl); }
+    function triggerHint() { sendRequest(hintUrl); }
     function triggerClear() { sendRequest(clearUrl); }
-    function triggerHint() { sendRequest(hintUrl); } // Appel de l'aide
 
-    const ordiDoitJouer = [[${jeuPuzzle.ordiDoitJouer}]];
-    if (ordiDoitJouer) {
-        document.getElementById('thinking-msg').style.display = 'block';
-        setTimeout(() => sendRequest(computerMoveUrl), 800);
+    const ordiJoue = [[${jeuPuzzle.ordiDoitJouer}]];
+    if(ordiJoue) {
+        document.getElementById('thinking-loader').style.display='block';
+        setTimeout(() => sendRequest(compMoveUrl), 500);
     }
-
-    if (window.history.replaceState) window.history.replaceState(null, null, window.location.href);
 </script>
 
 </body>

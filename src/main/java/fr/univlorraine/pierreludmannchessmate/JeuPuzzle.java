@@ -25,6 +25,9 @@ public class JeuPuzzle extends AbstractChessGame {
     @Getter @Setter
     private String puzzleId = "";
 
+    @Getter @Setter
+    private boolean scoreEnregistre = false;
+
     public JeuPuzzle() {
         super();
         this.indexCoupActuel = 0;

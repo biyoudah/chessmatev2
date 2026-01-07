@@ -1,9 +1,14 @@
 package fr.univlorraine.pierreludmannchessmate.controller;
 
 import fr.univlorraine.pierreludmannchessmate.JeuPuzzle;
-import jakarta.servlet.http.HttpSession; // IMPORTANT
+import fr.univlorraine.pierreludmannchessmate.model.Score;
+import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
+import fr.univlorraine.pierreludmannchessmate.repository.ScoreRepository;
+import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
+import jakarta.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -21,34 +27,39 @@ import java.util.stream.IntStream;
 @SessionAttributes("jeuPuzzle")
 public class PuzzleController {
 
+    private final UtilisateurRepository utilisateurRepository;
+    private final ScoreRepository scoreRepository;
+
+    public PuzzleController(UtilisateurRepository utilisateurRepository, ScoreRepository scoreRepository) {
+        this.utilisateurRepository = utilisateurRepository;
+        this.scoreRepository = scoreRepository;
+    }
+
     @ModelAttribute("jeuPuzzle")
     public JeuPuzzle initPuzzle() {
         return new JeuPuzzle();
     }
 
     @GetMapping
-    public String showPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             Model model,
-                             Authentication auth,
-                             HttpSession session) {
+    public String afficherPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                                 Model model,
+                                 Authentication auth,
+                                 HttpSession session) {
 
         model.addAttribute("pseudo", auth != null ? auth.getName() : "Invité");
 
-        // --- 1. Gestion des messages Flash ---
         Object msg = session.getAttribute("flashMessage");
         if (msg != null) {
             model.addAttribute("message", msg);
             session.removeAttribute("flashMessage");
         }
 
-        // --- 2. Gestion de l'Indice (HINT) ---
-        // Si l'utilisateur a demandé un indice, on l'injecte dans le modèle
         Object hint = session.getAttribute("hintCoords");
         if (hint != null) {
             model.addAttribute("hintCoords", hint);
         }
 
-        // --- 3. Chargement sécu ---
+        // Vérif plateau vide
         boolean plateauVide = true;
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -58,9 +69,9 @@ public class PuzzleController {
 
         if (plateauVide) {
             chargerPuzzleSelonDifficulte(game);
+            game.setScoreEnregistre(false); // Nouveau puzzle = score pas encore enregistré
         }
 
-        // --- 4. Affichage ---
         List<Integer> rows = game.isVueJoueurEstBlanc()
                 ? IntStream.rangeClosed(0, 7).map(i -> 7 - i).boxed().toList()
                 : IntStream.rangeClosed(0, 7).boxed().toList();
@@ -76,34 +87,36 @@ public class PuzzleController {
         return "jeuPuzzle";
     }
 
-    // --- NOUVELLE ACTION : AIDE ---
     @PostMapping("/hint")
     public String getHint(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         String coords = game.getCoupAide();
-
         if (coords != null) {
             session.setAttribute("hintCoords", coords);
             session.setAttribute("flashMessage", "💡 Indice : Jouez la pièce en violet !");
         } else {
-            session.setAttribute("flashMessage", "Pas d'indice disponible (puzzle fini ou non chargé).");
+            session.setAttribute("flashMessage", "Pas d'indice disponible.");
         }
         return "redirect:/puzzle";
     }
-
-    // --- Actions existantes (Corrigées avec HttpSession) ---
 
     @PostMapping("/move")
     public String handleMove(@RequestParam int departX, @RequestParam int departY,
                              @RequestParam int arriveeX, @RequestParam int arriveeY,
                              @ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             HttpSession session) {
+                             HttpSession session,
+                             Authentication auth) { // Ajout Auth
 
         session.removeAttribute("hintCoords");
 
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
 
-        if("GAGNE".equals(resultat)) session.setAttribute("flashMessage", "✅ Bravo !");
-        else if("RATE".equals(resultat)) session.setAttribute("flashMessage", "❌ Mauvais coup !");
+        if("GAGNE".equals(resultat)) {
+            session.setAttribute("flashMessage", "✅ Bravo !");
+            traiterVictoirePuzzle(game, session, auth); // SAUVEGARDE DU SCORE
+        }
+        else if("RATE".equals(resultat)) {
+            session.setAttribute("flashMessage", "❌ Mauvais coup !");
+        }
 
         return "redirect:/puzzle";
     }
@@ -125,6 +138,7 @@ public class PuzzleController {
             game.viderPlateau();
             session.setAttribute("flashMessage", "⚠️ Aucun puzzle trouvé...");
         } else {
+            game.setScoreEnregistre(false); // Reset score
             session.setAttribute("flashMessage", "Puzzle chargé (Niveau " + difficulte + ")");
         }
         return "redirect:/puzzle";
@@ -133,7 +147,9 @@ public class PuzzleController {
     @PostMapping("/reset")
     public String resetPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         boolean succes = chargerPuzzleSelonDifficulte(game);
-        if (!succes) {
+        if (succes) {
+            game.setScoreEnregistre(false);
+        } else {
             game.viderPlateau();
             session.setAttribute("flashMessage", "⚠️ Impossible de charger un puzzle.");
         }
@@ -147,11 +163,60 @@ public class PuzzleController {
         return "redirect:/puzzle";
     }
 
-    // ... (Méthode chargerPuzzleSelonDifficulte inchangée, gardez la vôtre) ...
-    // J'inclus juste la signature pour que le code compile si vous copiez-collez tout le fichier
+    // --------------------------------------------------------
+    // LOGIQUE SCORE PUZZLE
+    // --------------------------------------------------------
+    private void traiterVictoirePuzzle(JeuPuzzle game, HttpSession session, Authentication auth) {
+        if (game.isScoreEnregistre()) return;
+
+        Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
+
+        // Points fixes selon difficulte
+        int pts = switch (game.getDifficulte()) {
+            case "1" -> 10;
+            case "2" -> 25;
+            case "3" -> 50;
+            default -> 10;
+        };
+
+        if (userOpt.isEmpty()) {
+            game.setScoreEnregistre(true);
+            // On peut ajouter le score au message flash si on veut
+            return;
+        }
+
+        Utilisateur user = userOpt.get();
+        // Clé unique : type de jeu + ID du puzzle CSV
+        String schemaKey = "TACTIQUE_" + game.getPuzzleId();
+
+        boolean dejaFait = scoreRepository.existsBySchemaKeyAndReussiTrue(schemaKey);
+        int bonus = (!dejaFait) ? 5 : 0; // Petit bonus découverte
+        int total = pts + bonus;
+
+        Score s = new Score();
+        s.setUtilisateur(user);
+        s.setMode("TACTIQUE"); // ou "TACTIQUE_" + game.getDifficulte() pour trier par niveau
+        s.setSchemaKey(schemaKey);
+        s.setPoints(total);
+        s.setScore(total);
+        s.setReussi(true);
+        s.setFirstTime(!dejaFait);
+
+        scoreRepository.save(s);
+        game.setScoreEnregistre(true);
+
+        session.setAttribute("flashMessage", "✅ Bravo ! +" + total + " pts");
+    }
+
+    private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return Optional.empty();
+        }
+        return utilisateurRepository.findByEmail(auth.getName());
+    }
+
+    // --- Chargement CSV (identique à votre code) ---
     private boolean chargerPuzzleSelonDifficulte(JeuPuzzle game) {
-        // ... VOTRE CODE EXISTANT DE CHARGEMENT ...
-        // (Assurez-vous d'avoir remis le code avec la lecture du CSV ici)
         try {
             ClassPathResource resource = new ClassPathResource("puzzle.csv");
             if (!resource.exists()) return false;

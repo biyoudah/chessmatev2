@@ -3,189 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <title>Chessmate - Bac à Sable</title>
-    <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        .selected-piece {
-            background-color: #ffd700; transform: scale(1.1); border: 2px solid orange;
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr 280px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: start;
         }
-        .custom-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .custom-input-group input { width: 50px; text-align: center; }
-        .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+        .leaderboard-card {
+            background: white; border-radius: 8px; padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .leaderboard-list { list-style: none; padding: 0; margin: 0; }
+        .leaderboard-item {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9em;
+        }
+        .leaderboard-item.me { background-color: #e0f2fe; font-weight: bold; padding: 8px; border-radius: 4px; }
+        .score-val { color: #2563eb; font-weight: bold; }
+        .medal { margin-right: 5px; }
 
-        .message-box {
-            text-align:center; padding:10px; margin:10px; border-radius:5px; color: white;
-        }
-        /* Style dynamique selon le contenu du message */
-        .msg-error { background:#dc3545; }
-        .msg-success { background:#28a745; }
+        /* Styles pour le panneau de score */
+        .score-box { font-size: 0.95em; }
+        .score-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .perfect-badge { color: #16a34a; font-weight: bold; font-size: 0.9em; margin-top: 5px; display: block; }
     </style>
 </head>
 <body id="page-body">
 
-<h1>♟ Chessmate - Bac à Sable ♟</h1>
+<nav class="navbar">
+    <h1>♟ Chessmate <span style="font-weight:normal; font-size:0.8em;">| Bac à Sable</span></h1>
+    <div class="user-info">
+        👤 <span th:text="${pseudo}">Invité</span>
+        <a th:href="@{/home}" class="btn-small">🏠 Accueil</a>
+    </div>
+</nav>
 
-<div th:if="${message}"
-     th:text="${message}"
-     th:class="${message.contains('⚠️') or message.contains('❌') ? 'message-box msg-error' : 'message-box msg-success'}">
+<div th:if="${message}" th:text="${message}"
+     th:class="${message.contains('⚠️') or message.contains('❌') ? 'flash-msg error' : 'flash-msg success'}">
 </div>
 
-<div class="container" id="main-container">
+<div class="layout-grid">
 
-    <div class="piece-selector">
-        <h3>Pièces</h3>
-        <div class="piece-buttons">
-            <button type="button" class="piece-btn" onclick="selectPiece('Dame', this)">♕</button>
-            <button type="button" class="piece-btn" onclick="selectPiece('Cavalier', this)">♘</button>
-            <button type="button" class="piece-btn" onclick="selectPiece('Tour', this)">♖</button>
-            <button type="button" class="piece-btn" onclick="selectPiece('Roi', this)">♔</button>
-            <button type="button" class="piece-btn" onclick="selectPiece('Fou', this)">♗</button>
+    <div class="sidebar-left">
+        <div class="panel">
+            <h3>🛠️ Outils</h3>
+            <div class="piece-selector">
+                <button type="button" class="piece-btn" onclick="selectPiece('Dame', this)">♕</button>
+                <button type="button" class="piece-btn" onclick="selectPiece('Tour', this)">♖</button>
+                <button type="button" class="piece-btn" onclick="selectPiece('Fou', this)">♗</button>
+                <button type="button" class="piece-btn" onclick="selectPiece('Cavalier', this)">♘</button>
+                <button type="button" class="piece-btn" onclick="selectPiece('Roi', this)">♔</button>
+            </div>
+
+            <div class="separator"></div>
+
+            <p id="selected-info" style="color:gray; font-size:0.85em; margin-bottom: 10px;">Sélectionnez une pièce</p>
+            <button class="btn btn-danger full-width" onclick="clearSelection()">🗑️ Gomme</button>
+
+            <div class="separator"></div>
+
+            <form id="configForm">
+                <label for="modeSelect"><strong>Mode de jeu :</strong></label>
+                <select name="modeDeJeu" id="modeSelect" onchange="triggerChangeMode(this.value)" class="form-select">
+                    <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
+                    <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
+                    <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
+                    <option value="custom" th:selected="${jeuPlacement.modeDeJeu == 'custom'}">🛠️ Custom</option>
+                </select>
+            </form>
+
+            <div id="customConfigPanel" th:style="${jeuPlacement.modeDeJeu == 'custom'} ? 'display:block' : 'display:none'" class="mt-2">
+                <form id="customForm" onsubmit="event.preventDefault(); submitCustomConfig();">
+                    <div class="custom-row"><label>♕ Dames</label> <input type="number" name="c_dame" min="0" max="64" value="0"></div>
+                    <div class="custom-row"><label>♖ Tours</label> <input type="number" name="c_tour" min="0" max="64" value="0"></div>
+                    <button type="submit" class="btn btn-primary full-width mt-2">Valider Config</button>
+                </form>
+            </div>
+
+            <div class="separator"></div>
+            <button type="button" class="btn btn-warning full-width" onclick="triggerReset()">🔄 Réinitialiser</button>
         </div>
 
-        <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
-            <h4>Action</h4>
-            <p id="selected-info" style="color:gray; font-size:0.9em;">Aucune pièce sélectionnée</p>
-            <button class="action-btn danger" onclick="clearSelection()">🗑️ Désélectionner (Gomme)</button>
+        <div class="panel mt-2">
+            <h3>🎯 Objectifs</h3>
+            <ul th:if="${not #maps.isEmpty(configRequise)}" class="objective-list">
+                <li th:each="obj : ${configRequise}">
+                    <span th:text="${obj.key}">Type</span>
+                    <span th:class="${(compteActuel.get(obj.key) ?: 0) == obj.value ? 'badge success' : ((compteActuel.get(obj.key) ?: 0) > obj.value ? 'badge error' : 'badge neutral')}">
+                        <span th:text="${compteActuel.get(obj.key) ?: 0}">0</span> / <span th:text="${obj.value}">8</span>
+                    </span>
+                </li>
+            </ul>
+            <p th:if="${#maps.isEmpty(configRequise)}" class="text-muted">Mode libre (bac à sable)</p>
         </div>
 
-        <div style="margin-top: 20px;">
-            <a th:href="@{/home}" class="action-btn" style="background:#6c757d; text-decoration:none; display:block; text-align:center; color:white;">🏠 Retour Accueil</a>
+        <div class="panel mt-2">
+            <h3>📊 Score en direct</h3>
+            <div class="score-box">
+                <div class="score-row">
+                    <span>Points :</span>
+                    <strong style="color:#2563eb;" th:text="${scoreCourant}">0</strong>
+                </div>
+                <div class="score-row">
+                    <span>Erreurs :</span>
+                    <strong style="color:#dc2626;" th:text="${erreurs}">0</strong>
+                </div>
+
+                <span th:if="${tentativeParfaite}" class="perfect-badge">✨ Tentative parfaite</span>
+            </div>
+
+            <div th:if="${gagne}" class="victory-box mt-2">
+                🎉 <strong>Objectif atteint !</strong><br>
+                <small th:if="${scoreEnregistre}">Score enregistré au classement.</small>
+            </div>
         </div>
     </div>
 
-    <div class="board-container">
+    <div class="board-wrapper">
         <div class="board" id="board">
             <th:block th:each="i : ${#numbers.sequence(7, 0, -1)}">
                 <div th:each="j : ${#numbers.sequence(0, 7)}"
                      th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                     th:attr="data-x=${i}, data-y=${j}"
+                     th:attr="data-x=${j}, data-y=${i}"
                      onclick="clickCase(this)">
-
-                    <span class="case-coordinate"
-                          th:text="${'abcdefgh'.substring(i, i + 1) + (j + 1)}">
-                    </span>
-
-                    <span th:if="${board[j][i] != null}"
-                          th:text="${board[j][i]}"
-                          class="piece-anim"></span>
+                    <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
+                    <span th:if="${board[j][i] != null}" th:text="${board[j][i]}" class="piece"></span>
                 </div>
             </th:block>
         </div>
     </div>
 
-    <div class="info-panel">
-        <h3>Informations</h3>
-        <p><strong>Joueur :</strong> <span th:text="${pseudo}">Invité</span></p>
+    <div class="sidebar-right">
+        <div class="leaderboard-card">
+            <h3>🏆 Top Mode</h3>
+            <p class="text-muted small" th:text="'Mode : ' + ${jeuPlacement.modeDeJeu}"></p>
 
-        <div class="objectives-box">
-            <h4>Objectifs :</h4>
-            <ul th:if="${not #maps.isEmpty(configRequise)}">
-                <li th:each="obj : ${configRequise}">
-                    <strong th:text="${obj.key}">Type</strong> :
-                    <span th:class="${compteActuel.get(obj.key) == obj.value} ? 'count-ok' : 'count-nok'">
-                        <span th:text="${compteActuel.get(obj.key)}">0</span> / <span th:text="${obj.value}">8</span>
+            <ul class="leaderboard-list">
+                <li th:each="row, iter : ${classementMode}"
+                    th:classappend="${row.pseudo == pseudo} ? 'leaderboard-item me' : 'leaderboard-item'">
+                    <span>
+                        <span class="medal" th:text="${iter.index == 0 ? '🥇' : (iter.index == 1 ? '🥈' : (iter.index == 2 ? '🥉' : iter.count + '.'))}"></span>
+                        <span th:text="${row.pseudo}">Pseudo</span>
                     </span>
-                    <span th:if="${compteActuel.get(obj.key) > obj.value}" style="color:red; font-size:0.8em;">(Trop!)</span>
+                    <span class="score-val" th:text="${row.totalPoints}">150</span>
                 </li>
+                <li th:if="${#lists.isEmpty(classementMode)}" class="text-muted center">Pas encore de score.</li>
             </ul>
-            <p th:if="${#maps.isEmpty(configRequise)}">Aucun objectif défini (Mode libre).</p>
-
-            <div th:if="${gagne}" style="margin-top:10px; padding:5px; background:#d4edda; color:#155724; border:1px solid #c3e6cb; border-radius:3px;">
-                🎉 <strong>Objectif atteint !</strong>
-            </div>
         </div>
 
-        <div class="controls-box">
-            <button type="button" class="action-btn warning" onclick="triggerReset()">Réinitialiser le plateau</button>
-            <hr>
-
-            <label for="modeSelect"><strong>Mode de jeu :</strong></label>
-            <select name="modeDeJeu" id="modeSelect" onchange="triggerChangeMode(this.value)"
-                    style="width:100%; padding:8px; margin-bottom:5px; border-radius:5px;">
-                <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
-                <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
-                <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
-                <option value="16-rois" th:selected="${jeuPlacement.modeDeJeu == '16-rois'}">16 Rois</option>
-                <option value="custom" th:selected="${jeuPlacement.modeDeJeu == 'custom'}">🛠️ Personnaliser...</option>
-            </select>
-
-            <div id="customConfigPanel" th:style="${jeuPlacement.modeDeJeu == 'custom'} ? 'display:block' : 'display:none'">
-                <form id="customForm" onsubmit="event.preventDefault(); submitCustomConfig();">
-                    <h4 style="margin-top:10px; font-size:0.9em;">Votre composition :</h4>
-                    <div class="custom-input-group"><label>♕ Dames</label> <input type="number" name="c_dame" min="0" max="64" value="0"></div>
-                    <div class="custom-input-group"><label>♖ Tours</label> <input type="number" name="c_tour" min="0" max="64" value="0"></div>
-                    <button type="submit" class="action-btn" style="background:#2196F3; color:white; margin-top:10px;">Valider</button>
-                </form>
-            </div>
+        <div class="leaderboard-card mt-2">
+            <h3>🌍 Global</h3>
+            <ul class="leaderboard-list">
+                <li th:each="row, iter : ${classementGlobal}" class="leaderboard-item">
+                    <span th:text="${iter.count + '. ' + row.pseudo}">User</span>
+                    <span class="score-val" style="color:#555" th:text="${row.totalPoints}">Pts</span>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 
 <script th:inline="javascript">
-    let currentPieceType = "";
-
-    // URLs
     const actionUrl = [[@{/placement/action}]];
     const resetUrl = [[@{/placement/reset}]];
     const changeModeUrl = [[@{/placement/changeMode}]];
     const customConfigUrl = [[@{/placement/customConfig}]];
+    let currentPieceType = "";
 
-    // --- FONCTION AJAX (Rafraîchissement propre) ---
     async function sendRequest(url, formData = null) {
-        document.getElementById('page-body').classList.add('waiting');
+        document.body.style.cursor = 'wait';
         try {
             const response = await fetch(url, { method: 'POST', body: formData });
-            if (response.ok) {
-                window.location.replace(window.location.href);
-            }
-        } catch (error) { console.error(error); }
-        document.getElementById('page-body').classList.remove('waiting');
+            if (response.ok) window.location.reload();
+        } catch (e) { console.error(e); }
+        document.body.style.cursor = 'default';
     }
 
-    // --- INTERACTION ---
-    function selectPiece(type, btnElement) {
+    function selectPiece(type, btn) {
         currentPieceType = type;
-        document.querySelectorAll('.piece-btn').forEach(btn => btn.classList.remove('selected-piece'));
-        if(btnElement) btnElement.classList.add('selected-piece');
-
-        const info = document.getElementById('selected-info');
-        info.innerText = "Sélectionné : " + type;
-        info.style.color = "black";
+        document.querySelectorAll('.piece-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        document.getElementById('selected-info').innerText = type ? "Placer : " + type : "";
     }
 
     function clearSelection() {
         currentPieceType = "";
-        document.querySelectorAll('.piece-btn').forEach(btn => btn.classList.remove('selected-piece'));
-        const info = document.getElementById('selected-info');
-        info.innerText = "Mode Gomme (cliquez pour retirer)";
-        info.style.color = "red";
+        document.querySelectorAll('.piece-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('selected-info').innerText = "Mode Gomme";
     }
 
-    function clickCase(element) {
-        const x = element.getAttribute('data-x');
-        const y = element.getAttribute('data-y');
-
-        const formData = new FormData();
-        formData.append('x', x);
-        formData.append('y', y);
-        formData.append('type', currentPieceType);
-
-        sendRequest(actionUrl, formData);
+    function clickCase(el) {
+        const fd = new FormData();
+        fd.append('x', el.getAttribute('data-x'));
+        fd.append('y', el.getAttribute('data-y'));
+        fd.append('type', currentPieceType);
+        sendRequest(actionUrl, fd);
     }
 
     function triggerReset() { sendRequest(resetUrl); }
-    function triggerChangeMode(val) {
-        const fd = new FormData(); fd.append('modeDeJeu', val);
-        sendRequest(changeModeUrl, fd);
-    }
-    function submitCustomConfig() {
-        const form = document.getElementById('customForm');
-        sendRequest(customConfigUrl, new FormData(form));
-    }
-
-    // Nettoyage historique
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
+    function triggerChangeMode(v) { const fd = new FormData(); fd.append('modeDeJeu', v); sendRequest(changeModeUrl, fd); }
+    function submitCustomConfig() { sendRequest(customConfigUrl, new FormData(document.getElementById('customForm'))); }
 </script>
 
 </body>
