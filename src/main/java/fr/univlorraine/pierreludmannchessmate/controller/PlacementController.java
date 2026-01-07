@@ -135,6 +135,13 @@ public class PlacementController {
         session.setAttribute("flashMessage", "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : ""));
     }
 
+    @PostMapping("/selectPiece")
+    public String selectPiece(@RequestParam String type, @ModelAttribute("jeuPlacement") JeuPlacement game, Model model) {
+        game.setTypeSelectionne(type);
+        preparerModele(model, game);
+        return "placement"; // Retourne le fragment ou la page
+    }
+
     private void preparerModele(Model model, JeuPlacement game) {
         model.addAttribute("board", game.getBoard());
         model.addAttribute("configRequise", game.getConfigurationRequise());
@@ -142,6 +149,9 @@ public class PlacementController {
         model.addAttribute("scoreCourant", game.getScoreCourant());
         model.addAttribute("erreurs", game.getErreurs());
         model.addAttribute("gagne", game.estPuzzleResolu());
+
+        model.addAttribute("menaces", game.getMatriceMenaces());
+
         model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
         model.addAttribute("classementMode", scoreRepository.getClassementParMode(game.getModeDeJeu()));
     }

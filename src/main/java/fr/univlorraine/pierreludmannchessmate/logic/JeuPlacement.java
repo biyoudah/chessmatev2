@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JeuPlacement extends AbstractChessGame {
+    @Getter @Setter
+    private String typeSelectionne = "Dame";
 
     @Getter @Setter
     private Map<String, Integer> configurationRequise;
@@ -52,7 +54,10 @@ public class JeuPlacement extends AbstractChessGame {
             return "OCCUPEE";
         }
 
-        if (estCaseMenacee(x, y)) {
+        // --- MODIFICATION : DOUBLE VÉRIFICATION ---
+        // 1. La case est-elle menacée par une pièce du plateau ?
+        // 2. La nouvelle pièce va-t-elle menacer une pièce du plateau ?
+        if (estCaseMenacee(x, y) || nouvellePieceMenace(x, y, typePiece)) {
             this.erreurs++;
             return "INVALID";
         }
@@ -64,6 +69,34 @@ public class JeuPlacement extends AbstractChessGame {
         this.placementsValides++;
         this.scoreBrut += poidsPiece(typePiece);
         return "OK";
+    }
+
+    /**
+     * Vérifie si poser un type de pièce en (targetX, targetY) menace une pièce existante.
+     */
+    private boolean nouvellePieceMenace(int targetX, int targetY, String typeNouvellePiece) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Case c = echiquier.getCase(i, j);
+                if (!c.isEstVide() && c.getPiece() != null) {
+                    int dx = Math.abs(i - targetX);
+                    int dy = Math.abs(j - targetY);
+                    if (attaque(typeNouvellePiece, dx, dy)) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean[][] getMatriceMenaces() {
+        boolean[][] menaces = new boolean[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                // On affiche les cases rouges selon la pièce que le joueur a en main
+                menaces[i][j] = estCaseMenacee(i, j) || nouvellePieceMenace(i, j, this.typeSelectionne);
+            }
+        }
+        return menaces;
     }
 
     @Override
