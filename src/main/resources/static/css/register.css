@@ -1,4 +1,4 @@
-body {         /*arrière-plan*/
+body { /*arrière-plan*/
     height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -7,37 +7,47 @@ body {         /*arrière-plan*/
     align-items: center;
 
     /* couleurs des cases */
-    --case1: rgba(205, 204, 204, 0.95);  /*gris*/
+    --case1: rgba(205, 204, 204, 0.95); /*gris*/
     --case2: #839ab3; /*bleu*/
 
     background-color: var(--case1);
-    background-image:
-            linear-gradient(45deg,
-            var(--case2) 25%,
-            transparent 25%,
-            transparent 75%,
-            var(--case2) 75%,
-            var(--case2) 100%
-            ),
-            linear-gradient(45deg,
+    background-image: linear-gradient(45deg,
+    var(--case2) 25%,
+    transparent 25%,
+    transparent 75%,
+    var(--case2) 75%,
+    var(--case2) 100%
+    ),
+    linear-gradient(45deg,
             var(--case2) 25%,
             var(--case1) 25%,
             var(--case1) 75%,
             var(--case2) 75%,
             var(--case2) 100%
-            );
-    background-size: 210px 210px;          /* taille des cases*/
+    );
+    background-size: 210px 210px; /* taille des cases*/
     background-position: 0 0, 105px 105px; /* décale la deuxième couche pour l’effet damier mette moitié taille cases */
-
 }
 
-.page-login {
+
+.page-register {
     display: flex;
     flex-direction: column;
     align-items: center;    /* centre logo et container de connexion*/
-}
+}.login-card {       /*container logo+connexion*/
+     background-color: #cacaca;
+     /* haut | droite/gauche | bas */
+     padding: 20px 44px 44px;
+     border-radius: 18px;
+     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     width: 460px;
+     max-width: 90vw;
+ }
 
-.login-card {       /*container logo+connexion*/
+.register-card {       /*container logo+connexion*/
     background-color: #cacaca;
     /* haut | droite/gauche | bas */
     padding: 20px 44px 44px;
@@ -50,7 +60,7 @@ body {         /*arrière-plan*/
     max-width: 90vw;
 }
 
-.login-container {     /*container pour formulaire de connexion*/
+.register-container {     /*container pour formulaire de connexion*/
     background: #2b2b2b;
     padding: 30px 30px;
     border-radius: 14px;
@@ -61,22 +71,18 @@ body {         /*arrière-plan*/
     margin-top: 10px;
 }
 
-
-.login-container h1 {    /*titre Connexion*/
+.register-container h1 {    /*titre Connexion*/
     color: #fff;
     text-align: center;
     margin-bottom: 30px;
     font-size: 3em;
 }
 
-.message-erreur {
-    color: red;
-    margin-bottom: 10px;
-}
-
-.message-validation {
-    color: #16dd16;
-    margin-bottom: 10px;
+.logo-register {           /*logo*/
+    display: block;
+    margin-bottom: 2px;
+    width: 260px;
+    height: auto;
 }
 
 .form-group {           /*intitulés e-mail et mdp*/
@@ -84,26 +90,28 @@ body {         /*arrière-plan*/
     color: #fff;
 }
 
-.form-control {          /*champs de saisie*/
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background: #393939;
-    color: #ddd;
-    box-sizing: border-box;
-    font-size: 1em;
-    margin-top: 4px;
-    margin-bottom: 4px;
+.error-message {
+    color: red;
+    margin-bottom: 10px;
 }
 
-
-.form-control:focus {    /*quand un champ de saisie est actif*/
-    outline: none;
-    background: #5a5a5a;
-    color: #fff;
+.login-text {        /*texte pas encore de compte ?*/
+    color: #717171;
+    margin-top: 16px;
 }
 
+.login-text a:visited {
+    color: #0066ff;           /* bleu si déjà visité au moins 1 fois*/
+}
+
+.login-text a:hover {
+    color: #ffffff;           /*blanc au survol */
+    text-decoration: underline;
+}
+
+.login-text a:link {
+    color: #bbbbbb;           /* gris clair si jamais visité*/
+}
 
 button[type="submit"] {         /*bouton “Se connecter”*/
     background: #0542c8;
@@ -124,27 +132,15 @@ button[type="submit"]:hover {          /*quand bouton "Se connecter" est survol�
     background: #0639a8;
 }
 
-.logo-login {           /*logo*/
-    display: block;
-    margin-bottom: 2px;
-    width: 260px;
-    height: auto;
-}
-
-.register-text {        /*texte pas encore de compte ?*/
-    color: #717171;
-    margin-top: 16px;
-}
-
-.register-text a:link {
-    color: #bbbbbb;           /* gris clair si jamais visité*/
-}
-
-.register-text a:visited {
-    color: #0066ff;           /* bleu si déjà visité au moins 1 fois*/
-}
-
-.register-text a:hover {
-    color: #ffffff;           /*blanc au survol */
-    text-decoration: underline;
+.form-control {          /*champs de saisie*/
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #393939;
+    color: #ddd;
+    box-sizing: border-box;
+    font-size: 1em;
+    margin-top: 4px;
+    margin-bottom: 4px;
 }

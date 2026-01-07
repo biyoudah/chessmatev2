@@ -1,0 +1,319 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent;
+    position: relative;
+}
+
+/* Fond damier flouté */
+.bg-blur {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    --case1: rgba(205, 204, 204, 0.95);
+    --case2: #839ab3;
+
+    background-color: var(--case1);
+    background-image:
+            linear-gradient(45deg,
+            var(--case2) 25%,
+            transparent 25%,
+            transparent 75%,
+            var(--case2) 75%,
+            var(--case2) 100%
+            ),
+            linear-gradient(45deg,
+            var(--case2) 25%,
+            var(--case1) 25%,
+            var(--case1) 75%,
+            var(--case2) 75%,
+            var(--case2) 100%
+            );
+
+    background-size: 210px 210px;
+    background-position: 0 0, 105px 105px;
+    filter: blur(4px);
+}
+
+/* =======================
+   Layout principal
+   ======================= */
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* =======================
+   Plateau d’échecs
+   ======================= */
+
+.board-container {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    border: 5px solid #333;
+    border-radius: 4px;
+    background: #1e1e1e;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+}
+
+.case {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.case.white {
+    background-color: #ddd;
+    color: #000;
+}
+
+.case.black {
+    background-color: #4b4b4b;
+    color: #000;
+}
+
+.case:hover {
+    opacity: 0.8;
+}
+
+/* Animation apparition pièce */
+.piece-anim {
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+/* =======================
+   Panneaux latéraux
+   ======================= */
+
+.piece-selector,
+.info-panel {
+    background: #2b2b2b;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    width: 280px;
+    text-align: left;
+    color: #fff;
+}
+
+h1 {
+    margin-top: 0;
+    color: #2b2b2b;
+    font-size: 48px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #fff;
+}
+
+p {
+    color: #ddd;
+}
+
+/* =======================
+   Sélecteurs de pièces
+   ======================= */
+
+.piece-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.piece-btn {
+    padding: 10px;
+    font-size: 28px;
+    cursor: pointer;
+    border: 2px solid #555;
+    background: #fff;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.piece-btn:hover {
+    background: #e0e0e0;
+}
+
+/* Sélections */
+.piece-btn.selected,
+.color-btn.selected,
+.action-btn.selected {
+    background-color: #e8f5e9 !important;
+    border-color: #4CAF50 !important;
+    color: #1b5e20;
+    transform: scale(1.05);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+/* =======================
+   Sélecteur couleur
+   ======================= */
+
+.color-btn {
+    padding: 8px 15px;
+    margin-right: 5px;
+    cursor: pointer;
+    border: 2px solid #555;
+    background: #fff;
+    border-radius: 5px;
+}
+
+.color-btn.selected {
+    border-color: #2196F3 !important;
+    background: #e3f2fd !important;
+    color: #0d47a1;
+}
+
+/* =======================
+   Boutons d’action
+   ======================= */
+
+.action-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    background: #4CAF50;
+    color: #fff;
+}
+
+.action-btn.danger {
+    background: #f44336;
+}
+
+/* =======================
+   Toast notifications
+   ======================= */
+
+#toast-container {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    align-items: center;
+}
+
+.toast {
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    font-weight: 600;
+    font-size: 1rem;
+    opacity: 0;
+
+    animation: slideUpFade 0.4s forwards, fadeOut 0.4s forwards 3s;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 250px;
+}
+
+.toast.success { background-color: #4CAF50; }
+.toast.error { background-color: #f44336; }
+.toast.warning { background-color: #f59e0b; }
+
+@keyframes slideUpFade {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* =======================
+   Responsive
+   ======================= */
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .piece-selector,
+    .info-panel {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+
+    .board {
+        grid-template-columns: repeat(8, 50px);
+        grid-template-rows: repeat(8, 50px);
+    }
+
+    .case {
+        width: 50px;
+        height: 50px;
+        font-size: 36px;
+    }
+
+    .piece-buttons {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .board {
+        grid-template-columns: repeat(8, 11vw);
+        grid-template-rows: repeat(8, 11vw);
+    }
+
+    .case {
+        width: 11vw;
+        height: 11vw;
+        font-size: 24px;
+    }
+
+    .piece-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #toast-container {
+        bottom: 20px;
+        width: 90%;
+    }
+
+    .toast {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+}

@@ -1,65 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>Inscription</title>
+    <link rel="stylesheet" th:href="@{/css/register.css}">
 </head>
+
 <body>
-<h1>Inscription</h1>
 
-<form th:action="@{/register}" th:object="${utilisateur}" method="post">
+<div class="page-register">
 
-    <div class="form-group">
-        <label for="email">Email :</label>
+    <div class="register-card">
 
-        <input type="text"
-               id="email"
-               th:field="*{email}"
-               placeholder="exemple@mail.com"
-               class="form-control"
-               th:classappend="${#fields.hasErrors('email') ? 'error-input' : ''}"/>
+        <img th:src="@{/img/ChessMateWithoutBackground.png}" alt="Logo ChessMate" class="logo-register">
 
-        <div th:if="${#fields.hasErrors('email')}" class="error-message">
-            <span th:errors="*{email}">Erreur email</span>
+        <div class="register-container">
+
+            <h1>Inscription</h1>
+
+            <form th:action="@{/register}" th:object="${utilisateur}" method="post">
+
+                <div class="form-group">
+                    <label for="email">Email :</label>
+                    <input type="text"
+                           id="email"
+                           th:field="*{email}"
+                           placeholder="exemple@mail.com"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('email') ? 'error-input' : ''}"/>
+
+                    <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                        <span th:errors="*{email}">Erreur email</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pseudo">Nom d'utilisateur :</label>
+                    <input type="text"
+                           id="pseudo"
+                           th:field="*{pseudo}"
+                           placeholder="Pseudo (lettres et chiffres, min 3)"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('pseudo') ? 'error-input' : ''}"/>
+
+                    <div th:if="${#fields.hasErrors('pseudo')}" class="error-message">
+                        <span th:errors="*{pseudo}">Erreur pseudo</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe :</label>
+                    <input type="password"
+                           id="password"
+                           th:field="*{password}"
+                           placeholder="********"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('password') ? 'error-input' : ''}"/>
+
+                    <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                        <span th:errors="*{password}">Erreur mot de passe</span>
+                    </div>
+
+                </div>
+
+                <button type="submit">S'inscrire</button>
+            </form>
+
+            <p class="login-text">
+                Déjà un compte ?
+                <a th:href="@{/login}">Connectez-vous ici</a>.
+            </p>
+
         </div>
+
     </div>
 
-    <div class="form-group">
-        <label for="pseudo">Nom d'utilisateur :</label>
-
-        <input type="text"
-               id="pseudo"
-               th:field="*{pseudo}"
-               placeholder="Pseudo (lettres et chiffres, min 3)"
-               class="form-control"
-               th:classappend="${#fields.hasErrors('pseudo') ? 'error-input' : ''}"/>
-
-        <div th:if="${#fields.hasErrors('pseudo')}" class="error-message">
-            <span th:errors="*{pseudo}">Erreur pseudo</span>
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="password">Mot de passe :</label>
-
-        <input type="password"
-               id="password"
-               th:field="*{password}"
-               placeholder="********"
-               class="form-control"
-               th:classappend="${#fields.hasErrors('password') ? 'error-input' : ''}"/>
-
-        <div th:if="${#fields.hasErrors('password')}" class="error-message">
-            <span th:errors="*{password}">Erreur mot de passe</span>
-        </div>
-    </div>
-
-    <div style="margin-top: 20px;">
-        <button type="submit">S'inscrire</button>
-    </div>
-</form>
-
-<p>Déjà un compte ? <a th:href="@{/login}">Connectez-vous ici</a>.</p>
-
+</div>
 </body>
 </html>
