@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 
 /**
  * Classe abstraite représentant une pièce d'échecs générique.

@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 
 /**
  * Représente un joueur participant à une partie d'échecs.

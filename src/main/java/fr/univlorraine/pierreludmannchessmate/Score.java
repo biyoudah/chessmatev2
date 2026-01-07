@@ -1,5 +1,9 @@
 package fr.univlorraine.pierreludmannchessmate;
 
+import fr.univlorraine.pierreludmannchessmate.model.Defi;
+import fr.univlorraine.pierreludmannchessmate.model.Echiquier;
+import fr.univlorraine.pierreludmannchessmate.model.Joueur;
+
 import java.util.Date;
 
 public class Score {

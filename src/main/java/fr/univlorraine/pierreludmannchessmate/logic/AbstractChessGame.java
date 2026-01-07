@@ -1,5 +1,6 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.logic;
 
+import fr.univlorraine.pierreludmannchessmate.model.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.HashMap;

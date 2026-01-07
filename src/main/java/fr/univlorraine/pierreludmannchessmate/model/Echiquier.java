@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 
 /**
  * Représente le plateau de jeu d'échecs (l'échiquier).

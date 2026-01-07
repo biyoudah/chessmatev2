@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 
 /**
  * Représente une case du plateau d'échecs.

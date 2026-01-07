@@ -1,6 +1,6 @@
 package fr.univlorraine.pierreludmannchessmate.controller;
 
-import fr.univlorraine.pierreludmannchessmate.JeuPlacement;
+import fr.univlorraine.pierreludmannchessmate.logic.JeuPlacement;
 import fr.univlorraine.pierreludmannchessmate.model.Score;
 import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
 import fr.univlorraine.pierreludmannchessmate.repository.ScoreRepository;

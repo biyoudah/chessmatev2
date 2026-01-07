@@ -1,5 +1,7 @@
 package fr.univlorraine.pierreludmannchessmate;
 import static org.junit.jupiter.api.Assertions.*;
+
+import fr.univlorraine.pierreludmannchessmate.model.Roi;
 import org.junit.jupiter.api.Test;
 
 public class RoiTest {

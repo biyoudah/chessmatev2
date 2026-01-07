@@ -1,4 +1,4 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 
 import lombok.Getter;
 import java.util.Date;

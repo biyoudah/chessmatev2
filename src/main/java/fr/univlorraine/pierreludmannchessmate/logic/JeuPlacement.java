@@ -1,5 +1,7 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.logic;
 
+import fr.univlorraine.pierreludmannchessmate.model.Case;
+import fr.univlorraine.pierreludmannchessmate.model.Piece;
 import lombok.Getter;
 import lombok.Setter;
 

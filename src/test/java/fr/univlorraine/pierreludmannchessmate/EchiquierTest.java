@@ -1,5 +1,9 @@
 package fr.univlorraine.pierreludmannchessmate;
 import static org.junit.jupiter.api.Assertions.*;
+
+import fr.univlorraine.pierreludmannchessmate.model.Case;
+import fr.univlorraine.pierreludmannchessmate.model.Dame;
+import fr.univlorraine.pierreludmannchessmate.model.Echiquier;
 import org.junit.jupiter.api.Test;
 
 class EchiquierTest {
