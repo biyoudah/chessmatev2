@@ -5,7 +5,6 @@
     <title>Chessmate - Puzzles Tactiques</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
     <style>
-        /* Ajout de styles pour le sélecteur */
         .settings-panel {
             background: white; padding: 20px; border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 200px; text-align: left;
@@ -20,6 +19,19 @@
             background:#333; color:white; border-radius:5px;
         }
         .message-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
+        /* --- STYLE DE L'AIDE --- */
+        .hint-case {
+            background-color: #d63384 !important; /* Rose/Violet */
+            box-shadow: inset 0 0 15px #ff69b4;
+            border: 2px solid #ff1493;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: inset 0 0 10px #ff69b4; }
+            50% { box-shadow: inset 0 0 25px #ff1493; }
+            100% { box-shadow: inset 0 0 10px #ff69b4; }
+        }
     </style>
 </head>
 <body id="page-body">
@@ -53,9 +65,11 @@
             <span th:unless="${jeuPuzzle.isPuzzleLoaded()}">▶️ Charger le puzzle</span>
         </button>
 
-        <button class="action-btn" onclick="triggerClear()">
-            🗑️ Vider Plateau
+        <button class="action-btn" onclick="triggerHint()" style="background-color: #6610f2; color: white; margin-bottom: 5px;">
+            💡 Aide
         </button>
+
+        <button class="action-btn" onclick="triggerClear()">🗑️ Vider Plateau</button>
 
         <a th:href="@{/home}" class="action-btn">🏠 Accueil</a>
     </div>
@@ -65,6 +79,7 @@
             <th:block th:each="i : ${rows}">
                 <div th:each="j : ${cols}"
                      th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                     th:classappend="${hintCoords == i + ',' + j} ? ' hint-case' : ''"
                      th:attr="data-x=${i}, data-y=${j}"
                      onclick="clickPuzzleCase(this)">
 
@@ -110,6 +125,7 @@
     const puzzleResetUrl = [[@{/puzzle/reset}]];
     const changeModeUrl = [[@{/puzzle/changeMode}]];
     const clearUrl = [[@{/puzzle/clear}]];
+    const hintUrl = [[@{/puzzle/hint}]]; // URL pour l'aide
 
     // --- AJAX ---
     async function sendRequest(url, formData = null) {
@@ -121,8 +137,19 @@
         document.getElementById('page-body').classList.remove('waiting');
     }
 
+    // Fonction pour retirer visuellement l'indice immédiatement
+    function removeVisualHint() {
+        const hints = document.querySelectorAll('.hint-case');
+        hints.forEach(element => {
+            element.classList.remove('hint-case');
+        });
+    }
+
     // --- ACTIONS ---
     function clickPuzzleCase(element) {
+        removeVisualHint();
+
+        // ... (votre code clickPuzzleCase inchangé) ...
         const x = element.getAttribute('data-x');
         const y = element.getAttribute('data-y');
         const content = element.innerText.trim();
@@ -153,20 +180,13 @@
     }
 
     function triggerChangeMode(val) {
-        const fd = new FormData();
-        fd.append('difficulte', val);
+        const fd = new FormData(); fd.append('difficulte', val);
         sendRequest(changeModeUrl, fd);
     }
+    function triggerReset() { sendRequest(puzzleResetUrl); }
+    function triggerClear() { sendRequest(clearUrl); }
+    function triggerHint() { sendRequest(hintUrl); } // Appel de l'aide
 
-    function triggerReset() {
-        sendRequest(puzzleResetUrl);
-    }
-
-    function triggerClear() {
-        sendRequest(clearUrl);
-    }
-
-    // --- AUTO ---
     const ordiDoitJouer = [[${jeuPuzzle.ordiDoitJouer}]];
     if (ordiDoitJouer) {
         document.getElementById('thinking-msg').style.display = 'block';

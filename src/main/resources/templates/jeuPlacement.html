@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <title>Chessmate - Bac à Sable</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♟️</text></svg>">
-
     <style>
         .selected-piece {
-            background-color: #ffd700; /* Or */
-            transform: scale(1.1);
-            border: 2px solid orange;
+            background-color: #ffd700; transform: scale(1.1); border: 2px solid orange;
         }
         .custom-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .custom-input-group label { font-size: 0.9em; }
-        .custom-input-group input { width: 50px; padding: 2px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-
-        /* Bloque l'interface pendant le chargement */
+        .custom-input-group input { width: 50px; text-align: center; }
         .waiting { pointer-events: none; opacity: 0.7; cursor: wait; }
+
+        .message-box {
+            text-align:center; padding:10px; margin:10px; border-radius:5px; color: white;
+        }
+        /* Style dynamique selon le contenu du message */
+        .msg-error { background:#dc3545; }
+        .msg-success { background:#28a745; }
     </style>
 </head>
 <body id="page-body">
@@ -26,7 +26,7 @@
 
 <div th:if="${message}"
      th:text="${message}"
-     th:style="${message.contains('⚠️') or message.contains('❌') ? 'background:#dc3545; color:white; padding:10px; border-radius:5px; text-align:center; margin:10px;' : 'background:#28a745; color:white; padding:10px; border-radius:5px; text-align:center; margin:10px;'}">
+     th:class="${message.contains('⚠️') or message.contains('❌') ? 'message-box msg-error' : 'message-box msg-success'}">
 </div>
 
 <div class="container" id="main-container">
@@ -59,6 +59,10 @@
                      th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
                      th:attr="data-x=${i}, data-y=${j}"
                      onclick="clickCase(this)">
+
+                    <span class="case-coordinate"
+                          th:text="${'abcdefgh'.substring(i, i + 1) + (j + 1)}">
+                    </span>
 
                     <span th:if="${board[j][i] != null}"
                           th:text="${board[j][i]}"
@@ -109,10 +113,6 @@
                     <h4 style="margin-top:10px; font-size:0.9em;">Votre composition :</h4>
                     <div class="custom-input-group"><label>♕ Dames</label> <input type="number" name="c_dame" min="0" max="64" value="0"></div>
                     <div class="custom-input-group"><label>♖ Tours</label> <input type="number" name="c_tour" min="0" max="64" value="0"></div>
-                    <div class="custom-input-group"><label>♗ Fous</label> <input type="number" name="c_fou" min="0" max="64" value="0"></div>
-                    <div class="custom-input-group"><label>♘ Cavaliers</label> <input type="number" name="c_cavalier" min="0" max="64" value="0"></div>
-                    <div class="custom-input-group"><label>♔ Rois</label> <input type="number" name="c_roi" min="0" max="64" value="0"></div>
-
                     <button type="submit" class="action-btn" style="background:#2196F3; color:white; margin-top:10px;">Valider</button>
                 </form>
             </div>
@@ -123,36 +123,25 @@
 <script th:inline="javascript">
     let currentPieceType = "";
 
-    // URLs pour les actions AJAX
+    // URLs
     const actionUrl = [[@{/placement/action}]];
     const resetUrl = [[@{/placement/reset}]];
     const changeModeUrl = [[@{/placement/changeMode}]];
     const customConfigUrl = [[@{/placement/customConfig}]];
 
-    // --- FONCTION PRINCIPALE D'ENVOI (Anti-Historique) ---
+    // --- FONCTION AJAX (Rafraîchissement propre) ---
     async function sendRequest(url, formData = null) {
         document.getElementById('page-body').classList.add('waiting');
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-
+            const response = await fetch(url, { method: 'POST', body: formData });
             if (response.ok) {
-                // Rafraîchit la page sans empiler l'historique
                 window.location.replace(window.location.href);
-            } else {
-                console.error("Erreur serveur");
-                document.getElementById('page-body').classList.remove('waiting');
             }
-        } catch (error) {
-            console.error("Erreur réseau:", error);
-            document.getElementById('page-body').classList.remove('waiting');
-        }
+        } catch (error) { console.error(error); }
+        document.getElementById('page-body').classList.remove('waiting');
     }
 
-    // --- LOGIQUE IHM ---
-
+    // --- INTERACTION ---
     function selectPiece(type, btnElement) {
         currentPieceType = type;
         document.querySelectorAll('.piece-btn').forEach(btn => btn.classList.remove('selected-piece'));
@@ -171,7 +160,6 @@
         info.style.color = "red";
     }
 
-    // Clic sur une case -> Appel AJAX
     function clickCase(element) {
         const x = element.getAttribute('data-x');
         const y = element.getAttribute('data-y');
@@ -184,26 +172,17 @@
         sendRequest(actionUrl, formData);
     }
 
-    // Reset -> Appel AJAX
-    function triggerReset() {
-        sendRequest(resetUrl);
+    function triggerReset() { sendRequest(resetUrl); }
+    function triggerChangeMode(val) {
+        const fd = new FormData(); fd.append('modeDeJeu', val);
+        sendRequest(changeModeUrl, fd);
     }
-
-    // Changement de mode -> Appel AJAX
-    function triggerChangeMode(modeValue) {
-        const formData = new FormData();
-        formData.append('modeDeJeu', modeValue);
-        sendRequest(changeModeUrl, formData);
-    }
-
-    // Configuration Custom -> Appel AJAX
     function submitCustomConfig() {
         const form = document.getElementById('customForm');
-        const formData = new FormData(form);
-        sendRequest(customConfigUrl, formData);
+        sendRequest(customConfigUrl, new FormData(form));
     }
 
-    // Nettoyage historique au chargement
+    // Nettoyage historique
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }

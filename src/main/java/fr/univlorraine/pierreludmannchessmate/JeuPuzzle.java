@@ -133,6 +133,19 @@ public class JeuPuzzle extends AbstractChessGame {
         this.setTraitAuBlanc(!p.estBlanc());
     }
 
+    // Ajout d'une méthode pour l'aide
+    public String getCoupAide() {
+        if (solutionMoves == null || indexCoupActuel >= solutionMoves.length) {
+            return null;
+        }
+        // Ex: "e2e4" -> on veut juste "e2" pour savoir quelle pièce bouger
+        String move = solutionMoves[indexCoupActuel];
+
+        // On retourne les indices pour le HTML : "LIGNE,COLONNE"
+        // uciToY donne la ligne (0-7), uciToX donne la colonne (0-7)
+        return uciToY(move.charAt(1)) + "," + uciToX(move.charAt(0));
+    }
+
     private String coordsToUci(int x, int y) { return "" + (char) ('a' + x) + (char) ('1' + y); }
     private int uciToX(char c) { return c - 'a'; }
     private int uciToY(char c) { return c - '1'; }

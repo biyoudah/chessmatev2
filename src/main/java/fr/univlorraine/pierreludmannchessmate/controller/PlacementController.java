@@ -1,69 +1,76 @@
 package fr.univlorraine.pierreludmannchessmate.controller;
 
 import fr.univlorraine.pierreludmannchessmate.JeuPlacement;
+import jakarta.servlet.http.HttpSession; // IMPORTANT
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/placement") // Préfixe pour toutes les URLs
-@SessionAttributes("jeuPlacement") // Nom spécifique en session
+@RequestMapping("/placement")
+@SessionAttributes("jeuPlacement")
 public class PlacementController {
 
-    // On initialise spécifiquement un JeuPlacement
     @ModelAttribute("jeuPlacement")
     public JeuPlacement initGame() {
         return new JeuPlacement();
     }
 
     @GetMapping
-    public String showBoard(@ModelAttribute("jeuPlacement") JeuPlacement game, Model model, Authentication auth) {
+    public String showBoard(@ModelAttribute("jeuPlacement") JeuPlacement game,
+                            Model model,
+                            Authentication auth,
+                            HttpSession session) { // AJOUT HttpSession
+
+        // 1. Gestion des messages Flash via Session (pour survivre au fetch)
+        Object msg = session.getAttribute("flashMessage");
+        if (msg != null) {
+            model.addAttribute("message", msg);
+            session.removeAttribute("flashMessage");
+        }
+
         injecterInfosUtilisateur(model, auth);
         preparerModele(model, game);
         return "jeuPlacement";
     }
 
     @PostMapping("/reset")
-    public String reset(SessionStatus status) {
-        status.setComplete(); // Vide la session pour ce contrôleur
+    public String reset(SessionStatus status, HttpSession session) {
+        status.setComplete();
+        session.setAttribute("flashMessage", "Plateau réinitialisé.");
         return "redirect:/placement";
     }
 
     @PostMapping("/action")
     public String action(@RequestParam int x, @RequestParam int y,
-                         @RequestParam(required = false) String type, // type peut être null si on retire
+                         @RequestParam(required = false) String type,
                          @ModelAttribute("jeuPlacement") JeuPlacement game,
-                         RedirectAttributes redirectAttributes) {
+                         HttpSession session) { // Changement ici
 
-        // Si la case est vide, on essaie de placer
         if (game.getPieceObject(x, y) == null) {
+            // Placement
             if (type != null && !type.isEmpty()) {
                 String resultat = game.placerPieceJoueur(x, y, type, true);
                 if (!"OK".equals(resultat)) {
-                    // On envoie l'erreur à la vue via FlashAttribute
-                    redirectAttributes.addFlashAttribute("message", "⚠️ " + resultat);
+                    session.setAttribute("flashMessage", "⚠️ " + resultat);
                 }
             }
         } else {
-            // Si la case est occupée, on retire
+            // Gomme
             game.retirerPiece(x, y);
         }
         return "redirect:/placement";
     }
 
-    /**
-     * Change le mode de jeu (ex: 8-dames, 14-fous...)
-     */
     @PostMapping("/changeMode")
     public String changeMode(@RequestParam("modeDeJeu") String mode,
                              @ModelAttribute("jeuPlacement") JeuPlacement game,
-                             RedirectAttributes redirectAttributes) {
+                             HttpSession session) {
 
         Map<String, Integer> config = new HashMap<>();
         switch (mode) {
@@ -71,15 +78,15 @@ public class PlacementController {
             case "8-tours" -> config.put("Tour", 8);
             case "14-fous" -> config.put("Fou", 14);
             case "16-rois" -> config.put("Roi", 16);
-            case "custom" -> { /* Ne rien faire, attend la config custom */ }
+            case "custom" -> { /* Attente config custom */ }
             default -> config.put("Dame", 8);
         }
 
         if (!"custom".equals(mode)) {
             game.setConfigurationRequise(config);
-            game.setModeDeJeu(mode); // Assurez-vous d'avoir ce champ dans JeuPlacement
-            game.reinitialiser(); // Vide le plateau
-            redirectAttributes.addFlashAttribute("message", "Mode changé : " + mode);
+            game.setModeDeJeu(mode);
+            game.reinitialiser();
+            session.setAttribute("flashMessage", "Mode changé : " + mode);
         } else {
             game.setModeDeJeu("custom");
         }
@@ -87,42 +94,33 @@ public class PlacementController {
         return "redirect:/placement";
     }
 
-    /**
-     * Configure un mode personnalisé via le formulaire
-     */
     @PostMapping("/customConfig")
     public String customConfig(@RequestParam Map<String, String> params,
                                @ModelAttribute("jeuPlacement") JeuPlacement game,
-                               RedirectAttributes redirectAttributes) {
+                               HttpSession session) {
 
         Map<String, Integer> newConfig = new HashMap<>();
-        // Liste des clés attendues (noms des pièces en minuscules dans le formulaire ?)
-        // Attention : votre formulaire HTML envoie c_dame, c_tour etc ? Ou juste dame, tour ?
-        // Adaptez selon les 'name' de vos inputs HTML.
-        // Supposons que les inputs sont : c_dame, c_tour...
-
         parseConfigParam(params, newConfig, "c_dame", "Dame");
         parseConfigParam(params, newConfig, "c_tour", "Tour");
         parseConfigParam(params, newConfig, "c_fou", "Fou");
         parseConfigParam(params, newConfig, "c_cavalier", "Cavalier");
         parseConfigParam(params, newConfig, "c_roi", "Roi");
 
-        // Validation (méthode à avoir dans JeuPlacement)
         String validation = game.validerConfiguration(newConfig);
 
         if ("OK".equals(validation)) {
             game.setConfigurationRequise(newConfig);
             game.setModeDeJeu("custom");
             game.reinitialiser();
-            redirectAttributes.addFlashAttribute("message", "✅ Configuration personnalisée appliquée !");
+            session.setAttribute("flashMessage", "✅ Configuration personnalisée appliquée !");
         } else {
-            redirectAttributes.addFlashAttribute("message", "❌ Erreur config : " + validation);
+            session.setAttribute("flashMessage", "❌ Erreur config : " + validation);
         }
 
         return "redirect:/placement";
     }
 
-    // --- Méthodes Utilitaires ---
+    // --- Utilitaires ---
 
     private void parseConfigParam(Map<String, String> params, Map<String, Integer> config, String paramName, String pieceType) {
         try {
@@ -137,20 +135,16 @@ public class PlacementController {
     private void injecterInfosUtilisateur(Model model, Authentication auth) {
         String pseudo = (auth != null && auth.isAuthenticated()) ? auth.getName() : "Invité";
         model.addAttribute("pseudo", pseudo);
-        model.addAttribute("isLoggedIn", auth != null && auth.isAuthenticated());
     }
 
     private void preparerModele(Model model, JeuPlacement game) {
+        // IMPORTANT : board est envoyé tel quel.
+        // JeuPlacement stocke board[x][y] (Col, Ligne).
         model.addAttribute("board", game.getBoard());
+
         model.addAttribute("configRequise", game.getConfigurationRequise());
         model.addAttribute("compteActuel", game.getCompteActuelCalculated());
-
         boolean gagne = game.estPuzzleResolu();
         model.addAttribute("gagne", gagne);
-
-        // Si un message flash n'est pas déjà présent
-        if (!model.containsAttribute("message")) {
-            model.addAttribute("message", gagne ? "✅ GAGNÉ !" : "À vous de jouer");
-        }
     }
 }
