@@ -1,83 +1,113 @@
 <!DOCTYPE html>
-<html lang="fr"
-      xmlns:th="http://www.thymeleaf.org"> <head>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accueil</title>
+  <title>Chessmate - Accueil</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" th:href="@{/css/home.css}">
 </head>
 
 <body>
-<div class="sidebar">
-
+<aside class="sidebar">
   <div class="logo">
     <img src="img/ChessMate.png" alt="Chessmate">
     <span>Chessmate</span>
   </div>
 
-  <a href="/placement"><i class="fa fa-chess-board"></i> Jouer</a>
-  <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
-  <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
-  <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
-  <a href="#"><i class="fa fa-ellipsis-h"></i> Plus</a>
+  <nav class="nav-menu">
+    <a href="/placement"><i class="fa fa-chess-board"></i> Jouer</a>
+    <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+    <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
+    <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
+    <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
 
-  <div th:if="${!isLoggedIn}">
-    <a href="/register"><button class="green-btn">Créer un compte</button></a>
-    <a href="/login"><button class="grey-btn">Se connecter</button></a>
+    <div id="gorilla-prank" class="gorilla-container">
+      <div class="gorilla-content">
+        <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
+        <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span>, il a haussé le niveau de ses pranks pour le duel avec l'Ultimate Prankeur ! 🦍 <br><br> <em>Omerta ChessMate Prankeur / 10.0f</em></p>
+      </div>
+    </div>
+
+    <script>
+      let clickCount = 0;
+      const plusLink = document.getElementById('plus-link');
+      const gorillaDiv = document.getElementById('gorilla-prank');
+
+      plusLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        clickCount++;
+
+        if (clickCount === 10) {
+          gorillaDiv.classList.add('show-gorilla');
+
+          // Disparaît après 8 secondes pour laisser le temps de lire
+          setTimeout(() => {
+            gorillaDiv.classList.remove('show-gorilla');
+            clickCount = 0;
+          }, 8000);
+        }
+      });
+    </script>
+  </nav>
+
+  <div class="auth-section">
+    <div th:if="${!isLoggedIn}" class="auth-buttons">
+      <a href="/register"><button class="btn btn-primary">Créer un compte</button></a>
+      <a href="/login"><button class="btn btn-secondary">Se connecter</button></a>
+    </div>
+
+    <div th:if="${isLoggedIn}" class="user-profile">
+      <p>Connecté en tant que</p>
+      <strong th:text="${pseudo}">Pseudo</strong>
+    </div>
   </div>
+</aside>
 
-  <div th:if="${isLoggedIn}" class="welcome-box">
-    <p><strong>Bienvenue</strong> <span th:text="${pseudo}">Pseudo</span> <strong>!</strong> </p>
+<main class="main-content">
+  <header class="page-header">
+    <h1>Bienvenue, <span th:text="${pseudo}" class="highlight">Joueur</span> ! 👋</h1>
+  </header>
 
-    <form th:action="@{/logout}" method="post" style="display: inline;">
-      <button type="submit" class="grey-btn">Se déconnecter</button>
-    </form>
-
-  </div>
-
-</div>
-<div class="main-content" style="margin-left: 260px; padding: 20px;">
-
-  <h1>Bienvenue, <span th:text="${pseudo}">Joueur</span> !</h1>
-
-  <div class="news-container" style="margin-bottom: 25px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h3><i class="fa fa-trophy" style="color: #f39c12;"></i> Tournois en direct</h3>
-    <div th:if="${not #lists.isEmpty(tournaments)}">
-      <div th:each="t : ${tournaments}" style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <strong th:text="${t.fullName}">Nom du tournoi</strong><br>
-          <small style="color: #666;">
-            Joueurs : <span th:text="${t.nbPlayers}">0</span>
-            • Fin dans environ <span th:text="${t.minutes}">0</span> min
-          </small>
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-trophy"></i> Tournois en direct</h3>
+    </div>
+    <div class="card-body">
+      <div th:if="${not #lists.isEmpty(tournaments)}">
+        <div th:each="t : ${tournaments}" class="list-item tournament">
+          <div class="item-info">
+            <strong th:text="${t.fullName}">Nom du tournoi</strong>
+            <div class="item-meta">
+              <span><i class="fa fa-users"></i> <span th:text="${t.nbPlayers}">0</span></span>
+              <span><i class="fa fa-clock"></i> <span th:text="${t.minutes}">0</span> min</span>
+            </div>
+          </div>
+          <a th:href="'https://lichess.org/tournament/' + ${t.id}" target="_blank" class="action-link">Rejoindre</a>
         </div>
-        <a th:href="'https://lichess.org/tournament/' + ${t.id}" target="_blank" class="btn-link" style="color: #2563eb; text-decoration: none; font-size: 0.9em;">Rejoindre →</a>
       </div>
+      <p th:if="${#lists.isEmpty(tournaments)}" class="empty-msg">Aucun tournoi majeur en cours.</p>
     </div>
-    <p th:if="${#lists.isEmpty(tournaments)}" style="color: #999;">Aucun tournoi majeur en cours.</p>
-  </div>
+  </section>
 
-  <div class="articles-container" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h3><i class="fa fa-newspaper"></i> Articles & Actualités</h3>
-
-    <div th:each="art : ${articles}" style="margin-bottom: 15px; display: flex; gap: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
-
-      <img th:if="${art.image}" th:src="${art.image}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 4px; flex-shrink: 0;">
-
-      <div>
-        <a th:href="${art.url}" target="_blank" style="text-decoration: none; color: #333; font-weight: bold; font-size: 1.1em;" th:text="${art.title}">Titre</a>
-
-        <p style="font-size: 0.85em; color: #666; margin: 5px 0;" th:text="${art.short}">Résumé...</p>
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-newspaper"></i> Articles & Actualités</h3>
+    </div>
+    <div class="card-body">
+      <div th:each="art : ${articles}" class="list-item article">
+        <img th:if="${art.image}" th:src="${art.image}" class="article-thumb" alt="News">
+        <div class="item-info">
+          <a th:href="${art.url}" target="_blank" class="article-title" th:text="${art.title}">Titre</a>
+          <p class="article-summary" th:text="${art.short}">Résumé...</p>
+        </div>
       </div>
+      <p th:if="${#lists.isEmpty(articles)}" class="empty-msg">Aucune actualité disponible.</p>
     </div>
-
-    <p th:if="${#lists.isEmpty(articles)}" style="color: #999;">Aucune actualité disponible pour le moment.</p>
-  </div>
-
-</div>
+  </section>
+</main>
 </body>
 </html>
