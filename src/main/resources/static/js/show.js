@@ -1,10 +1,10 @@
 /**
- * Script de l'Interface de Jeu (ChessMate) - Version Placement
+ * Logique Chessmate - Placement Corrigée
  */
 
 let appState = {
-    piece: localStorage.getItem('chessPiece') || 'Dame',      // "Dame" avec majuscule pour le factory
-    isWhite: true,                                           // Le mode placement est souvent en blanc par défaut
+    // On s'assure d'avoir une valeur par défaut cohérente avec le backend
+    piece: localStorage.getItem('chessPiece') || 'Dame',
     mode: localStorage.getItem('chessMode') || 'place',
     isLoading: false
 };
@@ -14,187 +14,136 @@ document.addEventListener("DOMContentLoaded", () => {
     checkServerMessage();
 });
 
-function selectPiece(btn) {
-    // On récupère le type et on s'assure que la première lettre est majuscule pour le backend
-    let rawPiece = btn.getAttribute('data-piece');
-    appState.piece = rawPiece.charAt(0).toUpperCase() + rawPiece.slice(1);
-
-    localStorage.setItem('chessPiece', appState.piece);
-    setModePlace();
-}
-
-function selectColor(btn) {
-    appState.isWhite = btn.getAttribute('data-color') === 'true';
-    updateVisuals();
-}
-
-function setModePlace() {
-    appState.mode = 'place';
-    localStorage.setItem('chessMode', 'place');
-    updateVisuals();
-}
-
-function setModeRemove() {
-    appState.mode = 'remove';
-    localStorage.setItem('chessMode', 'remove');
-    updateVisuals();
-}
-
-function updateVisuals() {
-    document.querySelectorAll('.piece-btn').forEach(btn => {
-        const btnPiece = btn.getAttribute('data-piece').toLowerCase();
-        if (btnPiece === appState.piece.toLowerCase()) btn.classList.add('selected');
-        else btn.classList.remove('selected');
-    });
-
-    const btnPlace = document.getElementById('modePlace');
-    const btnRemove = document.getElementById('modeRemove');
-    if (btnPlace && btnRemove) {
-        if (appState.mode === 'place') {
-            btnPlace.classList.add('selected');
-            btnRemove.classList.remove('selected');
-        } else {
-            btnRemove.classList.add('selected');
-            btnPlace.classList.remove('selected');
-        }
+function playSFX(type) {
+    if (!type) return;
+    const audio = document.getElementById(`sfx-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => {});
     }
 }
 
-/**
- * Gère le clic sur une case.
- * Point d'entrée unique : /placement/action
- */
+async function selectPiece(btn) {
+    if (appState.isLoading) return;
+
+    let raw = btn.getAttribute('data-piece');
+    // Formatage strict pour le backend (Majuscule initiale)
+    appState.piece = raw.charAt(0).toUpperCase() + raw.slice(1);
+    localStorage.setItem('chessPiece', appState.piece);
+
+    // Mise à jour visuelle immédiate
+    updateVisuals();
+
+    const csrf = document.querySelector('input[name="_csrf"]').value;
+    const formData = new FormData();
+    formData.append('_csrf', csrf);
+    formData.append('type', appState.piece);
+
+    appState.isLoading = true;
+    try {
+        const res = await fetch('/placement/selectPiece', { method: 'POST', body: formData });
+        if (res.ok) await updatePageContent(res);
+    } catch (e) {
+        console.error("Erreur sélection", e);
+    } finally {
+        appState.isLoading = false;
+        setModePlace(); // Force le passage en mode placement
+    }
+}
+
 async function clickCase(caseElem) {
     if (appState.isLoading) return;
 
-    const x = caseElem.getAttribute('data-x');
-    const y = caseElem.getAttribute('data-y');
-    const csrfToken = document.querySelector('input[name="_csrf"]').value;
-
+    const csrf = document.querySelector('input[name="_csrf"]').value;
     const formData = new FormData();
-    formData.append('_csrf', csrfToken);
-    formData.append('x', x);
-    formData.append('y', y);
+    formData.append('_csrf', csrf);
+    formData.append('x', caseElem.dataset.x);
+    formData.append('y', caseElem.dataset.y);
 
-    // Si on est en mode "place", on envoie le type, sinon on envoie vide (le contrôleur retirera la pièce)
-    if (appState.mode === 'place') {
-        formData.append('type', appState.piece);
-    } else {
-        formData.append('type', '');
-    }
+    // On utilise la pièce stockée dans l'état global
+    formData.append('type', appState.mode === 'place' ? appState.piece : '');
 
     appState.isLoading = true;
-    caseElem.style.opacity = '0.5';
-
     try {
-        // CORRECTION URL : /placement/action
-        const response = await fetch('/placement/action', { method: 'POST', body: formData });
-        if (response.ok) await updatePageContent(response);
+        const res = await fetch('/placement/action', { method: 'POST', body: formData });
+        if (res.ok) await updatePageContent(res);
     } catch (e) {
-        console.error('Erreur:', e);
+        playSFX('error');
     } finally {
         appState.isLoading = false;
-        caseElem.style.opacity = '1';
     }
 }
 
-/**
- * Changement de mode de jeu (8 Reines, etc.)
- */
-async function changeMode(selectElem) {
-    const val = selectElem.value;
-
-    if (val === 'custom') {
-        document.getElementById('customConfigPanel').style.display = 'block';
-        return;
-    }
-
-    const csrfToken = document.querySelector('input[name="_csrf"]').value;
-    const formData = new FormData();
-    formData.append('_csrf', csrfToken);
-    formData.append('modeDeJeu', val);
-
-    try {
-        // CORRECTION URL : /placement/changeMode
-        const response = await fetch('/placement/changeMode', { method: 'POST', body: formData });
-        if (response.ok) await updatePageContent(response);
-    } catch (e) {
-        console.error('Erreur changement de mode:', e);
-    }
-}
-
-/**
- * Soumission de la config personnalisée
- */
-async function submitCustomConfig() {
-    const csrfToken = document.querySelector('input[name="_csrf"]').value;
-    const formData = new FormData();
-    formData.append('_csrf', csrfToken);
-
-    // CORRECTION : Les clés doivent correspondre aux "c_dame" attendus par ton parseConfigParam
-    formData.append('c_dame', document.getElementById('c_dame').value);
-    formData.append('c_tour', document.getElementById('c_tour').value);
-    formData.append('c_fou', document.getElementById('c_fou').value);
-    formData.append('c_cavalier', document.getElementById('c_cavalier').value);
-    formData.append('c_roi', document.getElementById('c_roi').value);
-
-    try {
-        // CORRECTION URL : /placement/customConfig
-        const response = await fetch('/placement/customConfig', { method: 'POST', body: formData });
-        if (response.ok) {
-            await updatePageContent(response);
-            // Ferme le panneau si pas d'erreur affichée
-            const errorMsg = document.getElementById('server-data-message');
-            if (!(errorMsg && errorMsg.dataset.type === 'error')) {
-                cancelCustom();
-            }
-        }
-    } catch (e) {
-        console.error('Erreur config custom:', e);
-    }
-}
-
-function cancelCustom() {
-    document.getElementById('customConfigPanel').style.display = 'none';
-    document.getElementById('modeSelect').disabled = false;
-}
-
-/**
- * Mise à jour partielle du DOM
- */
 async function updatePageContent(response) {
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    // Mise à jour des zones dynamiques
-    const board = doc.querySelector('.board-container');
-    const info = doc.querySelector('.info-panel');
-    const message = doc.getElementById('server-data-message');
+    // Rafraîchissement global du container pour synchroniser board, objectifs et classements
+    const newContent = doc.querySelector('.main-container');
+    if (newContent) {
+        document.querySelector('.main-container').innerHTML = newContent.innerHTML;
+    }
 
-    if (board) document.querySelector('.board-container').innerHTML = board.innerHTML;
-    if (info) document.querySelector('.info-panel').innerHTML = info.innerHTML;
-
-    if (message) {
-        showToast(message.dataset.msg, message.dataset.type);
+    // Gestion des messages flash
+    const newMessage = doc.getElementById('server-data-message');
+    const oldMessage = document.getElementById('server-data-message');
+    if (newMessage && oldMessage) {
+        oldMessage.innerHTML = newMessage.innerHTML;
+        Array.from(newMessage.attributes).forEach(attr => oldMessage.setAttribute(attr.name, attr.value));
     }
 
     updateVisuals();
+    checkServerMessage();
 }
 
-function checkServerMessage() {
-    const messageData = document.getElementById('server-data-message');
-    if (messageData) {
-        showToast(messageData.dataset.msg, messageData.dataset.type);
-        // On ne le supprime pas forcément ici car updatePageContent s'en charge au prochain clic
+async function changeMode(selectElem) {
+    if (appState.isLoading) return;
+    const val = selectElem.value;
+    const csrf = document.querySelector('input[name="_csrf"]').value;
+    const formData = new FormData();
+    formData.append('_csrf', csrf);
+    formData.append('modeDeJeu', val);
+
+    appState.isLoading = true;
+    try {
+        const res = await fetch('/placement/changeMode', { method: 'POST', body: formData });
+        if (res.ok) await updatePageContent(res);
+    } catch (e) {} finally { appState.isLoading = false; }
+}
+
+function setModePlace() { appState.mode = 'place'; localStorage.setItem('chessMode', 'place'); updateVisuals(); }
+function setModeRemove() { appState.mode = 'remove'; localStorage.setItem('chessMode', 'remove'); updateVisuals(); }
+
+function updateVisuals() {
+    document.querySelectorAll('.piece-btn').forEach(b => {
+        if(b.getAttribute('data-piece').toLowerCase() === appState.piece.toLowerCase()) b.classList.add('selected');
+        else b.classList.remove('selected');
+    });
+    const p = document.getElementById('modePlace'), r = document.getElementById('modeRemove');
+    if(p && r) {
+        if(appState.mode === 'place') { p.classList.add('selected'); r.classList.remove('selected'); }
+        else { r.classList.add('selected'); p.classList.remove('selected'); }
     }
 }
 
-function showToast(message, type) {
-    if (!message) return;
-    const container = document.getElementById('toast-container');
+function checkServerMessage() {
+    const data = document.getElementById('server-data-message');
+    if (data && data.dataset.msg && data.dataset.msg.trim() !== "") {
+        showToast(data.dataset.msg, data.dataset.type);
+        playSFX(data.dataset.sound);
+        data.dataset.msg = "";
+    }
+}
+
+function showToast(m, t) {
+    const c = document.getElementById('toast-container');
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerText = message;
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+    toast.className = `toast ${t}`;
+    toast.innerText = m;
+    c.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(100%)";
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
 }

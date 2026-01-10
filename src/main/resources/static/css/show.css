@@ -1,319 +1,166 @@
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 20px;
-    color: #fff;
-    height: 100vh;
-    overflow: hidden;
-    background: transparent;
-    position: relative;
+:root {
+    --panel-bg: #2b2b2b;
+    --blue-accent: #0542c8;
+    --gold: #ffd700;
 }
 
-/* Fond damier flouté */
-.bg-blur {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-
-    --case1: rgba(205, 204, 204, 0.95);
-    --case2: #839ab3;
-
-    background-color: var(--case1);
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    min-height: 100vh;
+    background-color: #cacaca;
     background-image:
-            linear-gradient(45deg,
-            var(--case2) 25%,
-            transparent 25%,
-            transparent 75%,
-            var(--case2) 75%,
-            var(--case2) 100%
-            ),
-            linear-gradient(45deg,
-            var(--case2) 25%,
-            var(--case1) 25%,
-            var(--case1) 75%,
-            var(--case2) 75%,
-            var(--case2) 100%
-            );
-
+            linear-gradient(45deg, #839ab3 25%, transparent 25%, transparent 75%, #839ab3 75%, #839ab3 100%),
+            linear-gradient(45deg, #839ab3 25%, #cacaca 25%, #cacaca 75%, #839ab3 75%, #839ab3 100%);
     background-size: 210px 210px;
     background-position: 0 0, 105px 105px;
-    filter: blur(4px);
+    background-attachment: fixed;
 }
 
-/* =======================
-   Layout principal
-   ======================= */
-
-.container {
+.main-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
     align-items: flex-start;
-    flex-wrap: wrap;
-    margin-top: 20px;
+    gap: 20px;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
-/* =======================
-   Plateau d’échecs
-   ======================= */
+.side-column {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-.board-container {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-    border: 5px solid #333;
-    border-radius: 4px;
-    background: #1e1e1e;
+.center-column {
+    flex: 1;
+    max-width: 650px;
+    text-align: center;
+}
+
+.dark-panel {
+    background: var(--panel-bg);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+    border: 1px solid #444;
+}
+
+.mini-panel {
+    padding: 10px 15px;
+}
+
+.small-title {
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+/* Symboles de pièces agrandis */
+.piece-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.piece-btn {
+    background: #393939;
+    border: 1px solid #555;
+    color: #ddd;
+    border-radius: 6px;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 30px;
+    transition: all 0.2s;
+}
+
+.piece-btn.selected {
+    background: var(--blue-accent);
+    box-shadow: 0 0 10px rgba(5, 66, 200, 0.8);
+}
+
+.flex-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.flex-row .action-btn, .flex-row .color-btn {
+    flex: 1;
+}
+
+/* Plateau principal */
+.board-wrapper {
+    display: inline-block;
+    padding: 15px;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
 
 .board {
     display: grid;
-    grid-template-columns: repeat(8, 60px);
-    grid-template-rows: repeat(8, 60px);
+    grid-template-columns: repeat(8, 65px);
+    grid-template-rows: repeat(8, 65px);
+    border: 4px solid #333;
 }
 
-.case {
-    width: 60px;
-    height: 60px;
+.case { width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 45px; cursor: pointer; position: relative; }
+.case.white { background: #ddd; } .case.black { background: #4b4b4b; }
+
+/* Schémas compacts */
+.schema-grid.mini {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    cursor: pointer;
-    user-select: none;
+    justify-content: space-between;
+    gap: 8px;
 }
 
-.case.white {
-    background-color: #ddd;
-    color: #000;
+.schema-item {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.7em;
 }
 
-.case.black {
-    background-color: #4b4b4b;
-    color: #000;
+.schema-img-small {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    margin-bottom: 2px;
 }
 
-.case:hover {
-    opacity: 0.8;
-}
-
-/* Animation apparition pièce */
-.piece-anim {
-    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes popIn {
-    0% { transform: scale(0); }
-    100% { transform: scale(1); }
-}
-
-/* =======================
-   Panneaux latéraux
-   ======================= */
-
-.piece-selector,
-.info-panel {
-    background: #2b2b2b;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    width: 280px;
-    text-align: left;
-    color: #fff;
-}
-
-h1 {
-    margin-top: 0;
-    color: #2b2b2b;
-    font-size: 48px;
-}
-
-h2 {
-    margin-top: 0;
-    color: #fff;
-}
-
-p {
-    color: #ddd;
-}
-
-/* =======================
-   Sélecteurs de pièces
-   ======================= */
-
-.piece-buttons {
+/* Trophées */
+.trophy-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin: 15px 0;
-}
-
-.piece-btn {
-    padding: 10px;
-    font-size: 28px;
-    cursor: pointer;
-    border: 2px solid #555;
-    background: #fff;
-    border-radius: 8px;
-    transition: all 0.15s;
-}
-
-.piece-btn:hover {
-    background: #e0e0e0;
-}
-
-/* Sélections */
-.piece-btn.selected,
-.color-btn.selected,
-.action-btn.selected {
-    background-color: #e8f5e9 !important;
-    border-color: #4CAF50 !important;
-    color: #1b5e20;
-    transform: scale(1.05);
-    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
-}
-
-/* =======================
-   Sélecteur couleur
-   ======================= */
-
-.color-btn {
-    padding: 8px 15px;
-    margin-right: 5px;
-    cursor: pointer;
-    border: 2px solid #555;
-    background: #fff;
-    border-radius: 5px;
-}
-
-.color-btn.selected {
-    border-color: #2196F3 !important;
-    background: #e3f2fd !important;
-    color: #0d47a1;
-}
-
-/* =======================
-   Boutons d’action
-   ======================= */
-
-.action-btn {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    background: #4CAF50;
-    color: #fff;
-}
-
-.action-btn.danger {
-    background: #f44336;
-}
-
-/* =======================
-   Toast notifications
-   ======================= */
-
-#toast-container {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 9999;
-
-    display: flex;
-    flex-direction: column-reverse;
     gap: 10px;
-    align-items: center;
 }
 
-.toast {
-    background: #333;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    font-weight: 600;
-    font-size: 1rem;
-    opacity: 0;
-
-    animation: slideUpFade 0.4s forwards, fadeOut 0.4s forwards 3s;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 250px;
+.trophy-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 6px;
+    text-align: center;
 }
 
-.toast.success { background-color: #4CAF50; }
-.toast.error { background-color: #f44336; }
-.toast.warning { background-color: #f59e0b; }
-
-@keyframes slideUpFade {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.trophy-img, .mini-trophy {
+    width: 28px;
+    height: 28px;
 }
 
-@keyframes fadeOut {
-    to { opacity: 0; visibility: hidden; }
-}
+.locked { opacity: 0.2; filter: grayscale(1); }
+.unlocked { opacity: 1; border-color: var(--gold); }
 
-/* =======================
-   Responsive
-   ======================= */
-
-@media screen and (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .piece-selector,
-    .info-panel {
-        width: 90%;
-        margin-bottom: 20px;
-    }
-
-    .board {
-        grid-template-columns: repeat(8, 50px);
-        grid-template-rows: repeat(8, 50px);
-    }
-
-    .case {
-        width: 50px;
-        height: 50px;
-        font-size: 36px;
-    }
-
-    .piece-buttons {
-        grid-template-columns: repeat(6, 1fr);
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .board {
-        grid-template-columns: repeat(8, 11vw);
-        grid-template-rows: repeat(8, 11vw);
-    }
-
-    .case {
-        width: 11vw;
-        height: 11vw;
-        font-size: 24px;
-    }
-
-    .piece-buttons {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    #toast-container {
-        bottom: 20px;
-        width: 90%;
-    }
-
-    .toast {
-        width: 100%;
-        font-size: 0.85rem;
-    }
-}
+.leader-list { padding: 0; list-style: none; margin: 0; }
+.leader-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #444; font-size: 0.9em; }
+.gold-text { color: var(--gold); margin-bottom: 10px; font-weight: bold; }
