@@ -92,10 +92,15 @@ body {
 .user-profile {
     text-align: center;
     border-top: 1px solid #334155;
-    padding-top: 15px;
+    padding-top: 8px;
 }
 
 .user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+
+.user-profile form {
+    margin-top: 20px;
+    display: block !important;
+}
 
 /* MAIN CONTENT */
 .main-content {
