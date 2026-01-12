@@ -172,14 +172,18 @@
         <div class="dark-panel leaderboard-panel">
             <h4 class="gold-text">CLASSEMENT GLOBAL</h4>
             <ul class="leader-list">
-                <li th:each="row, iterStat : ${classementGlobal}" th:if="${iterStat.index < 5}">
-                    <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
+                <li th:each="row, iterStat : ${classementGlobal}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
                 </li>
             </ul>
             <h4 class="gold-text">CLASSEMENT (<span th:text="${jeuPlacement.modeDeJeu}">Mode</span>)</h4>
             <ul class="leader-list">
-                <li th:each="row, iterStat : ${classementMode}" th:if="${iterStat.index < 5}">
-                    <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
+                <li th:each="row, iterStat : ${classementMode}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
                 </li>
             </ul>
         </div>
