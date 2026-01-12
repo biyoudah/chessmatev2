@@ -1,16 +1,44 @@
-/* VARIABLES ET RESET */
 :root {
-    --sidebar-bg: #1e293b;
+    /* --- THÈME CLAIR --- */
     --main-bg: #f8fafc;
-    --accent-blue: #3b82f6;
-    --accent-green: #22c55e;
-    --text-dark: #1e293b;
+    --sidebar-bg: #1e293b;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
     --text-muted: #64748b;
-    --white: #ffffff;
     --border-color: #e2e8f0;
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --gold: #f59e0b;
+    --item-hover: #eff6ff;
+
+    /* Boutons (Nouveau) */
+    --btn-primary-bg: #00a800;
+    --btn-primary-shadow: #006d00;
+    --btn-primary-hover: #068d06;
+
+    --btn-secondary-bg: #475569;
+    --btn-secondary-shadow: #2f3946;
+    --btn-secondary-hover: #404b5d;
 }
 
+body.dark-mode {
+    /* --- THÈME SOMBRE --- */
+    --main-bg: #0f172a;
+    --sidebar-bg: #020617;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --gold: #fbbf24;
+
+    /* Boutons Dark Mode (Plus profonds) */
+    --btn-primary-bg: #15803d;
+    --btn-primary-shadow: #052e16;
+    --btn-secondary-bg: #1e293b;
+    --btn-secondary-shadow: #000000;
+}
+
+/* =========================================
+   2. GLOBAL & TRANSITIONS
+   ========================================= */
 * {
     box-sizing: border-box;
 }
@@ -18,13 +46,16 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--main-bg);
-    color: var(--text-dark);
+    color: var(--text-main);
     margin: 0;
     display: flex;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* SIDEBAR */
+/* =========================================
+   3. SIDEBAR
+   ========================================= */
 .sidebar {
     width: 260px;
     background-color: var(--sidebar-bg);
@@ -34,6 +65,24 @@ body {
     position: fixed;
     height: 100vh;
     z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+/* =========================================
+   4. SIDEBAR (NAVIGATION)
+   ========================================= */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; height: 100vh;
+    z-index: 1000;
+    border-right: 1px solid #334155;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease;
 }
 
 .logo {
@@ -41,10 +90,10 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
-
-.logo img { width: 38px; }
-.logo span { font-size: 1.5rem; font-weight: 700; }
+.logo img { width: 38px; height: auto; }
 
 .nav-menu {
     display: flex;
@@ -60,51 +109,39 @@ body {
     align-items: center;
     gap: 15px;
     font-weight: 500;
-    transition: 0.2s;
+    transition: all 0.2s;
+    font-size: 16px;
 }
 
-.nav-menu a:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding-left: 30px;
-}
+.nav-menu a:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 28px; }
+.nav-menu i { width: 20px; text-align: center; }
 
+/* Section Auth */
 .auth-section {
     margin-top: auto;
     padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.2);
 }
 
-.btn {
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espacement vertical important */
     width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: transform 0.1s;
 }
 
-.btn:active { transform: scale(0.98); }
-.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00; font-size: 0.9rem;}
-.btn-primary:hover { background: #068d06;}
-.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
-.btn-secondary:hover { background: #404b5d;}
+.user-profile { text-align: center; }
+.user-profile p { font-size: 0.85rem; color: #94a3b8; margin: 0 0 5px 0; }
 
-.user-profile {
-    text-align: center;
-    border-top: 1px solid #334155;
-    padding-top: 12px;
+
+#theme-toggle i {
+    color: var(--gold);
 }
 
-.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
-
-.user-profile form {
-    margin-top: 12px;
-    display: block !important;
-}
-
-/* MAIN CONTENT */
+/* =========================================
+   4. MAIN CONTENT & CARDS
+   ========================================= */
 .main-content {
     margin-left: 260px;
     padding: 40px;
@@ -112,137 +149,61 @@ body {
     max-width: 1100px;
 }
 
-.highlight { color: var(--accent-blue); }
-
 .card {
-    background: var(--white);
+    background: var(--card-bg);
     border-radius: 12px;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--border-color);
     margin-bottom: 30px;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card-header {
     padding: 20px 24px;
     border-bottom: 1px solid var(--border-color);
+    background: var(--card-header-bg);
 }
 
 .card-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--text-main);
 }
 
-.card-header i { color: #f59e0b; }
+.card-header i {
+    color: var(--gold); /* Utilise la variable gold */
+}
 
-.card-body { padding: 0 24px; }
-
-/* LIST ITEMS (Tournaments & Articles) */
+/* LIST ITEMS */
 .list-item {
     display: flex;
     align-items: center;
-    padding: 20px 0;
+    padding: 20px 24px;
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
 }
 
-.list-item:last-child { border-bottom: none; }
-
-.item-info { flex: 1; }
-
-.item-meta {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-top: 5px;
-    display: flex;
-    gap: 15px;
-}
-
-.action-link {
-    background: #eff6ff;
-    color: var(--accent-blue);
-    padding: 8px 18px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: 0.2s;
-}
-
-.action-link:hover {
-    background: var(--accent-blue);
-    color: white;
-}
-
-/* SPECIFIC FOR ARTICLES */
-.article-thumb {
-    width: 110px;
-    height: 70px;
-    border-radius: 6px;
-    object-fit: cover;
-    margin-right: 20px;
+.list-item:hover {
+    background-color: var(--item-hover);
 }
 
 .article-title {
-    text-decoration: none;
-    color: var(--text-dark);
-    font-weight: 700;
-    font-size: 1.05rem;
+    color: var(--text-main);
 }
 
-.article-title:hover { color: var(--accent-blue); }
-
-.article-summary {
-    margin: 5px 0 0;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-.empty-msg {
-    padding: 30px;
-    text-align: center;
+.item-meta, .article-summary {
     color: var(--text-muted);
 }
 
-/* Positionnement du Prankeur à droite */
+/* =========================================
+   5. PRANKEUR (ADAPTATION)
+   ========================================= */
 .gorilla-container {
-    position: fixed;
-    right: -450px; /* Caché par défaut à droite */
-    bottom: 30px;
-    width: 350px;
-    background: white;
-    padding: 15px;
-    border-radius: 20px;
-    box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
-    z-index: 9999; /* Toujours au-dessus de tout */
-    border: 3px solid #1e293b;
-    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    text-align: center;
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 3px solid var(--sidebar-bg);
+    /* ... rest of your gorilla CSS ... */
 }
 
-/* Classe activée par le clic */
-.gorilla-container.show-gorilla {
-    right: 30px; /* Apparaît à 30px du bord droit */
-}
-
-.Prankeur {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
-
-.gorilla-container p {
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #334155;
-    margin: 0;
-}
-
-.gorilla-container p span {
-    color: #3b82f6;
-    font-weight: bold;
+body.dark-mode .gorilla-container {
+    border-color: var(--gold);
 }

@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/show.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♟️</text></svg>">
+    <script defer th:src="@{/js/theme-manager.js}"></script>
 </head>
 <body>
 <aside class="sidebar">
@@ -22,6 +23,10 @@
         <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
         <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
         <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+        <a href="#" id="theme-toggle">
+            <i class="fa fa-sun" id="theme-icon"></i>
+            <span id="theme-text">Mode Clair</span>
+        </a>
 
         <div id="gorilla-prank" class="gorilla-container">
             <div class="gorilla-content">

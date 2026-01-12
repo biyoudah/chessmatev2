@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" th:href="@{/css/home.css}">
+  <script defer th:src="@{/js/theme-manager.js}"></script>
 </head>
 
 <body>
@@ -26,33 +27,10 @@
     <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
     <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
     <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
-
-    <div id="gorilla-prank" class="gorilla-container">
-      <div class="gorilla-content">
-        <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
-        <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span>, il a haussé le niveau de ses pranks pour le duel avec l'Ultimate Prankeur ! 🦍 <br><br> <em>Omerta ChessMate Prankeur / 10.0f</em></p>
-      </div>
-    </div>
-
-    <script>
-      let clickCount = 0;
-      const plusLink = document.getElementById('plus-link');
-      const gorillaDiv = document.getElementById('gorilla-prank');
-
-      plusLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        clickCount++;
-
-        if (clickCount === 10) {
-          gorillaDiv.classList.add('show-gorilla');
-
-          setTimeout(() => {
-            gorillaDiv.classList.remove('show-gorilla');
-            clickCount = 0;
-          }, 8000);
-        }
-      });
-    </script>
+    <a href="#" id="theme-toggle">
+      <i class="fa fa-sun" id="theme-icon"></i>
+      <span id="theme-text">Mode Clair</span>
+    </a>
   </nav>
 
   <div class="auth-section">
@@ -62,8 +40,8 @@
     </div>
 
     <div th:if="${isLoggedIn}" class="user-profile">
-        <p>Connecté en tant que</p>
-        <strong th:text="${pseudo}">Pseudo</strong>
+      <p>Connecté en tant que</p>
+      <strong th:text="${pseudo}">Pseudo</strong>
 
       <form th:action="@{/logout}" method="post" style="display: inline;">
         <button class="btn btn-secondary">Se déconnecter</button>
