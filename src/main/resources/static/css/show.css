@@ -2,7 +2,7 @@
    1. VARIABLES & RESET
    ========================================= */
 :root {
-    --panel-bg: #2b2b2b;
+    --panel-bg: #1e293b;
     --blue-accent: #0542c8;
     --gold: #ffd700;
     --sidebar-width: 260px;
@@ -50,6 +50,10 @@ body {
     flex: 1;
     max-width: 650px;
     text-align: center;
+}
+
+.main-title {
+    color: #1e293b;
 }
 
 /* =========================================
@@ -159,7 +163,7 @@ body {
 }
 
 .piece-btn {
-    background: #393939;
+    background: #3d4c63;
     border: 1px solid #555;
     color: #ddd;
     border-radius: 6px;
@@ -207,7 +211,7 @@ body {
     display: grid;
     grid-template-columns: repeat(8, 65px);
     grid-template-rows: repeat(8, 65px);
-    border: 4px solid #333;
+    border: 4px solid #1e293b;
 }
 
 .case {
@@ -219,7 +223,7 @@ body {
 }
 
 .case.white { background: #ddd; }
-.case.black { background: #4b4b4b; }
+.case.black { background: #3d4c63; }
 
 /* Coordonnées (Petit en bas à droite) */
 .coord {
@@ -298,25 +302,25 @@ body {
 
 /* Bleu (Bouton "Placer") */
 .blue-btn {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: white;
 }
 
 /* Rouge (Bouton "Retirer") */
 .danger-btn, .btn-neutral {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: white;
 }
 
 /* Jaune/Orange (Indice, Réinitialiser) */
 .btn-warning {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: white;
 }
 
 /* Blanc */
 .btn-white {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: #1e293b;
     border: 1px solid #e2e8f0;
 }
@@ -337,7 +341,7 @@ body {
     transition: all 0.2s ease;
     background-color: #ffffff;
     border: 1px solid #cbd5e1;
-    color: #393939;
+    color: #3d4c63;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -356,7 +360,7 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f1f5f9'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 .dark-panel .form-select:hover { background-color: #3d4c63; border-color: #64748b; }
-.dark-panel option { background-color: #1e293b; color: white; }
+.dark-panel option { background-color: #3d4c63; color: white; }
 
 /* =========================================
    8. BOUTONS COULEURS (BLANC / NOIR)
@@ -368,13 +372,13 @@ body {
 
 /* Bouton BLANC */
 .color-btn {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: #ffffff;
 }
 
 /* Bouton NOIR */
 .color-btn {
-    background-color: #393939;
+    background-color: #3d4c63;
     color: #ffffff;
 }
 .color-btn:hover, .color-btn:hover, .color-btn.active, .color-btn.selected { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }

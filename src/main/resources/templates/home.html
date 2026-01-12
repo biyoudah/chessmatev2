@@ -14,13 +14,15 @@
 <body>
 <aside class="sidebar">
   <div class="logo">
-    <img src="img/ChessMate.png" alt="Chessmate">
-    <span>Chessmate</span>
+    <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+      <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+      <span>Chessmate</span>
+    </a>
   </div>
 
   <nav class="nav-menu">
-    <a href="/placement"><i class="fa fa-chess-board"></i> Jouer</a>
-    <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+    <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+    <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
     <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
     <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
     <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
