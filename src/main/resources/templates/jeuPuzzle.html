@@ -32,8 +32,13 @@
         <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
         <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
         <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
-        <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
+        <a href="/#"><i class="fa fa-user-friends"></i> Classement</a>
         <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+        <a href="javascript:void(0)" onclick="toggleTheme()" id="theme-toggle">
+            <i class="fa fa-sun" id="theme-icon"></i>
+            <span id="theme-text">Mode Clair</span>
+        </a>
+
 
         <div id="gorilla-prank" class="gorilla-container">
             <div class="gorilla-content">
@@ -238,6 +243,38 @@
 </script>
 
 <script>
+    // --- GESTION DU THÈME (NOUVEAU) ---
+    const toggleBtn = document.getElementById('theme-toggle');
+    const toggleIcon = toggleBtn.querySelector('i');
+    const body = document.body;
+
+    // Charger le thème sauvegardé
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        body.classList.add('dark-mode');
+        toggleIcon.classList.remove('fa-sun');
+        toggleIcon.classList.add('fa-moon');
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        const text = document.getElementById('theme-text');
+
+        body.classList.toggle('dark-mode');
+
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+            icon.className = 'fa fa-moon'; // Icône lune pour le mode sombre
+            text.innerText = 'Mode Sombre';
+        } else {
+            localStorage.setItem('theme', 'light');
+            icon.className = 'fa fa-sun'; // Icône soleil pour le mode clair
+            text.innerText = 'Mode Clair';
+        }
+    }
+
+    // --- GESTION DU GORILLE (EXISTANT) ---
     let clickCount = 0;
     const plusLink = document.getElementById('plus-link');
     const gorillaDiv = document.getElementById('gorilla-prank');
