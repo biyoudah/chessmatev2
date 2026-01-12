@@ -86,8 +86,10 @@ body {
 }
 
 .btn:active { transform: scale(0.98); }
-.btn-primary { background: var(--accent-green); color: white; }
-.btn-secondary { background: #475569; color: white; }
+.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00;}
+.btn-primary:hover { background: #068d06; color: white; }
+.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946;}
+.btn-secondary:hover { background: #404b5d; color: white; }
 
 .user-profile {
     text-align: center;
