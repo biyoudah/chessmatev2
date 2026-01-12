@@ -235,12 +235,43 @@ body.dark-mode .main-title { color: #e0e0e0; }
 
 /* Schémas & Trophées */
 .schema-grid.mini { display: flex; justify-content: space-between; gap: 8px; }
-.schema-item { flex: 1; background: rgba(0, 0, 0, 0.2); padding: 6px; border-radius: 6px; text-align: center; font-size: 0.7em; }
+.schema-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.7em;
+    justify-content: center;
+    align-items: center;
+}
 .schema-img-small { width: 32px; height: 32px; object-fit: contain; margin-bottom: 2px; }
 
+.schema-item span {
+    margin-top: 5px;
+    display: block;
+}
+
 .trophy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.trophy-item { background: rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 6px; text-align: center; }
+.trophy-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.7em;
+    justify-content: center;
+    align-items: center;
+}
 .trophy-img, .mini-trophy { width: 28px; height: 28px; }
+.trophy-item span {
+    margin-top: 5px;
+    display: block;
+}
 .locked { opacity: 0.2; filter: grayscale(1); }
 .unlocked { opacity: 1; border-color: var(--gold); }
 

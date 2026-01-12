@@ -98,16 +98,20 @@
             <h3 class="gold-text small-title">SCHÉMAS</h3>
             <div class="schema-grid mini">
                 <div class="schema-item" th:classappend="${#sets.contains(schemasCompletes, '8-dames|{Dame=8}')} ? 'unlocked' : 'locked'">
-                    <img th:src="@{/img/8-dames.jpg}" class="schema-img-small">
+                    <img th:src="@{/img/8dames.png}" class="schema-img-small">
                     <span>8 Dames</span>
                 </div>
                 <div class="schema-item" th:classappend="${#sets.contains(schemasCompletes, '8-tours|{Tour=8}')} ? 'unlocked' : 'locked'">
-                    <img th:src="@{/img/8tours.jpg}" class="schema-img-small">
+                    <img th:src="@{/img/8tours.png}" class="schema-img-small">
                     <span>8 Tours</span>
                 </div>
                 <div class="schema-item" th:classappend="${#sets.contains(schemasCompletes, '14-fous|{Fou=14}')} ? 'unlocked' : 'locked'">
-                    <img th:src="@{/img/14fous.jpg}" class="schema-img-small">
+                    <img th:src="@{/img/14fous.png}" class="schema-img-small">
                     <span>14 Fous</span>
+                </div>
+                <div class="schema-item" th:classappend="${#sets.contains(schemasCompletes, '14-rois|{Roi=16}')} ? 'unlocked' : 'locked'">
+                    <img th:src="@{/img/16rois.png}" class="schema-img-small">
+                    <span>16 Rois</span>
                 </div>
             </div>
         </div>
@@ -117,12 +121,15 @@
             <div class="trophy-grid">
                 <div class="trophy-item" th:classappend="${trophees['MaitreDesDames']} ? 'unlocked' : 'locked'" title="8 Dames">
                     <img th:src="@{/img/maitredesdames-removebg-preview.png}" class="trophy-img">
+                    <span>Maître des dames</span>
                 </div>
                 <div class="trophy-item" th:classappend="${trophees['RoiDuPuzzle']} ? 'unlocked' : 'locked'" title="10 Puzzles">
                     <img th:src="@{/img/roidupuzzle-removebg-preview.png}" class="trophy-img">
+                    <span>Roi du puzzle</span>
                 </div>
                 <div class="trophy-item" th:classappend="${trophees['RoiDuPerfect']} ? 'unlocked' : 'locked'" title="5 Perfects">
                     <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
+                    <span>Roi du perfect</span>
                 </div>
             </div>
         </div>
