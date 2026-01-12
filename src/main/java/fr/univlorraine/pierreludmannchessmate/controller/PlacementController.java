@@ -208,7 +208,18 @@ public class PlacementController {
     private void injecterInfosUtilisateur(Model model, Authentication auth) {
         boolean estConnecte = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
         model.addAttribute("isLoggedIn", estConnecte);
-        model.addAttribute("pseudo", estConnecte ? auth.getName() : "Invité");
+        if (estConnecte) {
+            String email = auth.getName(); // L'email de connexion
+
+            // On va chercher le VRAI pseudo en base de données
+            String pseudo = utilisateurRepository.findByEmail(email)
+                    .map(Utilisateur::getPseudo)
+                    .orElse("Joueur"); // Valeur par défaut si pseudo vide
+
+            model.addAttribute("pseudo", pseudo);
+        } else {
+            model.addAttribute("pseudo", "Invité");
+        }
     }
 
     private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {

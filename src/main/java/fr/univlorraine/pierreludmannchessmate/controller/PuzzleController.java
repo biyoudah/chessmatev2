@@ -46,7 +46,19 @@ public class PuzzleController {
                                  Authentication auth,
                                  HttpSession session) {
 
-        model.addAttribute("pseudo", auth != null ? auth.getName() : "Invité");
+        boolean isLoggedIn = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
+        model.addAttribute("isLoggedIn", isLoggedIn);
+
+        if (isLoggedIn) {
+            // On va chercher le pseudo en base via ta méthode existante
+            String pseudo = recupererUtilisateurCourant(auth)
+                    .map(Utilisateur::getPseudo)
+                    .orElse("Joueur");
+
+            model.addAttribute("pseudo", pseudo);
+        } else {
+            model.addAttribute("pseudo", "Invité");
+        }
 
         Object msg = session.getAttribute("flashMessage");
         if (msg != null) {
