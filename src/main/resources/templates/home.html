@@ -34,7 +34,7 @@
   </nav>
 
   <div class="auth-section">
-    <div th:if="${!isLoggedIn}" class="auth-buttons">
+    <div th:if="${!isLoggedIn}">
       <a href="/register"><button class="btn btn-primary">Créer un compte</button></a>
       <a href="/login"><button class="btn btn-secondary">Se connecter</button></a>
     </div>
