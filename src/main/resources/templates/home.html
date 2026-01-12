@@ -60,10 +60,8 @@
     </div>
 
     <div th:if="${isLoggedIn}" class="user-profile">
-      <div class="text-center">
         <p>Connecté en tant que</p>
         <strong th:text="${pseudo}">Pseudo</strong>
-      </div>
 
       <form th:action="@{/logout}" method="post" style="display: inline;">
         <button class="btn btn-secondary">Se déconnecter</button>

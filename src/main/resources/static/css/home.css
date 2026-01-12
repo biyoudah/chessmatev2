@@ -86,21 +86,21 @@ body {
 }
 
 .btn:active { transform: scale(0.98); }
-.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00;}
-.btn-primary:hover { background: #068d06; color: white; }
-.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946;}
-.btn-secondary:hover { background: #404b5d; color: white; }
+.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00; font-size: 0.9rem;}
+.btn-primary:hover { background: #068d06;}
+.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
+.btn-secondary:hover { background: #404b5d;}
 
 .user-profile {
     text-align: center;
     border-top: 1px solid #334155;
-    padding-top: 8px;
+    padding-top: 12px;
 }
 
 .user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
 
 .user-profile form {
-    margin-top: 20px;
+    margin-top: 12px;
     display: block !important;
 }
 
