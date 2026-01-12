@@ -250,6 +250,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .schema-img-small { width: 32px; height: 32px; object-fit: contain; margin-bottom: 2px; }
 
 .schema-item span {
+    white-space: nowrap;
     margin-top: 5px;
     display: block;
 }
