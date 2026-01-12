@@ -45,6 +45,8 @@
                            placeholder="********" class="form-control" required/>
                 </div>
 
+                <input type="hidden" name="targetUrl" th:if="${param.targetUrl}" th:value="${param.targetUrl}" />
+
                 <button type="submit">Se connecter</button>
             </form>
 

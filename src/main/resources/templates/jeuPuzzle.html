@@ -24,13 +24,48 @@
 </head>
 <body id="page-body">
 
-<nav class="navbar">
-    <h1>🧩 Chessmate <span style="font-weight:normal; font-size:0.8em;">| Tactique</span></h1>
-    <div class="user-info">
-        👤 <span th:text="${pseudo}">Joueur</span>
-        <a th:href="@{/home}" class="btn-small">🏠 Accueil</a>
+<aside class="sidebar">
+    <div class="logo">
+        <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+        <span>Chessmate</span>
     </div>
-</nav>
+
+    <nav class="nav-menu">
+        <a href="/placement"><i class="fa fa-chess-board"></i> Jouer</a>
+        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+        <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
+        <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
+        <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+
+        <div id="gorilla-prank" class="gorilla-container">
+            <div class="gorilla-content">
+                <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
+                <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span> ! 🦍</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-section">
+        <div th:if="${isLoggedIn == false or pseudo == 'Invité'}" class="auth-buttons">
+            <a href="/register" style="text-decoration: none;">
+                <button class="sidebar-btn btn-primary">Créer un compte</button>
+            </a>
+            <a href="#" onclick="window.location.href='/login?targetUrl=' + window.location.pathname; return false;" style="text-decoration: none;">
+                <button class="sidebar-btn btn-secondary">Se connecter</button>
+            </a>
+        </div>
+
+        <div th:if="${isLoggedIn == true or (pseudo != null and pseudo != 'Invité')}" class="user-profile">
+            <p>Connecté en tant que</p>
+            <strong th:text="${pseudo}" style="color: #fff;">Joueur</strong>
+            <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+                <button type="submit" class="sidebar-btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">
+                    <i class="fa fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
 
 <div th:if="${message}" th:text="${message}"
      th:class="${message.contains('Bravo') or message.contains('pts') ? 'flash-msg success' : (message.contains('Mauvais') ? 'flash-msg error' : 'flash-msg neutral')}">
@@ -136,6 +171,26 @@
     if(ordiJoue) {
         document.getElementById('thinking-loader').style.display='block';
         setTimeout(() => sendRequest(compMoveUrl), 500);
+    }
+</script>
+
+<script>
+    let clickCount = 0;
+    const plusLink = document.getElementById('plus-link');
+    const gorillaDiv = document.getElementById('gorilla-prank');
+
+    if(plusLink) {
+        plusLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            clickCount++;
+            if (clickCount === 10) {
+                gorillaDiv.classList.add('show-gorilla');
+                setTimeout(() => {
+                    gorillaDiv.classList.remove('show-gorilla');
+                    clickCount = 0;
+                }, 8000);
+            }
+        });
     }
 </script>
 
