@@ -20,8 +20,13 @@
     --btn-hover: #4b5c76;
 
     /* Boutons Sidebar (Spécifiques) */
-    --btn-primary-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); /* Vert */
-    --btn-secondary-bg: linear-gradient(135deg, #475569 0%, #334155 100%); /* Gris */
+    --btn-primary-bg: #00a800;
+    --btn-primary-shadow: #006d00;
+    --btn-primary-hover: #068d06;
+
+    --btn-secondary-bg: #475569;
+    --btn-secondary-shadow: #2f3946;
+    --btn-secondary-hover: #404b5d;
 
     /* Accents */
     --gold: #ffd700;
@@ -319,34 +324,59 @@ body.dark-mode .main-title { color: #e0e0e0; }
    7. BOUTONS (DESIGN CORRIGÉ)
    ========================================= */
 
-/* --- A. Boutons de la Sidebar (Structure) --- */
-.sidebar-btn, .theme-toggle-btn {
-    width: 100%;                  /* Prend toute la largeur */
-    padding: 12px 15px;           /* RESTAURATION DU PADDING */
+/* Structure de base pour les boutons de la sidebar */
+.sidebar-btn {
+    width: 100%;
+    padding: 12px 15px;
     border: none;
     border-radius: 8px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.9rem; /* Taille demandée */
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease-in-out; /* Transition plus rapide pour le clic */
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
     color: white;
     box-sizing: border-box;
+    text-decoration: none;
 }
 
-.sidebar-btn:hover, .theme-toggle-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    filter: brightness(1.1);
+/* Effet de pression commun à tous les boutons actifs */
+.sidebar-btn:active, .action-btn:active, .btn:active {
+    transform: scale(0.98);
 }
-.sidebar-btn:active { transform: translateY(0); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+
+/* --- BOUTON PRIMAIRE (VERT) --- */
+.btn-primary {
+    background-color: var(--btn-primary-bg);
+    box-shadow: 0 2px 0 var(--btn-primary-shadow);
+}
+
+.btn-primary:hover {
+    background-color: var(--btn-primary-hover);
+}
+
+/* Ajustement de l'ombre au clic pour simuler l'enfoncement */
+.btn-primary:active {
+    box-shadow: 0 1px 0 var(--btn-primary-shadow);
+}
+
+/* --- BOUTON SECONDAIRE (GRIS) --- */
+.btn-secondary {
+    background-color: var(--btn-secondary-bg);
+    box-shadow: 0 2px 0 var(--btn-secondary-shadow);
+}
+
+.btn-secondary:hover {
+    background-color: var(--btn-secondary-hover);
+}
+
+.btn-secondary:active {
+    box-shadow: 0 1px 0 var(--btn-secondary-shadow);
+}
 
 /* --- B. Bouton Toggle Mode (Nouveau) --- */
 .theme-toggle-btn {
