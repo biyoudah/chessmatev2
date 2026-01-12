@@ -116,13 +116,13 @@
             <h3 class="gold-text small-title">TROPHÉES</h3>
             <div class="trophy-grid">
                 <div class="trophy-item" th:classappend="${trophees['MaitreDesDames']} ? 'unlocked' : 'locked'" title="8 Dames">
-                    <img th:src="@{/img/8-dames.jpg}" class="trophy-img">
+                    <img th:src="@{/img/maitredesdames-removebg-preview.png}" class="trophy-img">
                 </div>
                 <div class="trophy-item" th:classappend="${trophees['RoiDuPuzzle']} ? 'unlocked' : 'locked'" title="10 Puzzles">
-                    <svg class="mini-trophy" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L9 9H2l7 6-3 7 9-5 9 5-3-7 7-6h-7z"/></svg>
+                    <img th:src="@{/img/roidupuzzle-removebg-preview.png}" class="trophy-img">
                 </div>
                 <div class="trophy-item" th:classappend="${trophees['RoiDuPerfect']} ? 'unlocked' : 'locked'" title="5 Perfects">
-                    <svg class="mini-trophy" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                    <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
                 </div>
             </div>
         </div>
