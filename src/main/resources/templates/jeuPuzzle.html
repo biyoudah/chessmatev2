@@ -2,85 +2,182 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>♙ Chessmate - Tactique</title>
+    <title>Chessmate - Puzzle</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        .puzzle-layout {
-            display: flex; justify-content: center; gap: 30px; padding: 20px; flex-wrap: wrap;
-        }
-        .puzzle-controls {
-            width: 250px; background: white; padding: 20px; border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: fit-content;
-        }
-        .status-box {
-            text-align: center; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px;
-        }
-        .turn-indicator { font-weight: bold; font-size: 1.1em; }
-        .turn-white { color: #2563eb; } .turn-black { color: #dc2626; }
+        /* Styles spécifiques aux animations du puzzle, le reste vient de show.css */
+        .turn-indicator { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; display: block;}
+        .turn-white { color: #ffffff; text-shadow: 0 0 5px #2563eb; }
+        .turn-black { color: #ffffff; text-shadow: 0 0 5px #dc2626; }
 
         .hint-anim { animation: pulse-purple 1.5s infinite; background-color: rgba(147, 51, 234, 0.3) !important; }
         @keyframes pulse-purple { 0% {box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);} 70% {box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);} 100% {box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);} }
+
+        /* Ajustement pour le loader */
+        #thinking-loader { font-style: italic; color: var(--gold); margin-bottom: 10px; }
     </style>
 </head>
 <body id="page-body">
 
-<nav class="navbar">
-    <h1>🧩 Chessmate <span style="font-weight:normal; font-size:0.8em;">| Tactique</span></h1>
-    <div class="user-info">
-        👤 <span th:text="${pseudo}">Joueur</span>
-        <a th:href="@{/home}" class="btn-small">🏠 Accueil</a>
+<aside class="sidebar">
+    <div class="logo">
+        <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+            <span>Chessmate</span>
+        </a>
     </div>
-</nav>
+
+    <nav class="nav-menu">
+        <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
+        <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
+        <a href="/#"><i class="fa fa-user-friends"></i> Classement</a>
+        <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+        <a href="javascript:void(0)" onclick="toggleTheme()" id="theme-toggle">
+            <i class="fa fa-sun" id="theme-icon"></i>
+            <span id="theme-text">Mode Clair</span>
+        </a>
+
+
+        <div id="gorilla-prank" class="gorilla-container">
+            <div class="gorilla-content">
+                <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
+                <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span> ! 🦍</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-section">
+        <div th:if="${isLoggedIn == false or pseudo == 'Invité'}" class="auth-buttons">
+            <a href="/register" style="text-decoration: none;">
+                <button class="sidebar-btn btn-primary">Créer un compte</button>
+            </a>
+            <a href="#" onclick="window.location.href='/login?targetUrl=' + window.location.pathname; return false;" style="text-decoration: none;">
+                <button class="sidebar-btn btn-secondary">Se connecter</button>
+            </a>
+        </div>
+
+        <div th:if="${isLoggedIn == true or (pseudo != null and pseudo != 'Invité')}" class="user-profile">
+            <p>Connecté en tant que</p>
+            <strong th:text="${pseudo}" style="color: #fff;">Joueur</strong>
+            <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+                <button type="submit" class="sidebar-btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">
+                    <i class="fa fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
 
 <div th:if="${message}" th:text="${message}"
      th:class="${message.contains('Bravo') or message.contains('pts') ? 'flash-msg success' : (message.contains('Mauvais') ? 'flash-msg error' : 'flash-msg neutral')}">
 </div>
 
-<div class="puzzle-layout">
+<div class="main-container">
 
-    <div class="puzzle-controls">
-        <div class="status-box">
-            <p class="text-muted small">Au trait :</p>
-            <div th:if="${traitAuBlanc}" class="turn-indicator turn-white">⚪ Les Blancs</div>
-            <div th:unless="${traitAuBlanc}" class="turn-indicator turn-black">⚫ Les Noirs</div>
+    <div class="side-column">
+        <div class="dark-panel">
 
-            <div id="thinking-loader" style="display:none; margin-top:10px; color:#d97706;">
-                ⏳ L'ordi réfléchit...
+            <div th:if="${jeuPuzzle.isPuzzleLoaded()}" style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #444;">
+                <h3 class="gold-text" style="margin-top: 0; font-size: 1em; text-transform: uppercase; letter-spacing: 1px;">
+                    <i class="fa fa-database"></i> Données CSV
+                </h3>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95em;">
+                    <span style="color: #bbb;">ID Puzzle :</span>
+                    <strong style="font-family: monospace; color: white;" th:text="${jeuPuzzle.puzzleId}">0000</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #bbb;">Difficulté :</span>
+                    <span class="badge" style="background: var(--blue-accent); color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em;">
+                        Mat en <span th:text="${jeuPuzzle.nbCoups}">2</span>
+                    </span>
+                </div>
+            </div>
+
+            <h3 class="gold-text">STATUS</h3>
+            <div class="status-box" style="background: transparent; padding: 0;">
+                <p class="text-muted small" style="color: #aaa; margin-bottom: 5px;">Au trait :</p>
+                <div th:if="${traitAuBlanc}" class="turn-indicator turn-white">⚪ Les Blancs</div>
+                <div th:unless="${traitAuBlanc}" class="turn-indicator turn-black">⚫ Les Noirs</div>
+
+                <div id="thinking-loader" style="display:none;">
+                    ⏳ L'ordi réfléchit...
+                </div>
+            </div>
+
+            <hr style="border-color: #444; margin: 20px 0;">
+
+            <h4 class="gold-text">PARAMÈTRES</h4>
+            <label for="diffSelect" style="color: #ccc; font-size: 0.9em; display:block; margin-bottom:5px;">Filtre Difficulté</label>
+            <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select" style="margin-bottom: 15px;">
+                <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
+                <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">🟢 Facile (Mat en 1)</option>
+                <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🟡 Moyen (Mat en 2)</option>
+                <option value="3" th:selected="${jeuPuzzle.difficulte == '3'}">🔴 Difficile (Mat en 3+)</option>
+            </select>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="action-btn blue-btn full-width" onclick="triggerReset()">
+                    <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
+                </button>
+
+                <button class="action-btn btn-warning full-width" onclick="triggerHint()">💡 Indice</button>
+                <button class="action-btn danger-btn full-width" onclick="triggerClear()">🏳️ Abandonner</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="center-column">
+        <h1 class="main-title">♟ Chessmate - Puzzle ♟</h1>
+
+        <div class="board-wrapper">
+            <div class="board" id="board">
+                <th:block th:each="i : ${rows}">
+                    <div th:each="j : ${cols}"
+                         th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                         th:classappend="${hintCoords == i + ',' + j} ? ' hint-anim' : ''"
+                         th:attr="data-x=${i}, data-y=${j}"
+                         onclick="clickPuzzleCase(this)">
+
+                        <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
+
+                        <span th:if="${board[i][j] != null}" th:text="${board[i][j]}" class="piece"></span>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+
+    <div class="side-column">
+        <div class="dark-panel">
+            <h3 class="gold-text">INFORMATIONS</h3>
+            <p>Joueur : <strong th:text="${pseudo}">Invité</strong></p>
+
+            <div class="score-info" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #444;">
+                <p style="font-size: 1.1em;">Score</p>
+                <strong style="font-size: 1.5em; color: var(--gold);" th:text="${eloPuzzle ?: '1200'}">1200</strong>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <p class="small" style="color:#aaa;">Série en cours : <strong style="color:white;" th:text="${serieEnCours ?: 0}">0</strong> 🔥</p>
             </div>
         </div>
 
-        <hr class="separator">
-
-        <label for="diffSelect" class="form-label">Difficulté</label>
-        <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select">
-            <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
-            <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">🟢 Facile (Mat en 1)</option>
-            <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🟡 Moyen (Mat en 2)</option>
-            <option value="3" th:selected="${jeuPuzzle.difficulte == '3'}">🔴 Difficile (Mat en 3+)</option>
-        </select>
-
-        <button class="btn btn-primary full-width mt-2" onclick="triggerReset()">
-            <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
-        </button>
-
-        <button class="btn btn-warning full-width mt-1" onclick="triggerHint()">💡 Indice</button>
-        <button class="btn btn-neutral full-width mt-1" onclick="triggerClear()">🏳️ Abandonner / Vider</button>
-    </div>
-
-    <div class="board-wrapper">
-        <div class="board" id="board">
-            <th:block th:each="i : ${rows}">
-                <div th:each="j : ${cols}"
-                     th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
-                     th:classappend="${hintCoords == i + ',' + j} ? ' hint-anim' : ''"
-                     th:attr="data-x=${i}, data-y=${j}"
-                     onclick="clickPuzzleCase(this)">
-
-                    <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
-
-                    <span th:if="${board[i][j] != null}" th:text="${board[i][j]}" class="piece"></span>
-                </div>
-            </th:block>
+        <div class="dark-panel leaderboard-panel">
+            <h4 class="gold-text">MEILLEURS JOUEURS</h4>
+            <ul class="leader-list">
+                <th:block th:if="${classementGlobal != null}">
+                    <li th:each="row, iterStat : ${classementGlobal}" th:if="${iterStat.index < 5}">
+                        <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
+                    </li>
+                </th:block>
+                <th:block th:unless="${classementGlobal != null}">
+                    <li style="color: #aaa; font-style: italic;">Chargement...</li>
+                </th:block>
+            </ul>
         </div>
     </div>
 
@@ -111,14 +208,20 @@
         if (!startCase) {
             if (hasPiece) {
                 startCase = el;
-                el.classList.add('selected'); // Style à définir en CSS
+                el.classList.add('selected');
+                // Ajout visuel selection (optionnel si géré par CSS global)
+                el.style.backgroundColor = "rgba(255, 215, 0, 0.4)";
             }
         } else {
             const dx = startCase.getAttribute('data-x');
             const dy = startCase.getAttribute('data-y');
 
+            // Reset style selection
+            startCase.style.backgroundColor = "";
+            startCase.classList.remove('selected');
+
             // Annuler si clic sur la même case
-            if(dx === x && dy === y) { startCase.classList.remove('selected'); startCase = null; return; }
+            if(dx === x && dy === y) { startCase = null; return; }
 
             const fd = new FormData();
             fd.append('departX', dx); fd.append('departY', dy);
@@ -136,6 +239,58 @@
     if(ordiJoue) {
         document.getElementById('thinking-loader').style.display='block';
         setTimeout(() => sendRequest(compMoveUrl), 500);
+    }
+</script>
+
+<script>
+    // --- GESTION DU THÈME (NOUVEAU) ---
+    const toggleBtn = document.getElementById('theme-toggle');
+    const toggleIcon = toggleBtn.querySelector('i');
+    const body = document.body;
+
+    // Charger le thème sauvegardé
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        body.classList.add('dark-mode');
+        toggleIcon.classList.remove('fa-sun');
+        toggleIcon.classList.add('fa-moon');
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        const text = document.getElementById('theme-text');
+
+        body.classList.toggle('dark-mode');
+
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+            icon.className = 'fa fa-moon'; // Icône lune pour le mode sombre
+            text.innerText = 'Mode Sombre';
+        } else {
+            localStorage.setItem('theme', 'light');
+            icon.className = 'fa fa-sun'; // Icône soleil pour le mode clair
+            text.innerText = 'Mode Clair';
+        }
+    }
+
+    // --- GESTION DU GORILLE (EXISTANT) ---
+    let clickCount = 0;
+    const plusLink = document.getElementById('plus-link');
+    const gorillaDiv = document.getElementById('gorilla-prank');
+
+    if(plusLink) {
+        plusLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            clickCount++;
+            if (clickCount === 10) {
+                gorillaDiv.classList.add('show-gorilla');
+                setTimeout(() => {
+                    gorillaDiv.classList.remove('show-gorilla');
+                    clickCount = 0;
+                }, 8000);
+            }
+        });
     }
 </script>
 

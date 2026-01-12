@@ -253,6 +253,7 @@ public class PuzzleController {
             String[] tokens = chosenLine.split(",");
             game.setPuzzleId(tokens[0]);
             JSONObject json = new JSONObject();
+            json.put("PuzzleId", tokens[0]);
             json.put("fen", tokens[1]);
             json.put("moves", tokens[2]);
             game.dechiffre_pb(json);

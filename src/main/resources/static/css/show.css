@@ -1,33 +1,109 @@
+/* =========================================
+   1. VARIABLES & THÈMES
+   ========================================= */
 :root {
-    --panel-bg: #2b2b2b;
-    --blue-accent: #0542c8;
+    /* --- THÈME PAR DÉFAUT (BLEU / NUIT) --- */
+    --bg-gradient-1: #839ab3;
+    --bg-gradient-2: #cacaca;
+
+    --sidebar-bg: #1e293b;       /* Bleu nuit */
+    --panel-bg: #1e293b;         /* Bleu nuit */
+    --text-color: #ffffff;
+
+    /* Plateau */
+    --board-border: #1e293b;
+    --case-white: #ddd;
+    --case-black: #3d4c63;       /* Bleu gris */
+
+    /* Boutons Génériques */
+    --btn-generic-bg: #3d4c63;
+    --btn-hover: #4b5c76;
+
+    /* Boutons Sidebar (Spécifiques) */
+    --btn-primary-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); /* Vert */
+    --btn-secondary-bg: linear-gradient(135deg, #475569 0%, #334155 100%); /* Gris */
+
+    /* Accents */
     --gold: #ffd700;
+    --blue-accent: #0542c8;
+
+    /* Bouton Mode */
+    --btn-toggle-bg: transparent;
+    --btn-toggle-border: rgba(255,255,255,0.2);
+
+    --sidebar-width: 260px;
+
+    --select-bg: #ffffff;
+    --select-border: #cbd5e1;
+    --select-text: #3d4c63;
+    --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 
+/* --- THÈME SOMBRE (NOIR / ONYX) --- */
+body.dark-mode {
+    --bg-gradient-1: #2c2c2c;
+    --bg-gradient-2: #000000;
+
+    --sidebar-bg: #000000;       /* Noir pur */
+    --panel-bg: #121212;         /* Noir très foncé */
+    --text-color: #e0e0e0;
+
+    /* Plateau Dark Mode */
+    --board-border: #333;
+    --case-white: #b0b0b0;       /* Gris clair */
+    --case-black: #333333;       /* Gris foncé */
+
+    /* Boutons Dark Mode */
+    --btn-generic-bg: #222222;
+    --btn-hover: #444444;
+
+    --btn-primary-bg: linear-gradient(135deg, #15803d 0%, #14532d 100%);
+    --btn-secondary-bg: #222222;
+
+    --blue-accent: #444;
+
+    --btn-toggle-bg: #222;
+    --btn-toggle-border: #444;
+
+    --select-bg: #222222; /* Gris foncé au lieu du bleu/nuit */
+    --select-border: #444444;
+    --select-text: #e0e0e0;
+    --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e0e0e0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+
+}
+
+/* =========================================
+   2. GLOBAL & BODY
+   ========================================= */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', sans-serif;
-    color: white;
+    color: var(--text-color);
     min-height: 100vh;
-    background-color: #cacaca;
+    background-color: var(--bg-gradient-2);
     background-image:
-            linear-gradient(45deg, #839ab3 25%, transparent 25%, transparent 75%, #839ab3 75%, #839ab3 100%),
-            linear-gradient(45deg, #839ab3 25%, #cacaca 25%, #cacaca 75%, #839ab3 75%, #839ab3 100%);
+            linear-gradient(45deg, var(--bg-gradient-1) 25%, transparent 25%, transparent 75%, var(--bg-gradient-1) 75%, var(--bg-gradient-1) 100%),
+            linear-gradient(45deg, var(--bg-gradient-1) 25%, var(--bg-gradient-2) 25%, var(--bg-gradient-2) 75%, var(--bg-gradient-1) 75%, var(--bg-gradient-1) 100%);
     background-size: 210px 210px;
     background-position: 0 0, 105px 105px;
     background-attachment: fixed;
+    transition: background-image 0.3s ease, color 0.3s ease;
 }
 
+/* =========================================
+   3. LAYOUT PRINCIPAL
+   ========================================= */
 .main-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 20px;
-    width: 100%;
     min-height: 100vh;
     padding: 20px;
     box-sizing: border-box;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
 }
 
 .side-column {
@@ -43,124 +119,365 @@ body {
     text-align: center;
 }
 
+.main-title {
+    color: var(--panel-bg); /* S'adapte au thème pour le contraste ou utilise var(--text-color) si sur fond clair */
+}
+/* Correction titre sur fond clair vs sombre */
+body:not(.dark-mode) .main-title { color: #1e293b; }
+body.dark-mode .main-title { color: #e0e0e0; }
+
+
+/* =========================================
+   4. SIDEBAR (NAVIGATION)
+   ========================================= */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; height: 100vh;
+    z-index: 1000;
+    border-right: 1px solid #334155;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.logo img { width: 38px; height: auto; }
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.nav-menu a {
+    padding: 14px 24px;
+    color: #cbd5e1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+.nav-menu a:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 28px; }
+.nav-menu i { width: 20px; text-align: center; }
+
+/* Section Auth */
+.auth-section {
+    margin-top: auto;
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.2);
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espacement vertical important */
+    width: 100%;
+}
+
+.user-profile { text-align: center; }
+.user-profile p { font-size: 0.85rem; color: #94a3b8; margin: 0 0 5px 0; }
+
+/* =========================================
+   5. PANNEAUX & PIÈCES
+   ========================================= */
 .dark-panel {
     background: var(--panel-bg);
     padding: 18px;
     border-radius: 12px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
     border: 1px solid #444;
+    transition: background-color 0.3s ease;
 }
 
-.mini-panel {
-    padding: 10px 15px;
-}
+.mini-panel { padding: 10px 15px; }
+.small-title { font-size: 0.9em; margin-bottom: 8px; }
+.gold-text { color: var(--gold); margin-bottom: 10px; font-weight: bold; }
+.flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.flex-row .action-btn, .flex-row .color-btn { flex: 1; }
 
-.small-title {
-    font-size: 0.9em;
-    margin-bottom: 8px;
-}
-
-/* Symboles de pièces agrandis */
-.piece-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-}
+/* Sélecteur de pièces */
+.piece-buttons { display: flex; justify-content: space-between; margin-bottom: 15px; }
 
 .piece-btn {
-    background: #393939;
+    background: var(--btn-generic-bg);
     border: 1px solid #555;
     color: #ddd;
     border-radius: 6px;
-    width: 46px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 30px;
+    width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 30px;
     transition: all 0.2s;
 }
-
 .piece-btn.selected {
     background: var(--blue-accent);
     box-shadow: 0 0 10px rgba(5, 66, 200, 0.8);
 }
 
-.flex-row {
+/* Schémas & Trophées */
+.schema-grid.mini { display: flex; justify-content: space-between; gap: 8px; }
+.schema-item { flex: 1; background: rgba(0, 0, 0, 0.2); padding: 6px; border-radius: 6px; text-align: center; font-size: 0.7em; }
+.schema-img-small { width: 32px; height: 32px; object-fit: contain; margin-bottom: 2px; }
+
+.trophy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.trophy-item { background: rgba(0, 0, 0, 0.2); padding: 5px; border-radius: 6px; text-align: center; }
+.trophy-img, .mini-trophy { width: 28px; height: 28px; }
+.locked { opacity: 0.2; filter: grayscale(1); }
+.unlocked { opacity: 1; border-color: var(--gold); }
+
+.leader-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.leader-list li {
     display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
+    align-items: baseline; /* Aligne le texte sur la même ligne horizontale */
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
 }
 
-.flex-row .action-btn, .flex-row .color-btn {
-    flex: 1;
+.leader-name {
+    flex-shrink: 0; /* Empêche le nom de se contracter */
+    text-align: left;
+    /* Supprimez tout padding-left ici pour coller au bord */
+    padding-left: 0;
 }
 
-/* Plateau principal */
+.leader-spacer {
+    flex-grow: 1; /* C'est cet élément qui pousse les autres vers les bords */
+    border-bottom: 1px dotted #555; /* Tirets/Points de séparation */
+    margin: 0 8px; /* Espace entre le texte et les points */
+    height: 1px;
+    position: relative;
+    top: -4px; /* Ajuste la hauteur des pointillés pour qu'ils soient au milieu du texte */
+}
+
+.leader-points {
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 65px; /* Largeur fixe pour que les "pts" soient bien alignés verticalement */
+}
+
+.leader-points strong {
+    color: var(--gold);
+}
+
+/* =========================================
+   6. PLATEAU DE JEU
+   ========================================= */
 .board-wrapper {
     display: inline-block;
     padding: 15px;
     background: var(--panel-bg);
     border-radius: 12px;
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+    transition: background-color 0.3s ease;
 }
 
 .board {
     display: grid;
     grid-template-columns: repeat(8, 65px);
     grid-template-rows: repeat(8, 65px);
-    border: 4px solid #333;
+    border: 4px solid var(--board-border);
+    transition: border-color 0.3s ease;
 }
 
-.case { width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; font-size: 45px; cursor: pointer; position: relative; }
-.case.white { background: #ddd; } .case.black { background: #4b4b4b; }
+.case {
+    width: 65px; height: 65px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 45px; cursor: pointer; position: relative;
+}
+.case.white { background: var(--case-white); transition: background 0.3s; }
+.case.black { background: var(--case-black); transition: background 0.3s; }
 
-/* Schémas compacts */
-.schema-grid.mini {
+/* Coordonnées */
+.coord {
+    position: absolute; bottom: 2px; right: 4px;
+    font-size: 12px; font-weight: 600; line-height: 1; pointer-events: none; z-index: 5;
+}
+.case.white .coord { color: rgba(0, 0, 0, 0.5); }
+.case.black .coord { color: rgba(255, 255, 255, 0.5); }
+
+/* =========================================
+   7. BOUTONS (DESIGN CORRIGÉ)
+   ========================================= */
+
+/* --- A. Boutons de la Sidebar (Structure) --- */
+.sidebar-btn, .theme-toggle-btn {
+    width: 100%;                  /* Prend toute la largeur */
+    padding: 12px 15px;           /* RESTAURATION DU PADDING */
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    color: white;
+    box-sizing: border-box;
 }
 
-.schema-item {
+.sidebar-btn:hover, .theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.1);
+}
+.sidebar-btn:active { transform: translateY(0); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+
+/* --- B. Bouton Toggle Mode (Nouveau) --- */
+.theme-toggle-btn {
+    background: var(--btn-toggle-bg);
+    border: 1px solid var(--btn-toggle-border);
+    color: var(--gold);
+    margin: 0 20px 10px 20px;
+    width: calc(100% - 40px);
+}
+
+/* --- C. Boutons d'Action (Jeu) --- */
+.action-btn, .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+.action-btn:hover, .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+/* --- D. Couleurs des Boutons (Variables) --- */
+/* Vert (Sidebar Créer compte) */
+.btn-primary { background: var(--btn-primary-bg); color: white; }
+
+/* Gris (Sidebar Connexion) */
+.btn-secondary { background: var(--btn-secondary-bg); color: white; border: 1px solid #556; }
+
+/* Jeu : Bleu, Rouge, Jaune (adaptés aux variables) */
+.blue-btn, .danger-btn, .btn-neutral, .btn-warning {
+    background-color: var(--btn-generic-bg);
+    color: white;
+}
+.blue-btn:hover, .danger-btn:hover, .btn-warning:hover { background-color: var(--btn-hover); }
+
+/* Blanc */
+.btn-white {
+    background-color: var(--btn-generic-bg);
+    color: var(--text-color);
+    border: 1px solid #e2e8f0;
+}
+
+/* =========================================
+   8. MENUS DÉROULANTS (SELECT)
+   ========================================= */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+
+    /* Utilisation des variables dynamiques */
+    background-color: var(--select-bg);
+    border: 1px solid var(--select-border);
+    color: var(--select-text);
+    background-image: var(--select-icon);
+
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-select:hover {
+    border-color: var(--gold);
+    background-color: var(--btn-hover);
+}
+
+/* Style des options à l'intérieur du menu */
+.form-select option {
+    background-color: var(--select-bg);
+    color: var(--select-text);
+}
+
+#theme-toggle i {
+    width: 20px;
+    text-align: center;
+    color: var(--gold); /* Garde la couleur dorée pour le distinguer un peu */
+}
+
+/* En mode sombre, on peut changer la couleur de l'icône si on veut */
+body.dark-mode #theme-toggle i {
+    color: #ffd700;
+}
+
+/* =========================================
+   9. BOUTONS COULEURS (BLANC / NOIR)
+   ========================================= */
+.color-btn {
     flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 6px;
-    border-radius: 6px;
+    border: 2px solid transparent;
+    background-color: var(--btn-generic-bg);
+    color: #ffffff;
+}
+.color-btn:hover, .color-btn.active, .color-btn.selected {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* =========================================
+   10. EXTRAS (PRANKEUR)
+   ========================================= */
+.gorilla-container {
+    position: fixed;
+    right: -450px;
+    bottom: 30px;
+    width: 300px;
+    background: var(--panel-bg); /* Adapté au thème */
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: -5px 5px 20px rgba(0,0,0,0.4);
+    z-index: 9999;
+    border: 3px solid var(--gold);
+    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     text-align: center;
-    font-size: 0.7em;
+    color: var(--text-color);
 }
-
-.schema-img-small {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-    margin-bottom: 2px;
-}
-
-/* Trophées */
-.trophy-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.trophy-item {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 5px;
-    border-radius: 6px;
-    text-align: center;
-}
-
-.trophy-img, .mini-trophy {
-    width: 28px;
-    height: 28px;
-}
-
-.locked { opacity: 0.2; filter: grayscale(1); }
-.unlocked { opacity: 1; border-color: var(--gold); }
-
-.leader-list { padding: 0; list-style: none; margin: 0; }
-.leader-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #444; font-size: 0.9em; }
-.gold-text { color: var(--gold); margin-bottom: 10px; font-weight: bold; }
+.gorilla-container.show-gorilla { right: 20px; }
+.Prankeur { width: 100%; border-radius: 8px; margin-bottom: 10px; }

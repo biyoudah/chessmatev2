@@ -4,9 +4,55 @@
     <meta charset="UTF-8">
     <title>♙ Chessmate - Placement</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♟️</text></svg>">
 </head>
 <body>
+<aside class="sidebar">
+    <div class="logo">
+        <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+            <span>Chessmate</span>
+        </a>
+    </div>
+
+    <nav class="nav-menu">
+        <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
+        <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
+        <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
+        <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+
+        <div id="gorilla-prank" class="gorilla-container">
+            <div class="gorilla-content">
+                <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
+                <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span> ! 🦍</p>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-section">
+        <div th:if="${isLoggedIn == false or pseudo == 'Invité'}" class="auth-buttons">
+            <a href="/register" style="text-decoration: none;">
+                <button class="sidebar-btn btn-primary">Créer un compte</button>
+            </a>
+            <a href="#" onclick="window.location.href='/login?targetUrl=' + window.location.pathname; return false;" style="text-decoration: none;">
+                <button class="sidebar-btn btn-secondary">Se connecter</button>
+            </a>
+        </div>
+
+        <div th:if="${isLoggedIn == true or (pseudo != null and pseudo != 'Invité')}" class="user-profile">
+            <p>Connecté en tant que</p>
+            <strong th:text="${pseudo}" style="color: #fff;">Joueur</strong>
+            <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+                <button type="submit" class="sidebar-btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">
+                    <i class="fa fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
 <div id="toast-container"></div>
 <div id="server-data-message" th:if="${message}"
      th:data-msg="${message}" th:data-type="${gagne ? 'victory' : (message.contains('⚠️') or message.contains('❌') ? 'error' : 'success')}"
@@ -28,13 +74,18 @@
             </div>
             <h4 class="gold-text">COULEUR</h4>
             <div class="flex-row">
-                <button class="color-btn" data-color="true" onclick="selectColor(this)">⚪ Blanc</button>
-                <button class="color-btn" data-color="false" onclick="selectColor(this)">⚫ Noir</button>
+                <button class="color-btn action-btn" data-color="true" onclick="selectColor(this)">⚪ Blanc</button>
+                <button class="color-btn action-btn" data-color="false" onclick="selectColor(this)">⚫ Noir</button>
             </div>
             <h4 class="gold-text">OUTILS</h4>
             <div class="flex-row">
-                <button class="action-btn blue-btn" id="modePlace" onclick="setModePlace()">➕ Placer</button>
-                <button class="action-btn danger-btn" id="modeRemove" onclick="setModeRemove()">🗑️ Retirer</button>
+                <button class="action-btn blue-btn" id="modePlace" onclick="setModePlace()">
+                    <i class="fa fa-plus"></i> Placer
+                </button>
+
+                <button class="action-btn danger-btn" id="modeRemove" onclick="setModeRemove()">
+                    <i class="fa fa-trash"></i> Retirer
+                </button>
             </div>
         </div>
 
@@ -77,7 +128,13 @@
         <div class="board-wrapper">
             <div class="board" id="board">
                 <th:block th:each="i : ${#numbers.sequence(7, 0, -1)}">
-                    <div th:each="j : ${#numbers.sequence(0, 7)}" th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'" th:attr="data-x=${j}, data-y=${i}" onclick="clickCase(this)">
+                    <div th:each="j : ${#numbers.sequence(0, 7)}"
+                         th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
+                         th:attr="data-x=${j}, data-y=${i}"
+                         onclick="clickCase(this)">
+
+                        <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
+
                         <div th:if="${menaces[j][i]}" class="menace-overlay"></div>
                         <span th:if="${board[i][j] != ''}" th:text="${board[i][j]}" class="piece-anim"></span>
                     </div>
@@ -104,7 +161,7 @@
                 <p th:if="${tentativeParfaite}" class="perfect-text">✨ Tentative parfaite !</p>
             </div>
             <button class="action-btn blue-btn full-width" onclick="location.reload()">🔄 Réinitialiser</button>
-            <select id="modeSelect" onchange="changeMode(this)">
+            <select id="modeSelect" class="form-select" onchange="changeMode(this)">
                 <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
                 <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
                 <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
@@ -115,18 +172,23 @@
         <div class="dark-panel leaderboard-panel">
             <h4 class="gold-text">CLASSEMENT GLOBAL</h4>
             <ul class="leader-list">
-                <li th:each="row, iterStat : ${classementGlobal}" th:if="${iterStat.index < 5}">
-                    <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
+                <li th:each="row, iterStat : ${classementGlobal}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
                 </li>
             </ul>
             <h4 class="gold-text">CLASSEMENT (<span th:text="${jeuPlacement.modeDeJeu}">Mode</span>)</h4>
             <ul class="leader-list">
-                <li th:each="row, iterStat : ${classementMode}" th:if="${iterStat.index < 5}">
-                    <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
+                <li th:each="row, iterStat : ${classementMode}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
                 </li>
             </ul>
         </div>
     </div>
+
 </div>
 
 <audio id="sfx-place" src="https://assets.mixkit.co/active_storage/sfx/2579/2579-preview.mp3" preload="auto"></audio>
@@ -135,5 +197,24 @@
 <audio id="sfx-victory" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
 
 <script th:src="@{/js/show.js}"></script>
+<script>
+    let clickCount = 0;
+    const plusLink = document.getElementById('plus-link');
+    const gorillaDiv = document.getElementById('gorilla-prank');
+
+    if(plusLink) {
+        plusLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            clickCount++;
+            if (clickCount === 10) {
+                gorillaDiv.classList.add('show-gorilla');
+                setTimeout(() => {
+                    gorillaDiv.classList.remove('show-gorilla');
+                    clickCount = 0;
+                }, 8000);
+            }
+        });
+    }
+</script>
 </body>
 </html>
