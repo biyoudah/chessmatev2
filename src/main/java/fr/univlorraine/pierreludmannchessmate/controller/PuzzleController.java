@@ -96,6 +96,10 @@ public class PuzzleController {
         model.addAttribute("board", game.getBoard());
         model.addAttribute("traitAuBlanc", game.isTraitAuBlanc());
 
+        // Récupère le top global
+        model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
+        model.addAttribute("classementTactique", scoreRepository.getClassementParMode("PUZZLE"));
+
         return "jeuPuzzle";
     }
 
@@ -175,49 +179,57 @@ public class PuzzleController {
         return "redirect:/puzzle";
     }
 
-    // --------------------------------------------------------
-    // LOGIQUE SCORE PUZZLE
-    // --------------------------------------------------------
     private void traiterVictoirePuzzle(JeuPuzzle game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
 
         Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
 
-        // Points fixes selon difficulte
-        int pts = switch (game.getDifficulte()) {
-            case "1" -> 10;
-            case "2" -> 25;
-            case "3" -> 50;
-            default -> 10;
-        };
-
+        // IMPORTANT : Si l'utilisateur n'est pas connecté, on ne sauve rien.
         if (userOpt.isEmpty()) {
+            System.out.println("Score non enregistré : Utilisateur non connecté (Invité)");
             game.setScoreEnregistre(true);
-            // On peut ajouter le score au message flash si on veut
             return;
         }
 
         Utilisateur user = userOpt.get();
-        // Clé unique : type de jeu + ID du puzzle CSV
-        String schemaKey = "TACTIQUE_" + game.getPuzzleId();
+        int nouveauxPoints = switch (game.getDifficulte()) {
+            case "1" -> 10;
+            case "2" -> 25;
+            case "3" -> 50;
+            default  -> 10;
+        };
 
-        boolean dejaFait = scoreRepository.existsBySchemaKeyAndReussiTrue(schemaKey);
-        int bonus = (!dejaFait) ? 5 : 0; // Petit bonus découverte
-        int total = pts + bonus;
+        String schemaKey = "PUZZLE_" + game.getPuzzleId();
 
+        // Vérification d'unicité pour ne pas donner des points à l'infini sur le même puzzle
+        boolean dejaReussi = scoreRepository.existsByUtilisateurAndSchemaKey(user, schemaKey);
+
+        if (dejaReussi) {
+            session.setAttribute("flashMessage", "✅ Puzzle déjà complété !");
+            game.setScoreEnregistre(true);
+            return;
+        }
+
+        // Création de l'entité Score
         Score s = new Score();
         s.setUtilisateur(user);
-        s.setMode("TACTIQUE"); // ou "TACTIQUE_" + game.getDifficulte() pour trier par niveau
+        s.setMode("PUZZLE"); // Doit matcher avec ce que tu appelles dans afficherPuzzle
         s.setSchemaKey(schemaKey);
-        s.setPoints(total);
-        s.setScore(total);
+        s.setPoints(nouveauxPoints);
+        s.setScore(nouveauxPoints);
+
+        // Initialisation des champs obligatoires pour éviter l'erreur SQL 1364
+        s.setBonusPremierSchemaAttribue(0);
+        s.setErreurs(0);
+        s.setErreursPlacement(0);
+        s.setTempsResolution(0);
+        s.setFirstTime(false);
         s.setReussi(true);
-        s.setFirstTime(!dejaFait);
+        s.setPerfect(true);
+         scoreRepository.save(s);
 
-        scoreRepository.save(s);
-        game.setScoreEnregistre(true);
-
-        session.setAttribute("flashMessage", "✅ Bravo ! +" + total + " pts");
+         game.setScoreEnregistre(true);
+         session.setAttribute("flashMessage", "✅ Bravo ! +" + nouveauxPoints + " points.");
     }
 
     private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {

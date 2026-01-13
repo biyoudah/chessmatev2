@@ -39,14 +39,6 @@
             <i class="fa fa-sun" id="theme-icon"></i>
             <span id="theme-text">Mode Clair</span>
         </a>
-
-
-        <div id="gorilla-prank" class="gorilla-container">
-            <div class="gorilla-content">
-                <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
-                <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span> ! 🦍</p>
-            </div>
-        </div>
     </nav>
 
     <div class="auth-section">
@@ -133,8 +125,35 @@
 
     <div class="center-column">
         <h1 class="main-title">♟ Chessmate - Puzzle ♟</h1>
-
         <div class="board-wrapper">
+            <div id="board-loader" class="board-overlay" style="display:none;">
+                <div class="loader-text">
+                    <i class="fa fa-chess fa-spin"></i>
+                    <p>Chargement...</p>
+                </div>
+            </div>
+            <div id="victory-overlay" class="board-overlay success-bg"
+                 th:if="${message != null and #strings.contains(message.toLowerCase(), 'bravo')}">
+                <div class="feedback-content">
+                    <i class="fa fa-trophy"></i>
+                    <h2>VICTOIRE !</h2>
+                    <p th:text="${message}"></p>
+                    <button class="action-btn blue-btn" onclick="triggerReset()">Puzzle Suivant</button>
+                </div>
+            </div>
+
+            <div id="error-overlay" class="board-overlay error-bg"
+                 th:if="${message != null and #strings.contains(message.toLowerCase(), 'mauvais')}">
+                <div class="feedback-content">
+                    <i class="fa fa-times-circle"></i>
+                    <h2>ERREUR</h2>
+                    <p>Ce n'est pas le bon coup.</p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="action-btn" onclick="closeOverlays()">Réessayer</button>
+                        <button class="action-btn btn-warning" onclick="triggerHint()">Indice</button>
+                    </div>
+                </div>
+            </div>
             <div class="board" id="board">
                 <th:block th:each="i : ${rows}">
                     <div th:each="j : ${cols}"
@@ -156,28 +175,25 @@
         <div class="dark-panel">
             <h3 class="gold-text">INFORMATIONS</h3>
             <p>Joueur : <strong th:text="${pseudo}">Invité</strong></p>
-
-            <div class="score-info" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #444;">
-                <p style="font-size: 1.1em;">Score</p>
-                <strong style="font-size: 1.5em; color: var(--gold);" th:text="${eloPuzzle ?: '1200'}">1200</strong>
-            </div>
-
-            <div style="margin-top: 15px;">
-                <p class="small" style="color:#aaa;">Série en cours : <strong style="color:white;" th:text="${serieEnCours ?: 0}">0</strong> 🔥</p>
-            </div>
         </div>
 
         <div class="dark-panel leaderboard-panel">
-            <h4 class="gold-text">MEILLEURS JOUEURS</h4>
+            <h4 class="gold-text">CLASSEMENT GLOBAL</h4>
             <ul class="leader-list">
-                <th:block th:if="${classementGlobal != null}">
-                    <li th:each="row, iterStat : ${classementGlobal}" th:if="${iterStat.index < 5}">
-                        <span th:text="${row.pseudo}"></span> — <strong th:text="${row.totalPoints}"></strong> pts
-                    </li>
-                </th:block>
-                <th:block th:unless="${classementGlobal != null}">
-                    <li style="color: #aaa; font-style: italic;">Chargement...</li>
-                </th:block>
+                <li th:each="row, iterStat : ${classementGlobal}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
+                </li>
+            </ul>
+
+            <h4 class="gold-text">CLASSEMENT PUZZLES</h4>
+            <ul class="leader-list">
+                <li th:each="row, iterStat : ${classementTactique}">
+                    <span class="leader-name" th:text="${row.pseudo}">Pseudo</span>
+                    <span class="leader-spacer"></span>
+                    <span class="leader-points"><strong th:text="${row.totalPoints}">0</strong> pts</span>
+                </li>
             </ul>
         </div>
     </div>
@@ -194,9 +210,46 @@
 
     let startCase = null;
 
-    async function sendRequest(url, fd) {
-        try { await fetch(url, {method:'POST', body:fd}); window.location.reload(); } catch(e){}
+    // Fonction générique (reste discrète)
+    // Fonction pour fermer les écrans manuellement (pour le bouton Réessayer)
+    function closeOverlays() {
+        const errorOverlay = document.getElementById('error-overlay');
+        const victoryOverlay = document.getElementById('victory-overlay');
+        if (errorOverlay) errorOverlay.style.display = 'none';
+        if (victoryOverlay) victoryOverlay.style.display = 'none';
     }
+
+    // Ta fonction sendRequest ne change pas, elle recharge la page
+    async function sendRequest(url, fd = new FormData()) {
+        const token = document.querySelector('input[name="_csrf"]')?.value;
+        try {
+            await fetch(url, {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-CSRF-TOKEN': token }
+            });
+            window.location.reload(); // Au reload, Thymeleaf affichera l'overlay
+        } catch(e) { console.error(e); }
+    }
+
+    // --- FONCTIONS AVEC ÉCRAN DE CHARGEMENT ---
+
+    function triggerChangeMode(v) {
+        // On affiche le chargement seulement ici
+        document.getElementById('board-loader').style.display = 'flex';
+
+        const fd = new FormData();
+        fd.append('difficulte', v);
+        sendRequest(changeModeUrl, fd);
+    }
+
+    function triggerReset() {
+        // Et ici pour le bouton "Nouveau Puzzle"
+        document.getElementById('board-loader').style.display = 'flex';
+        sendRequest(resetUrl);
+    }
+
+    // --- FONCTIONS SANS ÉCRAN DE CHARGEMENT ---
 
     function clickPuzzleCase(el) {
         // Enlever l'indice visuel au clic
@@ -231,9 +284,10 @@
         }
     }
 
-    function triggerChangeMode(v) { const fd = new FormData(); fd.append('difficulte', v); sendRequest(changeModeUrl, fd); }
-    function triggerReset() { sendRequest(resetUrl); }
-    function triggerHint() { sendRequest(hintUrl); }
+    function triggerHint() {
+        // Pas de chargement pour un simple indice
+        sendRequest(hintUrl);
+    }
     function triggerClear() { sendRequest(clearUrl); }
 
     const ordiJoue = [[${jeuPuzzle.ordiDoitJouer}]];
@@ -265,5 +319,6 @@
     }
 </script>
 
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 </body>
 </html>
