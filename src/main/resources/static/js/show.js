@@ -194,3 +194,27 @@ function showToast(m, t) {
         setTimeout(() => toast.remove(), 500);
     }, 4000);
 }
+
+async function resetBoard() {
+    if (appState.isLoading) return;
+
+    const csrf = document.querySelector('input[name="_csrf"]').value;
+    const formData = new FormData();
+    formData.append('_csrf', csrf);
+
+    appState.isLoading = true;
+    try {
+        // On appelle l'URL qui correspond à ta méthode reset dans le contrôleur
+        const res = await fetch('/placement/reset', { method: 'POST', body: formData });
+
+        // Si ça marche, on met à jour SEULEMENT le contenu de la page
+        if (res.ok) {
+            await updatePageContent(res);
+            playSFX('remove'); // Petit son sympa (optionnel)
+        }
+    } catch (e) {
+        console.error("Erreur reset", e);
+    } finally {
+        appState.isLoading = false;
+    }
+}
