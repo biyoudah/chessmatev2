@@ -37,6 +37,10 @@
     /* Accents */
     --gold: #ffd700;
     --blue-accent: #0542c8;
+    --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
+    --shadow-hover: 0 0 10px #546786;
+
+
 
     /* Bouton Mode */
     --btn-toggle-bg: transparent;
@@ -82,7 +86,9 @@ body.dark-mode {
     --blue-btn-color: white;
     --blue-btn-hover: #2e2e2e;
 
-    --blue-accent: #444;
+    --blue-accent: #0542c8;
+    --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
+    --shadow-hover: 0 0 10px #575757;
 
     --btn-toggle-bg: #222;
     --btn-toggle-border: #444;
@@ -246,9 +252,14 @@ body.dark-mode .main-title { color: #e0e0e0; }
     cursor: pointer; font-size: 30px;
     transition: all 0.2s;
 }
+
+.piece-btn:hover {
+    background: var(--btn-hover);
+    box-shadow: var(--shadow-hover);
+}
 .piece-btn.selected {
     background: var(--blue-accent);
-    box-shadow: 0 0 10px rgba(5, 66, 200, 0.8);
+    box-shadow: var(--shadow-accent);
 }
 
 /* Schémas & Trophées */
@@ -470,6 +481,13 @@ body.dark-mode .main-title { color: #e0e0e0; }
 }
 .blue-btn:hover { background:var(--btn-hover) }
 
+.reset-btn{
+    background-color: var(--btn-generic-bg);
+    color: white;
+    margin-bottom: 8px;
+}
+.reset-btn:hover { background:var(--btn-hover) }
+
 /* =========================================
    8. MENUS DÉROULANTS (SELECT)
    ========================================= */
@@ -505,7 +523,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 
 /* Style des options à l'intérieur du menu */
 .form-select option {
-    background-color: var(--select-bg);
+    background-color: var(--select-hover);
     color: var(--select-text);
 }
 
@@ -523,13 +541,13 @@ body.dark-mode #theme-toggle i {
 /* =========================================
    9. BOUTONS COULEURS (BLANC / NOIR)
    ========================================= */
-.color-btn {
+.color-btn, .mode-btn {
     flex: 1;
     border: 2px solid transparent;
     background-color: var(--btn-generic-bg);
     color: #ffffff;
 }
-.color-btn:hover, .color-btn.active, .color-btn.selected {
+.color-btn:hover, .color-btn.active, .color-btn.selected, .mode-btn:hover, .mode-btn.active, .mode-btn.selected {
     transform: translateY(-2px);
     background:var(--btn-hover);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);

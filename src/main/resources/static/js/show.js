@@ -6,6 +6,7 @@ let appState = {
     // On s'assure d'avoir une valeur par défaut cohérente avec le backend
     piece: localStorage.getItem('chessPiece') || 'Dame',
     mode: localStorage.getItem('chessMode') || 'place',
+    color: localStorage.getItem('chessColor') || 'true',
     isLoading: false
 };
 
@@ -51,6 +52,37 @@ async function selectPiece(btn) {
     }
 }
 
+async function selectColor(btn) {
+    if (appState.isLoading) return;
+
+    // 1. Récupération de la couleur (data-color="true" ou "false")
+    const colorValue = btn.getAttribute('data-color');
+
+    // 2. Mise à jour de l'état local et du stockage
+    appState.color = colorValue;
+    localStorage.setItem('chessColor', appState.color);
+
+    // 3. Mise à jour visuelle (classe selected)
+    updateVisuals();
+
+    // 4. Envoi au serveur (si ton backend en a besoin, ex: '/placement/setColor')
+    // Si ton backend n'a pas de endpoint pour juste changer la couleur, tu peux ignorer cette partie fetch.
+    const csrf = document.querySelector('input[name="_csrf"]').value;
+    const formData = new FormData();
+    formData.append('_csrf', csrf);
+    formData.append('isWhite', appState.color); // Adapte le nom du paramètre selon ton Controller
+
+    appState.isLoading = true;
+    try {
+        // Remplace '/placement/setColor' par la bonne URL si elle existe
+        const res = await fetch('/placement/setColor', { method: 'POST', body: formData });
+        if (res.ok) await updatePageContent(res);
+    } catch (e) {
+        console.error("Erreur changement couleur", e);
+    } finally {
+        appState.isLoading = false;
+    }
+}
 async function clickCase(caseElem) {
     if (appState.isLoading) return;
 
@@ -62,6 +94,12 @@ async function clickCase(caseElem) {
 
     // On utilise la pièce stockée dans l'état global
     formData.append('type', appState.mode === 'place' ? appState.piece : '');
+
+    // Si on est en mode "placer", on envoie aussi la couleur
+    if (appState.mode === 'place') {
+        // Envoie 'true' (string) ou 'false' (string) selon l'état
+        formData.append('isWhite', appState.color);
+    }
 
     appState.isLoading = true;
     try {
@@ -124,6 +162,15 @@ function updateVisuals() {
         if(appState.mode === 'place') { p.classList.add('selected'); r.classList.remove('selected'); }
         else { r.classList.add('selected'); p.classList.remove('selected'); }
     }
+
+    document.querySelectorAll('.color-btn').forEach(b => {
+        // On compare data-color (string) avec appState.color (string)
+        if (b.getAttribute('data-color') === String(appState.color)) {
+            b.classList.add('selected');
+        } else {
+            b.classList.remove('selected');
+        }
+    });
 }
 
 function checkServerMessage() {

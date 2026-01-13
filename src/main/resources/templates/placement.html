@@ -84,11 +84,11 @@
             </div>
             <h4 class="gold-text">OUTILS</h4>
             <div class="flex-row">
-                <button class="action-btn blue-btn" id="modePlace" onclick="setModePlace()">
+                <button class="action-btn mode-btn" id="modePlace" onclick="setModePlace()">
                     <i class="fa fa-plus"></i> Placer
                 </button>
 
-                <button class="action-btn blue-btn" id="modeRemove" onclick="setModeRemove()">
+                <button class="action-btn mode-btn" id="modeRemove" onclick="setModeRemove()">
                     <i class="fa fa-trash"></i> Retirer
                 </button>
             </div>
@@ -172,7 +172,7 @@
                 <p>Score : <strong th:text="${scoreCourant}">0</strong> • Erreurs : <strong th:text="${erreurs}">0</strong></p>
                 <p th:if="${tentativeParfaite}" class="perfect-text">✨ Tentative parfaite !</p>
             </div>
-            <button class="action-btn blue-btn" onclick="location.reload()">🔄 Réinitialiser</button>
+            <button class="action-btn reset-btn" onclick="location.reload()">🔄 Réinitialiser</button>
             <select id="modeSelect" class="form-select" onchange="changeMode(this)">
                 <option value="8-dames" th:selected="${jeuPlacement.modeDeJeu == '8-dames'}">8 Dames</option>
                 <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
