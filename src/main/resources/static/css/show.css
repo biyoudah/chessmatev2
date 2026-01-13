@@ -17,7 +17,7 @@
 
     /* Boutons Génériques */
     --btn-generic-bg: #3d4c63;
-    --btn-hover: #4b5c76;
+    --btn-hover: #667ea4;
 
     /* Boutons Sidebar (Spécifiques) */
     --btn-primary-bg: #00a800;
@@ -27,6 +27,12 @@
     --btn-secondary-bg: #475569;
     --btn-secondary-shadow: #2f3946;
     --btn-secondary-hover: #404b5d;
+
+    /* boutons de jeu*/
+    --blue-btn-bg: var(--btn-generic-bg);
+    --blue-btn-color: white;
+    --blue-btn-hover: #475569FF;
+
 
     /* Accents */
     --gold: #ffd700;
@@ -39,6 +45,7 @@
     --sidebar-width: 260px;
 
     --select-bg: #ffffff;
+    --select-hover: #d6d5d5;
     --select-border: #cbd5e1;
     --select-text: #3d4c63;
     --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -60,10 +67,20 @@ body.dark-mode {
 
     /* Boutons Dark Mode */
     --btn-generic-bg: #222222;
-    --btn-hover: #444444;
+    --btn-hover: #404040;
 
-    --btn-primary-bg: linear-gradient(135deg, #15803d 0%, #14532d 100%);
-    --btn-secondary-bg: #222222;
+    --btn-primary-bg: #008d00;
+    --btn-primary-shadow: #005600;
+    --btn-primary-hover: #057905;
+
+    --btn-secondary-bg: #3a4656;
+    --btn-secondary-shadow: #252c37;
+    --btn-secondary-hover: #2c3440;
+
+    /* boutons de jeu*/
+    --blue-btn-bg: #222222FF;
+    --blue-btn-color: white;
+    --blue-btn-hover: #2e2e2e;
 
     --blue-accent: #444;
 
@@ -71,6 +88,7 @@ body.dark-mode {
     --btn-toggle-border: #444;
 
     --select-bg: #222222; /* Gris foncé au lieu du bleu/nuit */
+    --select-hover: #3b3a3a;
     --select-border: #444444;
     --select-text: #e0e0e0;
     --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e0e0e0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -435,7 +453,8 @@ body.dark-mode .main-title { color: #e0e0e0; }
     gap: 6px;
     text-decoration: none;
 }
-.action-btn:hover, .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.action-btn:hover, .btn:hover { background:#475569FF; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(77, 77, 77, 0.2); }
+
 
 /* --- D. Couleurs des Boutons (Variables) --- */
 /* Vert (Sidebar Créer compte) */
@@ -445,18 +464,11 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .btn-secondary { background: var(--btn-secondary-bg); color: white; border: 1px solid #556; }
 
 /* Jeu : Bleu, Rouge, Jaune (adaptés aux variables) */
-.blue-btn, .danger-btn, .btn-neutral, .btn-warning {
+.blue-btn{
     background-color: var(--btn-generic-bg);
     color: white;
 }
-.blue-btn:hover, .danger-btn:hover, .btn-warning:hover { background-color: var(--btn-hover); }
-
-/* Blanc */
-.btn-white {
-    background-color: var(--btn-generic-bg);
-    color: var(--text-color);
-    border: 1px solid #e2e8f0;
-}
+.blue-btn:hover { background:var(--btn-hover) }
 
 /* =========================================
    8. MENUS DÉROULANTS (SELECT)
@@ -488,8 +500,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 }
 
 .form-select:hover {
-    border-color: var(--gold);
-    background-color: var(--btn-hover);
+    background-color: var(--select-hover);
 }
 
 /* Style des options à l'intérieur du menu */
@@ -520,6 +531,7 @@ body.dark-mode #theme-toggle i {
 }
 .color-btn:hover, .color-btn.active, .color-btn.selected {
     transform: translateY(-2px);
+    background:var(--btn-hover);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 

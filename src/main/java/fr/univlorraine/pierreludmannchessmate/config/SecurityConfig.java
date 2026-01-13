@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home").permitAll()
                         .requestMatchers("/placement/**").permitAll()
                         .requestMatchers("/puzzle/**").permitAll()
+                        .requestMatchers("/infos/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
