@@ -42,6 +42,12 @@ public class PlacementController {
             session.removeAttribute("flashMessage");
         }
 
+        Object perfect = session.getAttribute("flashPerfect");
+        if (perfect != null) {
+            model.addAttribute("showPerfectMessage", true);
+            session.removeAttribute("flashPerfect");
+        }
+
         preparerModele(model, game, auth);
         return "placement";
     }
