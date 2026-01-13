@@ -133,6 +133,7 @@ public class PlacementController {
         if (userOpt.isEmpty()) {
             session.setAttribute("flashMessage", "🏆 Réussi ! " + baseScore + " pts (Connectez-vous pour enregistrer)");
             session.setAttribute("flashType", "victory");
+
             game.reinitialiser();
             return;
         }
