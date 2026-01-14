@@ -23,13 +23,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/puzzle/**", "/placement/**"))
 
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/login", "/register").permitAll()
-                        .requestMatchers("/", "/home").permitAll()
-                        .requestMatchers("/placement/**").permitAll()
-                        .requestMatchers("/puzzle/**").permitAll()
-                        .requestMatchers("/infos/**").permitAll()
-                        .requestMatchers("/error").permitAll()
+                        // Autoriser les ressources statiques en priorité
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico", "/static/**").permitAll()
+
+                        .requestMatchers("/", "/home", "/classement", "/infos/**", "/show", "/puzzle/**", "/placement/**").permitAll()
+
+                        .requestMatchers("/login", "/register", "/error").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form

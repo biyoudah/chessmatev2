@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Classement - ChessMate</title>
+    <link rel="stylesheet" th:href="@{/css/classement.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🏆 Classement des Joueurs</h1>
+
+    <div class="filter-section">
+        <form th:action="@{/classement}" method="get">
+            <label for="mode">Type de jeu :</label>
+            <select name="mode" id="mode">
+                <option value="TOUS" th:selected="${modeSelectionne == 'TOUS' || modeSelectionne == null}">Tous les modes</option>
+                <option value="DAME" th:selected="${modeSelectionne == 'DAME'}">Jeu de la Dame</option>
+                <option value="MAT_3" th:selected="${modeSelectionne == 'MAT_3'}">Mat en 3 coups</option>
+            </select>
+            <button type="submit" class="btn-filter">Afficher</button>
+        </form>
+    </div>
+
+    <table class="leaderboard-table">
+        <thead>
+        <tr>
+            <th>Rang</th>
+            <th>Joueur</th>
+            <th>Points Totaux</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row, iterStat : ${classement}">
+            <td th:class="${iterStat.count == 1 ? 'rank-1' : (iterStat.count == 2 ? 'rank-2' : (iterStat.count == 3 ? 'rank-3' : ''))}">
+                <i th:if="${iterStat.count == 1}" class="fa fa-medal"></i>
+                <span th:text="${iterStat.count}">1</span>
+            </td>
+            <td th:text="${row.pseudo}">Joueur</td>
+            <td class="points-column" th:text="${row.totalPoints + ' pts'}">0 pts</td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(classement)}">
+            <td colspan="3" style="text-align: center;">Aucun score disponible.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="nav-links">
+        <a th:href="@{/home}"><i class="fa fa-home"></i> Accueil</a>
+        <a th:href="@{/show}"><i class="fa fa-chess-board"></i> Jouer</a>
+    </div>
+</div>
+
+</body>
+</html>
