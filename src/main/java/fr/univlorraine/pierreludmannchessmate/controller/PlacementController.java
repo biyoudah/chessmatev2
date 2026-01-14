@@ -60,12 +60,13 @@ public class PlacementController {
     @PostMapping("/action")
     public String action(@RequestParam int x, @RequestParam int y,
                          @RequestParam(required = false) String type,
+                         @RequestParam(required = false, defaultValue = "true") boolean isWhite,
                          @ModelAttribute("jeuPlacement") JeuPlacement game,
                          HttpSession session, Authentication auth) {
 
         if (game.getPieceObject(x, y) == null) {
             if (type != null && !type.isEmpty()) {
-                String res = game.placerPieceJoueur(x, y, type, true);
+                String res = game.placerPieceJoueur(x, y, type, isWhite);
 
                 if (res.startsWith("OK")) {
                     session.setAttribute("flashType", "place");
