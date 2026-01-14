@@ -8,6 +8,7 @@ import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.ResponseEntity; // <--- IMPORT IMPORTANT
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,6 +52,18 @@ public class PuzzleController {
                                  Authentication auth,
                                  HttpSession session) {
 
+        // --- RECUPERATION ET NETTOYAGE DES MESSAGES ---
+        // Cette partie fonctionne maintenant car le GET est appelé une seule fois par le reload JS
+        String[] sessionAttrs = {"flashMessage", "flashDetail", "flashType"};
+
+        for (String attr : sessionAttrs) {
+            Object val = session.getAttribute(attr);
+            if (val != null) {
+                model.addAttribute(attr.replace("flash", "").toLowerCase(), val);
+                session.removeAttribute(attr);
+            }
+        }
+
         boolean isLoggedIn = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
         model.addAttribute("isLoggedIn", isLoggedIn);
 
@@ -58,7 +71,6 @@ public class PuzzleController {
             String pseudo = recupererUtilisateurCourant(auth)
                     .map(Utilisateur::getPseudo)
                     .orElse("Joueur");
-
             model.addAttribute("pseudo", pseudo);
         } else {
             model.addAttribute("pseudo", "Invité");
@@ -103,74 +115,90 @@ public class PuzzleController {
         return "jeuPuzzle";
     }
 
+    // --- MODIFICATION MAJEURE ICI : On renvoie ResponseEntity (Void) au lieu de String (redirect) ---
+    // Cela empêche le fetch de consommer la redirection, laissant le JS faire le reload.
+
     @PostMapping("/hint")
-    public String getHint(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
+    @ResponseBody
+    public ResponseEntity<Void> getHint(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         String coords = game.getCoupAide();
         if (coords != null) {
             session.setAttribute("hintCoords", coords);
-            // Suppression du message "Indice"
         }
-        return "redirect:/puzzle";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/move")
-    public String handleMove(@RequestParam int departX, @RequestParam int departY,
-                             @RequestParam int arriveeX, @RequestParam int arriveeY,
-                             @ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             HttpSession session,
-                             Authentication auth) {
+    @ResponseBody
+    public ResponseEntity<Void> handleMove(@RequestParam int departX, @RequestParam int departY,
+                                           @RequestParam int arriveeX, @RequestParam int arriveeY,
+                                           @ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                                           HttpSession session,
+                                           Authentication auth) {
 
         session.removeAttribute("hintCoords");
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
 
-        if("GAGNE".equals(resultat)) {
+        if ("GAGNE".equals(resultat)) {
             traiterVictoirePuzzle(game, session, auth);
+            session.setAttribute("flashMessage", "Puzzle Résolu !");
+            session.setAttribute("flashType", "victory");
+            session.setAttribute("flashDetail", "Bien joué, vous avez trouvé le mat.");
+        }
+        else if ("RATE".equals(resultat) || "ECHEC".equals(resultat)) {
+            session.setAttribute("flashMessage", "Mauvais coup !");
+            session.setAttribute("flashType", "error");
+            session.setAttribute("flashDetail", "Ce n'est pas la solution. Réessayez.");
         }
 
-        return "redirect:/puzzle";
+        // On renvoie juste 200 OK. Le JS recevra ça, verra que ce n'est pas une redirection,
+        // et exécutera window.location.reload(), ce qui affichera le message.
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/computer-move")
-    public String computerMove(@ModelAttribute("jeuPuzzle") JeuPuzzle game) {
+    @ResponseBody
+    public ResponseEntity<Void> computerMove(@ModelAttribute("jeuPuzzle") JeuPuzzle game) {
         game.reponseOrdinateur();
-        return "redirect:/puzzle";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/changeMode")
-    public String changeMode(@RequestParam("difficulte") String difficulte,
-                             @ModelAttribute("jeuPuzzle") JeuPuzzle game,
-                             HttpSession session) {
+    @ResponseBody
+    public ResponseEntity<Void> changeMode(@RequestParam("difficulte") String difficulte,
+                                           @ModelAttribute("jeuPuzzle") JeuPuzzle game,
+                                           HttpSession session) {
         game.setDifficulte(difficulte);
         boolean succes = chargerPuzzleSelonDifficulte(game);
 
         if (!succes) {
             game.viderPlateau();
-            // Suppression message erreur
         } else {
             game.setScoreEnregistre(false);
-            // Suppression message confirmation
         }
-        return "redirect:/puzzle";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset")
-    public String resetPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
+    @ResponseBody
+    public ResponseEntity<Void> resetPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         boolean succes = chargerPuzzleSelonDifficulte(game);
         if (succes) {
             game.setScoreEnregistre(false);
         } else {
             game.viderPlateau();
-            // Suppression message erreur
         }
-        return "redirect:/puzzle";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/clear")
-    public String clearBoard(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
+    @ResponseBody
+    public ResponseEntity<Void> clearBoard(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         game.viderPlateau();
-        // Suppression message "Plateau vidé"
-        return "redirect:/puzzle";
+        return ResponseEntity.ok().build();
     }
+
+    // --- FIN DES MODIFICATIONS AJAX ---
 
     private void traiterVictoirePuzzle(JeuPuzzle game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
@@ -194,7 +222,6 @@ public class PuzzleController {
         boolean dejaReussi = scoreRepository.existsByUtilisateurAndSchemaKey(user, schemaKey);
 
         if (dejaReussi) {
-            // Suppression message "Déjà complété"
             game.setScoreEnregistre(true);
             return;
         }
@@ -205,7 +232,6 @@ public class PuzzleController {
         s.setSchemaKey(schemaKey);
         s.setPoints(nouveauxPoints);
         s.setScore(nouveauxPoints);
-
         s.setBonusPremierSchemaAttribue(0);
         s.setErreurs(0);
         s.setErreursPlacement(0);
@@ -216,7 +242,6 @@ public class PuzzleController {
         scoreRepository.save(s);
 
         game.setScoreEnregistre(true);
-        // Suppression message "Bravo + points"
     }
 
     private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
@@ -274,30 +299,36 @@ public class PuzzleController {
     @GetMapping("/admin/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String adminPanel(Model model) {
-        return "adminPuzzle"; // Nouvelle vue HTML
+        return "adminPuzzle";
     }
 
+    // Celui-ci reste en redirection classique car c'est probablement un formulaire standard HTML
+    // et non un appel fetch JS.
     @PostMapping("/admin/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String addPuzzleCsv(@RequestParam String puzzleId, @RequestParam String fen,
                                @RequestParam String moves, @RequestParam String rating,
                                @RequestParam String ratingConfidence, @RequestParam String popularity,
                                @RequestParam String nbPlays, @RequestParam String themes,
-                               @RequestParam String gameUrl, @RequestParam String openingName) {
+                               @RequestParam String gameUrl, @RequestParam String openingName,
+                               HttpSession session) {
 
-        // Formatage de la ligne CSV
         String newline = String.join(",", puzzleId, fen, moves, rating, ratingConfidence,
                 popularity, nbPlays, themes, gameUrl, openingName);
 
         try {
-            // Localisation du fichier dans resources (Note: En production, il vaut mieux viser un chemin externe)
             Path path = Paths.get(new ClassPathResource("puzzle.csv").getURI());
             Files.write(path, ("\n" + newline).getBytes(), StandardOpenOption.APPEND);
+
+            session.setAttribute("flashMessage", "Puzzle enregistré !");
+            session.setAttribute("flashType", "victory");
+            session.setAttribute("flashDetail", "Le nouveau puzzle a été ajouté au fichier CSV.");
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/puzzle?error=csv";
+            session.setAttribute("flashMessage", "Erreur d'écriture");
+            session.setAttribute("flashType", "error");
         }
 
-        return "redirect:/puzzle?success=added";
+        return "redirect:/puzzle";
     }
 }

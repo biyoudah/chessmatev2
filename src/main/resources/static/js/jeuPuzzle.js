@@ -108,6 +108,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const clearBtn = document.getElementById('clearBtn');
     if (clearBtn) clearBtn.addEventListener('click', triggerClear);
-
-
 });

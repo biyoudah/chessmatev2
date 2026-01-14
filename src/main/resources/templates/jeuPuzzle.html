@@ -5,6 +5,7 @@
     <title>♙ Chessmate - Puzzle</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         .turn-indicator { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; display: block;}
         .turn-white { color: #ffffff; text-shadow: 0 0 5px #2563eb; }
@@ -126,6 +127,23 @@
     </div>
 
     <div class="center-column">
+        <div class="messages-wrapper" style="width: 100%; min-height: 100px; display: flex; justify-content: center;">
+            <div th:if="${message}" class="alert animate__animated animate__zoomIn shadow"
+                 th:classappend="${type == 'victory' ? 'alert-success' : 'alert-danger'}"
+                 style="min-width: 400px; padding: 20px; border-radius: 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border: 2px solid;"
+                 th:styleappend="${type == 'victory' ? 'border-color: #28a745;' : 'border-color: #dc3545;'}">
+
+                <div style="display: flex; align-items: center; gap: 15px; justify-content: center; flex-direction: column;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i th:class="${type == 'victory' ? 'fa fa-check-circle' : 'fa fa-times-circle'}"
+                           th:style="${type == 'victory' ? 'color: #28a745; font-size: 1.5rem;' : 'color: #dc3545; font-size: 1.5rem;'}"></i>
+                        <strong th:text="${message}" style="color: white; font-size: 1.2rem;"></strong>
+                    </div>
+                    <span th:if="${detail}" th:text="${detail}" style="color: #ddd; font-size: 0.9em;"></span>
+                </div>
+            </div>
+        </div>
+
         <h1 class="main-title">♟ Chessmate - Puzzle ♟</h1>
         <div class="board-wrapper">
             <div id="board-loader" class="board-overlay" style="display:none;">
@@ -182,8 +200,6 @@
 <script>
     window.ordiJoue = [[${jeuPuzzle?.ordiDoitJouer}]] || false;
 </script>
-
-
 
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 </body>
