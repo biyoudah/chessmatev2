@@ -109,12 +109,12 @@
             </select>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="action-btn blue-btn full-width" id="resetBtn">
+                <button class="action-btn mode-btn" id="resetBtn">
                     <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
                 </button>
 
-                <button class="action-btn btn-warning full-width" id="hintBtn">💡 Indice</button>
-                <button class="action-btn danger-btn full-width" id="clearBtn">🏳️ Abandonner</button>
+                <button class="action-btn mode-btn" id="hintBtn">💡 Indice</button>
+                <button class="action-btn mode-btn" id="clearBtn">🏳️ Abandonner</button>
             </div>
         </div>
     </div>
