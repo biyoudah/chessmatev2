@@ -1,16 +1,37 @@
-/* VARIABLES ET RESET */
+/* =========================================
+   1. VARIABLES & THÈMES (GLOBAL)
+   ========================================= */
 :root {
-    --sidebar-bg: #1e293b;
+    /* --- THÈME CLAIR (Défaut) --- */
     --main-bg: #f8fafc;
-    --accent-blue: #3b82f6;
-    --accent-green: #22c55e;
-    --text-dark: #1e293b;
+    /* Note: Les variables de la sidebar (--sidebar-bg, etc.)
+       doivent maintenant être gérées dans sidebar.css,
+       mais on garde celles utilisées par le contenu principal */
+
+    --text-dark: #1e293b;        /* Pour le contenu principal */
     --text-muted: #64748b;
-    --white: #ffffff;
+    --card-bg: #ffffff;
     --border-color: #e2e8f0;
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    /* --- COULEURS D'ACCENT --- */
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
 }
 
+/* --- THÈME SOMBRE --- */
+.body.dark-mode {
+    --main-bg: #0f172a;          /* Fond page très sombre */
+    --text-dark: #e2e8f0;        /* Texte clair pour le contenu */
+    --text-muted: #94a3b8;
+    --card-bg: #1e293b;          /* Cartes sombres */
+    --border-color: #334155;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+/* =========================================
+   2. RESET & GLOBAL
+   ========================================= */
 * {
     box-sizing: border-box;
 }
@@ -22,58 +43,19 @@ body {
     margin: 0;
     display: flex;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* SIDEBAR */
-.sidebar {
-    width: 260px;
-    background-color: var(--sidebar-bg);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    z-index: 100;
-}
+/* =========================================
+   3. SIDEBAR
+   ========================================= */
+/* TOUT LE CSS DE LA SIDEBAR A ÉTÉ SUPPRIMÉ ICI */
+/* Il est maintenant géré par le fichier sidebar.css externe */
 
-.logo {
-    padding: 30px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
 
-.logo img { width: 38px; }
-.logo span { font-size: 1.5rem; font-weight: 700; }
-
-.nav-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
-}
-
-.nav-menu a {
-    padding: 14px 24px;
-    color: #cbd5e1;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-weight: 500;
-    transition: 0.2s;
-}
-
-.nav-menu a:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding-left: 30px;
-}
-
-.auth-section {
-    margin-top: auto;
-    padding: 20px;
-}
-
+/* =========================================
+   4. BOUTONS GÉNÉRIQUES (HORS SIDEBAR)
+   ========================================= */
 .btn {
     width: 100%;
     padding: 12px;
@@ -85,42 +67,32 @@ body {
     transition: transform 0.1s;
 }
 
-.btn:active { transform: scale(0.98); }
-.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00; font-size: 0.9rem;}
-.btn-primary:hover { background: #068d06;}
-.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
-.btn-secondary:hover { background: #404b5d;}
-
-.user-profile {
-    text-align: center;
-    border-top: 1px solid #334155;
-    padding-top: 12px;
+/* Effets actifs pour les boutons génériques */
+.action-btn:active, .btn:active {
+    transform: scale(0.98);
 }
 
-.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
 
-.user-profile form {
-    margin-top: 12px;
-    display: block !important;
-}
-
-/* MAIN CONTENT */
+/* =========================================
+   5. CONTENU PRINCIPAL
+   ========================================= */
 .main-content {
-    margin-left: 260px;
+    margin-left: 260px; /* Doit correspondre à sidebar-width défini dans sidebar.css */
     padding: 40px;
-    width: auto;
+    width: 100%;
     max-width: 1100px;
 }
 
 .highlight { color: var(--accent-blue); }
 
 .card {
-    background: var(--white);
+    background: var(--card-bg); /* Utilise la variable pour le dark mode */
     border-radius: 12px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
     margin-bottom: 30px;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card-header {
@@ -134,13 +106,14 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: var(--text-dark);
 }
 
 .card-header i { color: #f59e0b; }
 
 .card-body { padding: 0 24px; }
 
-/* LIST ITEMS (Tournaments & Articles) */
+/* LIST ITEMS */
 .list-item {
     display: flex;
     align-items: center;
@@ -161,7 +134,7 @@ body {
 }
 
 .action-link {
-    background: #eff6ff;
+    background: #eff6ff; /* A ajuster pour dark mode si besoin */
     color: var(--accent-blue);
     padding: 8px 18px;
     border-radius: 20px;
@@ -171,12 +144,16 @@ body {
     transition: 0.2s;
 }
 
+:root.dark-mode .action-link {
+    background: rgba(59, 130, 246, 0.15); /* Fond bleu transparent en dark mode */
+}
+
 .action-link:hover {
     background: var(--accent-blue);
     color: white;
 }
 
-/* SPECIFIC FOR ARTICLES */
+/* ARTICLES */
 .article-thumb {
     width: 110px;
     height: 70px;
@@ -207,25 +184,28 @@ body {
     color: var(--text-muted);
 }
 
-/* Positionnement du Prankeur à droite */
+/* =========================================
+   6. EXTRAS (PRANKEUR)
+   ========================================= */
+/* Note: Le z-index et les couleurs doivent être vérifiés
+   car sidebar-bg n'est plus défini ici */
 .gorilla-container {
     position: fixed;
-    right: -450px; /* Caché par défaut à droite */
+    right: -450px;
     bottom: 30px;
     width: 350px;
-    background: white;
+    background: var(--card-bg);
     padding: 15px;
     border-radius: 20px;
     box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
-    z-index: 9999; /* Toujours au-dessus de tout */
-    border: 3px solid #1e293b;
+    z-index: 9999;
+    border: 3px solid #1e293b; /* Fallback couleur si variable manquante */
     transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     text-align: center;
 }
 
-/* Classe activée par le clic */
 .gorilla-container.show-gorilla {
-    right: 30px; /* Apparaît à 30px du bord droit */
+    right: 30px;
 }
 
 .Prankeur {
@@ -238,11 +218,11 @@ body {
 .gorilla-container p {
     font-size: 0.95rem;
     line-height: 1.4;
-    color: #334155;
+    color: var(--text-dark);
     margin: 0;
 }
 
 .gorilla-container p span {
-    color: #3b82f6;
+    color: var(--accent-blue);
     font-weight: bold;
 }
