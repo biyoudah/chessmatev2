@@ -27,55 +27,17 @@
     <a href="/infos"><i class="fa fa-info-circle"></i> Infos</a>
     <a href="/classement"><i class="fa fa-user-friends"></i> Classement</a>
     <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
-
-    <div id="gorilla-prank" class="gorilla-container">
-      <div class="gorilla-content">
-        <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
-        <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span>, il a haussé le niveau de ses pranks pour le duel avec l'Ultimate Prankeur ! 🦍 <br><br> <em>Omerta ChessMate Prankeur / 10.0f</em></p>
-      </div>
-    </div>
-
     <a href="#" id="theme-toggle">
       <i class="fa fa-sun" id="theme-icon"></i>
       <span id="theme-text">Mode Clair</span>
     </a>
+  </nav>
 
   <div class="auth-section">
     <div th:if="${!isLoggedIn}">
       <a href="/register"><button class="btn btn-primary">Créer un compte</button></a>
       <a href="/login"><button class="btn btn-secondary">Se connecter</button></a>
     </div>
-    <script>
-      let clickCount = 0;
-      const plusLink = document.getElementById('plus-link');
-      const gorillaDiv = document.getElementById('gorilla-prank');
-
-      plusLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        clickCount++;
-
-        if (clickCount === 10) {
-          gorillaDiv.classList.add('show-gorilla');
-
-          // Disparaît après 8 secondes pour laisser le temps de lire
-          setTimeout(() => {
-            gorillaDiv.classList.remove('show-gorilla');
-            clickCount = 0;
-          }, 8000);
-        }
-      });
-    </script>
-    </nav>
-  <a href="/show"><i class="fa fa-chess-board"></i> Jouer</a>
-  <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
-  <a href="#"><i class="fa fa-info-circle"></i> Infos</a>
-  <a href="/classement"><i class="fa fa-user-friends"></i> Classement</a>
-  <a href="#"><i class="fa fa-ellipsis-h"></i> Plus</a>
-
-  <div th:if="${!isLoggedIn}">
-    <a href="/register"><button class="green-btn">Créer un compte</button></a>
-    <a href="/login"><button class="grey-btn">Se connecter</button></a>
-  </div>
 
     <div th:if="${isLoggedIn}" class="user-profile">
       <p>Connecté en tant que</p>
@@ -86,6 +48,50 @@
       </form>
     </div>
   </div>
+</aside>
+
+<main class="main-content">
+  <header class="page-header">
+    <h1>Bienvenue, <span th:text="${pseudo}" class="highlight">Joueur</span> ! 👋</h1>
+  </header>
+
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-trophy"></i> Tournois en direct</h3>
+    </div>
+    <div class="card-body">
+      <div th:if="${not #lists.isEmpty(tournaments)}">
+        <div th:each="t : ${tournaments}" class="list-item tournament">
+          <div class="item-info">
+            <strong th:text="${t.fullName}">Nom du tournoi</strong>
+            <div class="item-meta">
+              <span><i class="fa fa-users"></i> <span th:text="${t.nbPlayers}">0</span></span>
+              <span><i class="fa fa-clock"></i> <span th:text="${t.minutes}">0</span> min</span>
+            </div>
+          </div>
+          <a th:href="'https://lichess.org/tournament/' + ${t.id}" target="_blank" class="action-link">Rejoindre</a>
+        </div>
+      </div>
+      <p th:if="${#lists.isEmpty(tournaments)}" class="empty-msg">Aucun tournoi majeur en cours.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-newspaper"></i> Articles & Actualités</h3>
+    </div>
+    <div class="card-body">
+      <div th:each="art : ${articles}" class="list-item article">
+        <img th:if="${art.image}" th:src="${art.image}" class="article-thumb" alt="News">
+        <div class="item-info">
+          <a th:href="${art.url}" target="_blank" class="article-title" th:text="${art.title}">Titre</a>
+          <p class="article-summary" th:text="${art.short}">Résumé...</p>
+        </div>
+      </div>
+      <p th:if="${#lists.isEmpty(articles)}" class="empty-msg">Aucune actualité disponible.</p>
+    </div>
+  </section>
+</main>
 </aside>
 
 <main class="main-content">
