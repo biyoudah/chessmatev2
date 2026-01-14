@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="fr"
-      xmlns:th="http://www.thymeleaf.org"> <head>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>♙ Chessmate - Accueil</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" th:href="@{/css/home.css}">
+  <script defer th:src="@{/js/theme-manager.js}"></script>
 </head>
 
 <body>
-
-<div class="sidebar">
-
+<aside class="sidebar">
   <div class="logo">
-    <img src="img/ChessMate.png" alt="Chessmate">
-    <span>Chessmate</span>
+    <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+      <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+      <span>Chessmate</span>
+    </a>
   </div>
 
   <nav class="nav-menu">
@@ -85,7 +86,49 @@
       </form>
     </div>
   </div>
+</aside>
 
-</div>
+<main class="main-content">
+  <header class="page-header">
+    <h1>Bienvenue, <span th:text="${pseudo}" class="highlight">Joueur</span> ! 👋</h1>
+  </header>
+
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-trophy"></i> Tournois en direct</h3>
+    </div>
+    <div class="card-body">
+      <div th:if="${not #lists.isEmpty(tournaments)}">
+        <div th:each="t : ${tournaments}" class="list-item tournament">
+          <div class="item-info">
+            <strong th:text="${t.fullName}">Nom du tournoi</strong>
+            <div class="item-meta">
+              <span><i class="fa fa-users"></i> <span th:text="${t.nbPlayers}">0</span></span>
+              <span><i class="fa fa-clock"></i> <span th:text="${t.minutes}">0</span> min</span>
+            </div>
+          </div>
+          <a th:href="'https://lichess.org/tournament/' + ${t.id}" target="_blank" class="action-link">Rejoindre</a>
+        </div>
+      </div>
+      <p th:if="${#lists.isEmpty(tournaments)}" class="empty-msg">Aucun tournoi majeur en cours.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h3><i class="fa fa-newspaper"></i> Articles & Actualités</h3>
+    </div>
+    <div class="card-body">
+      <div th:each="art : ${articles}" class="list-item article">
+        <img th:if="${art.image}" th:src="${art.image}" class="article-thumb" alt="News">
+        <div class="item-info">
+          <a th:href="${art.url}" target="_blank" class="article-title" th:text="${art.title}">Titre</a>
+          <p class="article-summary" th:text="${art.short}">Résumé...</p>
+        </div>
+      </div>
+      <p th:if="${#lists.isEmpty(articles)}" class="empty-msg">Aucune actualité disponible.</p>
+    </div>
+  </section>
+</main>
 </body>
 </html>

@@ -9,7 +9,7 @@ body {
     max-width: 900px;
     margin: 40px auto;
     padding: 20px;
-    background: white;
+    background: #1e293b;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
@@ -22,7 +22,7 @@ h1 {
     letter-spacing: 2px;
 }
 
-/* Formulaire de filtrage */
+
 .filter-section {
     background: #f8f9fa;
     padding: 15px;
@@ -74,7 +74,7 @@ h1 {
 }
 
 .leaderboard-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #1e293b;
 }
 
 /* Couleurs pour le Top 3 */
@@ -84,7 +84,7 @@ h1 {
 
 .points-column {
     font-weight: bold;
-    color: #27ae60;
+    color: #ffd700;
 }
 
 /* Navigation */
@@ -98,3 +98,65 @@ h1 {
     color: #7f8c8d;
     margin: 0 10px;
 }
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; height: 100vh;
+    z-index: 1000;
+    border-right: 1px solid #334155;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+.logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.logo img { width: 38px; height: auto; }
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.nav-menu a {
+    padding: 14px 24px;
+    color: #cbd5e1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+.nav-menu a:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 28px; }
+.nav-menu i { width: 20px; text-align: center; }
+
+/* Section Auth */
+.auth-section {
+    margin-top: auto;
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.2);
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espacement vertical important */
+    width: 100%;
+}
+
+.user-profile { text-align: center; }
+.user-profile p { font-size: 0.85rem; color: #94a3b8; margin: 0 0 5px 0; }
