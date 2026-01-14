@@ -468,7 +468,12 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .reset-btn{
     background-color: var(--btn-generic-bg);
     color: white;
-    margin-bottom: 8px;
+    display: block !important;
+    width: fit-content;    /* Ajuste la largeur au contenu */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .reset-btn:hover { background:var(--btn-hover) }
 
