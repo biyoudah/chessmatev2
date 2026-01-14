@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>♙ Chessmate - Infos</title>
+    <title>♙ Chessmate - Informations</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" th:href="@{/css/infos.css}">
-
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <script defer th:src="@{/js/theme-manager.js}"></script>
 </head>
+
 <body>
 <aside class="sidebar">
     <div class="logo">
-        <img src="img/ChessMate.png" alt="Chessmate">
-        <span>Chessmate</span>
+        <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+            <span>Chessmate</span>
+        </a>
     </div>
 
     <nav class="nav-menu">
@@ -24,7 +27,10 @@
         <a href="/infos"><i class="fa fa-info-circle"></i> Infos</a>
         <a href="/login"><i class="fa fa-user-friends"></i> Classement</a>
         <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
-
+        <a href="#" id="theme-toggle">
+            <i class="fa fa-sun" id="theme-icon"></i>
+            <span id="theme-text">Mode Clair</span>
+        </a>
     </nav>
 
     <div class="auth-section">
@@ -43,27 +49,51 @@
         </div>
     </div>
 </aside>
-<p>
-    📖 Comment Jouer ?
 
+<main class="main-content">
+    <header class="page-header">
+        <h1>Page d'informations</h1>
+    </header>
 
-    Choisissez un défi : Utilisez le menu déroulant à droite pour sélectionner un mode (ex: "8 Dames").
+    <section class="card">
+        <div class="card-header">
+            <h3>♙ Qu'est-ce que Chessmate ?</h3>
+        </div>
+        <div class="card-body">
+            <p>Chessmate est une application web interactive de résolution de puzzles d'échecs. Elle se concentre sur des problèmes de logique
+                combinatoire et de placement (comme le problème des N-Dames), permettant aux utilisateurs de résoudre des défis classiques ou
+                de créer leurs propres configurations.</p>
+            <strong>Modes de jeu variés</strong>
+            <p>
+                Les Classiques :
+                8 Dames : Placer 8 dames sans qu'elles ne s'attaquent.
+                8 Tours : Le problème classique d'indépendance des tours.
+                14 Fous : Optimisation du placement des fous sur les diagonales.
+                16 Rois : Problème de pavage maximal avec des rois.
+                🛠️ Mode Personnalisé :
+                L'utilisateur définit ses propres règles (ex: "Je veux placer 4 Dames et 2 Tours").
+                Validation automatique de la faisabilité théorique par le serveur.
+            </p>
+        </div>
+    </section>
 
-    Sélectionnez une pièce : Cliquez sur l'icône de la pièce (à gauche) et choisissez sa couleur.
+    <section class="card">
+        <div class="card-header">
+            <h3>♙ Comment jouer à Chessmate ?</h3>
+        </div>
+        <div class="card-body">
+            <p>Choisissez un défi : Utilisez le menu déroulant à droite pour sélectionner un mode (ex: "8 Dames"). Sélectionnez une pièce :
+                Cliquez sur l'icône de la pièce (à gauche) et choisissez sa couleur. Placez sur le plateau : Cliquez sur une case vide. Si
+                la case est menacée : Un message d'erreur apparaît. Si le coup est valide : La pièce apparaît et le compteur d'objectifs se
+                met à jour. Victoire : Une fois tous les objectifs atteints sans conflit, un message de victoire s'affiche !</p>
 
-    Placez sur le plateau : Cliquez sur une case vide.
+             <strong>Pourquoi créer un compte ?</strong>
+            <p>
 
-
-
-    Si la case est menacée : Un message d'erreur apparaît.
-
-    Si le coup est valide : La pièce apparaît et le compteur d'objectifs se met à jour.
-
-
-
-    Victoire : Une fois tous les objectifs atteints sans conflit, un message de victoire s'affiche !
-
-</p>
-
+                En vous inscrivant sur Chessmate, vous accédez au système de classement complet. Chaque victoire vous rapporte des points qui sont automatiquement sauvegardés dans votre profil. Vous pouvez ainsi suivre votre progression et vous hisser dans le classement global ou dans les classements spécifiques à chaque mode de jeu (8 Dames, 8 Tours, 14 Fous, etc.). Plus vous résolvez de défis, plus vous gagnez de points et débloquez de trophées. Sans compte, vous pouvez jouer librement, mais vos scores ne seront pas enregistrés.
+            </p>
+        </div>
+    </section>
+</main>
 </body>
 </html>
