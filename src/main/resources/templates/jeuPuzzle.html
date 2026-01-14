@@ -16,6 +16,8 @@
         #thinking-loader { font-style: italic; color: var(--gold); margin-bottom: 10px; }
     </style>
     <script defer th:src="@{/js/theme-manager.js}"></script>
+    <script defer th:src="@{/js/jeuPuzzle.js}"></script>
+
 </head>
 <body id="page-body">
 
@@ -98,8 +100,8 @@
             <hr style="border-color: #444; margin: 20px 0;">
 
             <h4 class="gold-text">PARAMÈTRES</h4>
-            <label for="diffSelect">Filtre Difficulté</label>
-            <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select">
+            <label for="diffSelect" style="color: #ccc; font-size: 0.9em; display:block; margin-bottom:5px;">Filtre Difficulté</label>
+            <select id="diffSelect"  class="form-select" style="margin-bottom: 15px">
                 <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
                 <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">🟢 Facile (Mat en 1)</option>
                 <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🟡 Moyen (Mat en 2)</option>
@@ -107,12 +109,12 @@
             </select>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="action-btn mode-btn" onclick="triggerReset()">
+                <button class="action-btn blue-btn full-width" id="resetBtn">
                     <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
                 </button>
 
-                <button class="action-btn mode-btn" onclick="triggerHint()">💡 Indice</button>
-                <button class="action-btn mode-btn" onclick="triggerClear()">🏳️ Abandonner</button>
+                <button class="action-btn btn-warning full-width" id="hintBtn">💡 Indice</button>
+                <button class="action-btn danger-btn full-width" id="clearBtn">🏳️ Abandonner</button>
             </div>
         </div>
     </div>
@@ -133,7 +135,7 @@
                          th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
                          th:classappend="${hintCoords == i + ',' + j} ? ' hint-anim' : ''"
                          th:attr="data-x=${i}, data-y=${j}"
-                         onclick="clickPuzzleCase(this)">
+                         class="puzzle-case">
 
                         <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
 
@@ -174,95 +176,11 @@
 </div>
 
 <script th:inline="javascript">
-    const moveUrl = [[@{/puzzle/move}]];
-    const compMoveUrl = [[@{/puzzle/computer-move}]];
-    const resetUrl = [[@{/puzzle/reset}]];
-    const changeModeUrl = [[@{/puzzle/changeMode}]];
-    const clearUrl = [[@{/puzzle/clear}]];
-    const hintUrl = [[@{/puzzle/hint}]];
-
-    let startCase = null;
-
-    async function sendRequest(url, fd = new FormData()) {
-        const token = document.querySelector('input[name="_csrf"]')?.value;
-
-        if (url.includes('reset') || url.includes('changeMode')) {
-            const loader = document.getElementById('board-loader');
-            if(loader) loader.style.display = 'flex';
-        }
-
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                body: fd,
-                headers: { 'X-CSRF-TOKEN': token }
-            });
-
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                window.location.reload();
-            }
-        } catch(e) {
-            console.error(e);
-            document.getElementById('board-loader').style.display = 'none';
-        }
-    }
-
-    function triggerChangeMode(v) {
-        const loader = document.getElementById('board-loader');
-        if (loader) loader.style.display = 'flex';
-        const fd = new FormData();
-        fd.append('difficulte', v);
-        sendRequest(changeModeUrl, fd);
-    }
-
-    function triggerReset() {
-        const loader = document.getElementById('board-loader');
-        if(loader) loader.style.display = 'flex';
-        sendRequest(resetUrl);
-    }
-
-    function clickPuzzleCase(el) {
-        document.querySelectorAll('.hint-anim').forEach(e => e.classList.remove('hint-anim'));
-
-        const x = el.getAttribute('data-x');
-        const y = el.getAttribute('data-y');
-        const hasPiece = el.querySelector('.piece') !== null;
-
-        if (!startCase) {
-            if (hasPiece) {
-                startCase = el;
-                el.classList.add('selected');
-                el.style.backgroundColor = "rgba(255, 215, 0, 0.4)";
-            }
-        } else {
-            const dx = startCase.getAttribute('data-x');
-            const dy = startCase.getAttribute('data-y');
-
-            startCase.style.backgroundColor = "";
-            startCase.classList.remove('selected');
-
-            if(dx === x && dy === y) { startCase = null; return; }
-
-            const fd = new FormData();
-            fd.append('departX', dx); fd.append('departY', dy);
-            fd.append('arriveeX', x); fd.append('arriveeY', y);
-            sendRequest(moveUrl, fd);
-        }
-    }
-
-    function triggerHint() {
-        sendRequest(hintUrl);
-    }
-    function triggerClear() { sendRequest(clearUrl); }
-
-    const ordiJoue = [[${jeuPuzzle.ordiDoitJouer}]];
-    if(ordiJoue) {
-        document.getElementById('thinking-loader').style.display='block';
-        setTimeout(() => sendRequest(compMoveUrl), 500);
-    }
+    /*[[
+        window.ordiJoue = ${jeuPuzzle.ordiDoitJouer};
+    ]]*/
 </script>
+
 
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 </body>
