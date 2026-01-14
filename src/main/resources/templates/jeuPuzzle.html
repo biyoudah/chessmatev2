@@ -175,11 +175,10 @@
 
 </div>
 
-<script th:inline="javascript">
-    /*[[
-        window.ordiJoue = ${jeuPuzzle.ordiDoitJouer};
-    ]]*/
+<script>
+    window.ordiJoue = [[${jeuPuzzle?.ordiDoitJouer}]] || false;
 </script>
+
 
 
 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
