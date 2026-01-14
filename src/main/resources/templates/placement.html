@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
+    <script>
+        (function() {
+            // Vérifie le localStorage
+            const localTheme = localStorage.getItem('theme');
+            // Vérifie la préférence système
+            const sysTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Si le thème sombre est demandé
+            if (localTheme === 'dark' || (!localTheme && sysTheme)) {
+                // On applique la classe immédiatement à la racine (html)
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <title>♙ Chessmate - Placement</title>
     <link rel="stylesheet" th:href="@{/css/show.css}">
