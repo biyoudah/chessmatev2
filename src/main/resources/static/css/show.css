@@ -17,7 +17,7 @@
 
     /* Boutons Génériques */
     --btn-generic-bg: #3d4c63;
-    --btn-hover: #667ea4;
+    --btn-hover: #4b5c76;
 
     /* Boutons Sidebar (Spécifiques) */
     --btn-primary-bg: #00a800;
@@ -28,14 +28,9 @@
     --btn-secondary-shadow: #2f3946;
     --btn-secondary-hover: #404b5d;
 
-
     /* Accents */
     --gold: #ffd700;
     --blue-accent: #0542c8;
-    --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
-    --shadow-hover: 0 0 10px #546786;
-
-
 
     /* Bouton Mode */
     --btn-toggle-bg: transparent;
@@ -44,7 +39,6 @@
     --sidebar-width: 260px;
 
     --select-bg: #ffffff;
-    --select-hover: #d6d5d5;
     --select-border: #cbd5e1;
     --select-text: #3d4c63;
     --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -66,29 +60,20 @@ body.dark-mode {
 
     /* Boutons Dark Mode */
     --btn-generic-bg: #222222;
-    --btn-hover: #404040;
+    --btn-hover: #444444;
 
-    --btn-primary-bg: #008d00;
-    --btn-primary-shadow: #005600;
-    --btn-primary-hover: #057905;
+    --btn-primary-bg: linear-gradient(135deg, #15803d 0%, #14532d 100%);
+    --btn-secondary-bg: #222222;
 
-    --btn-secondary-bg: #3a4656;
-    --btn-secondary-shadow: #252c37;
-    --btn-secondary-hover: #2c3440;
-
-    --blue-accent: #0542c8;
-    --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
-    --shadow-hover: 0 0 10px #575757;
+    --blue-accent: #444;
 
     --btn-toggle-bg: #222;
     --btn-toggle-border: #444;
 
-    --select-bg: #222222; /* Gris foncé au lieu du bleu/nuit */
-    --select-hover: #3b3a3a;
+    --select-bg: #222222;
     --select-border: #444444;
     --select-text: #e0e0e0;
     --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e0e0e0'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-
 }
 
 /* =========================================
@@ -139,9 +124,9 @@ body {
 }
 
 .main-title {
-    color: var(--panel-bg); /* S'adapte au thème pour le contraste ou utilise var(--text-color) si sur fond clair */
+    color: var(--panel-bg);
 }
-/* Correction titre sur fond clair vs sombre */
+
 body:not(.dark-mode) .main-title { color: #1e293b; }
 body.dark-mode .main-title { color: #e0e0e0; }
 
@@ -204,7 +189,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .auth-buttons {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Espacement vertical important */
+    gap: 10px;
     width: 100%;
 }
 
@@ -242,14 +227,9 @@ body.dark-mode .main-title { color: #e0e0e0; }
     cursor: pointer; font-size: 30px;
     transition: all 0.2s;
 }
-
-.piece-btn:hover {
-    background: var(--btn-hover);
-    box-shadow: var(--shadow-hover);
-}
 .piece-btn.selected {
     background: var(--blue-accent);
-    box-shadow: var(--shadow-accent);
+    box-shadow: 0 0 10px rgba(5, 66, 200, 0.8);
 }
 
 /* Schémas & Trophées */
@@ -303,32 +283,31 @@ body.dark-mode .main-title { color: #e0e0e0; }
 
 .leader-list li {
     display: flex;
-    align-items: baseline; /* Aligne le texte sur la même ligne horizontale */
+    align-items: baseline;
     padding: 8px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
 }
 
 .leader-name {
-    flex-shrink: 0; /* Empêche le nom de se contracter */
+    flex-shrink: 0;
     text-align: left;
-    /* Supprimez tout padding-left ici pour coller au bord */
     padding-left: 0;
 }
 
 .leader-spacer {
-    flex-grow: 1; /* C'est cet élément qui pousse les autres vers les bords */
-    border-bottom: 1px dotted #555; /* Tirets/Points de séparation */
-    margin: 0 8px; /* Espace entre le texte et les points */
+    flex-grow: 1;
+    border-bottom: 1px dotted #555;
+    margin: 0 8px;
     height: 1px;
     position: relative;
-    top: -4px; /* Ajuste la hauteur des pointillés pour qu'ils soient au milieu du texte */
+    top: -4px;
 }
 
 .leader-points {
     flex-shrink: 0;
     text-align: right;
-    min-width: 65px; /* Largeur fixe pour que les "pts" soient bien alignés verticalement */
+    min-width: 65px;
 }
 
 .leader-points strong {
@@ -345,6 +324,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
     border-radius: 12px;
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
     transition: background-color 0.3s ease;
+    position: relative;
 }
 
 .board {
@@ -355,6 +335,48 @@ body.dark-mode .main-title { color: #e0e0e0; }
     transition: border-color 0.3s ease;
 }
 
+/* Overlay générique (utilisé uniquement pour le chargement) */
+.board-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    border-radius: 4px;
+    pointer-events: all;
+}
+
+.board-overlay.hidden {
+    display: none;
+    pointer-events: none;
+}
+
+#board-loader {
+    display: none;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+}
+
+.loader-text {
+    color: var(--gold);
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.loader-text i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Case du plateau */
 .case {
     width: 65px; height: 65px;
     display: flex; align-items: center; justify-content: center;
@@ -372,10 +394,9 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .case.black .coord { color: rgba(255, 255, 255, 0.5); }
 
 /* =========================================
-   7. BOUTONS (DESIGN CORRIGÉ)
+   7. BOUTONS
    ========================================= */
 
-/* Structure de base pour les boutons de la sidebar */
 .sidebar-btn {
     width: 100%;
     padding: 12px 15px;
@@ -383,9 +404,9 @@ body.dark-mode .main-title { color: #e0e0e0; }
     border-radius: 8px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
-    font-size: 0.9rem; /* Taille demandée */
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.1s ease-in-out; /* Transition plus rapide pour le clic */
+    transition: all 0.1s ease-in-out;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -395,7 +416,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     text-decoration: none;
 }
 
-/* Effet de pression commun à tous les boutons actifs */
 .sidebar-btn:active, .action-btn:active, .btn:active {
     transform: scale(0.98);
 }
@@ -405,31 +425,18 @@ body.dark-mode .main-title { color: #e0e0e0; }
     background-color: var(--btn-primary-bg);
     box-shadow: 0 2px 0 var(--btn-primary-shadow);
 }
-
-.btn-primary:hover {
-    background-color: var(--btn-primary-hover);
-}
-
-/* Ajustement de l'ombre au clic pour simuler l'enfoncement */
-.btn-primary:active {
-    box-shadow: 0 1px 0 var(--btn-primary-shadow);
-}
+.btn-primary:hover { background-color: var(--btn-primary-hover); }
+.btn-primary:active { box-shadow: 0 1px 0 var(--btn-primary-shadow); }
 
 /* --- BOUTON SECONDAIRE (GRIS) --- */
 .btn-secondary {
     background-color: var(--btn-secondary-bg);
     box-shadow: 0 2px 0 var(--btn-secondary-shadow);
 }
+.btn-secondary:hover { background-color: var(--btn-secondary-hover); }
+.btn-secondary:active { box-shadow: 0 1px 0 var(--btn-secondary-shadow); }
 
-.btn-secondary:hover {
-    background-color: var(--btn-secondary-hover);
-}
-
-.btn-secondary:active {
-    box-shadow: 0 1px 0 var(--btn-secondary-shadow);
-}
-
-/* --- B. Bouton Toggle Mode (Nouveau) --- */
+/* --- Bouton Toggle Mode --- */
 .theme-toggle-btn {
     background: var(--btn-toggle-bg);
     border: 1px solid var(--btn-toggle-border);
@@ -438,7 +445,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
     width: calc(100% - 40px);
 }
 
-/* --- C. Boutons d'Action (Jeu) --- */
+/* --- Boutons d'Action (Jeu) --- */
 .action-btn, .btn {
     padding: 10px 20px;
     border: none;
@@ -454,23 +461,22 @@ body.dark-mode .main-title { color: #e0e0e0; }
     gap: 6px;
     text-decoration: none;
 }
-.action-btn:hover, .btn:hover { background:#475569FF; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(77, 77, 77, 0.2); }
+.action-btn:hover, .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-
-/* --- D. Couleurs des Boutons (Variables) --- */
-/* Vert (Sidebar Créer compte) */
 .btn-primary { background: var(--btn-primary-bg); color: white; }
-
-/* Gris (Sidebar Connexion) */
 .btn-secondary { background: var(--btn-secondary-bg); color: white; border: 1px solid #556; }
 
-
-.reset-btn{
+.blue-btn, .danger-btn, .btn-neutral, .btn-warning {
     background-color: var(--btn-generic-bg);
     color: white;
-    margin-bottom: 8px;
 }
-.reset-btn:hover { background:var(--btn-hover) }
+.blue-btn:hover, .danger-btn:hover, .btn-warning:hover { background-color: var(--btn-hover); }
+
+.btn-white {
+    background-color: var(--btn-generic-bg);
+    color: var(--text-color);
+    border: 1px solid #e2e8f0;
+}
 
 /* =========================================
    8. MENUS DÉROULANTS (SELECT)
@@ -488,13 +494,10 @@ body.dark-mode .main-title { color: #e0e0e0; }
     cursor: pointer;
     line-height: 1.5;
     transition: all 0.3s ease;
-
-    /* Utilisation des variables dynamiques */
     background-color: var(--select-bg);
     border: 1px solid var(--select-border);
     color: var(--select-text);
     background-image: var(--select-icon);
-
     background-repeat: no-repeat;
     background-position: right 15px center;
     background-size: 16px;
@@ -502,58 +505,35 @@ body.dark-mode .main-title { color: #e0e0e0; }
 }
 
 .form-select:hover {
-    background-color: var(--select-hover);
+    border-color: var(--gold);
+    background-color: var(--btn-hover);
 }
 
-/* Style des options à l'intérieur du menu */
 .form-select option {
-    background-color: var(--select-hover);
+    background-color: var(--select-bg);
     color: var(--select-text);
 }
 
 #theme-toggle i {
     width: 20px;
     text-align: center;
-    color: var(--gold); /* Garde la couleur dorée pour le distinguer un peu */
+    color: var(--gold);
 }
 
-/* En mode sombre, on peut changer la couleur de l'icône si on veut */
 body.dark-mode #theme-toggle i {
     color: #ffd700;
 }
 
 /* =========================================
-   9. BOUTONS COULEURS (BLANC / NOIR)
+   9. BOUTONS COULEURS
    ========================================= */
-.color-btn, .mode-btn {
+.color-btn {
     flex: 1;
     border: 2px solid transparent;
     background-color: var(--btn-generic-bg);
     color: #ffffff;
 }
-.color-btn:hover, .color-btn.active, .color-btn.selected, .mode-btn:hover, .mode-btn.active, .mode-btn.selected {
+.color-btn:hover, .color-btn.active, .color-btn.selected {
     transform: translateY(-2px);
-    background:var(--btn-hover);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
-
-/* =========================================
-   10. EXTRAS (PRANKEUR)
-   ========================================= */
-.gorilla-container {
-    position: fixed;
-    right: -450px;
-    bottom: 30px;
-    width: 300px;
-    background: var(--panel-bg); /* Adapté au thème */
-    padding: 15px;
-    border-radius: 15px;
-    box-shadow: -5px 5px 20px rgba(0,0,0,0.4);
-    z-index: 9999;
-    border: 3px solid var(--gold);
-    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    text-align: center;
-    color: var(--text-color);
-}
-.gorilla-container.show-gorilla { right: 20px; }
-.Prankeur { width: 100%; border-radius: 8px; margin-bottom: 10px; }
