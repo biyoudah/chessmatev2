@@ -36,17 +36,21 @@ public class PlacementController {
     public String afficher(@ModelAttribute("jeuPlacement") JeuPlacement game, Model model, Authentication auth, HttpSession session) {
         injecterInfosUtilisateur(model, auth);
 
-        // Dans PlacementController.java, méthode afficher()
-        Object msg = session.getAttribute("flashMessage");
-        if (msg != null) {
-            model.addAttribute("message", msg);
-            session.removeAttribute("flashMessage");
-        }
+        // RÉCUPÉRATION DE TOUS LES ÉLÉMENTS DE SESSION
+        String[] sessionAttrs = {"flashMessage", "flashDetail", "flashType", "flashPerfect"};
 
-        Object perfect = session.getAttribute("flashPerfect");
-        if (perfect != null) {
-            model.addAttribute("showPerfectMessage", true);
-            session.removeAttribute("flashPerfect");
+        for (String attr : sessionAttrs) {
+            Object val = session.getAttribute(attr);
+            if (val != null) {
+                // On transforme "flashPerfect" en "showPerfectMessage" pour le HTML
+                if (attr.equals("flashPerfect")) {
+                    model.addAttribute("showPerfectMessage", true);
+                } else {
+                    // On enlève le préfixe "flash" pour simplifier le HTML (ex: flashDetail -> detail)
+                    model.addAttribute(attr.replace("flash", "").toLowerCase(), val);
+                }
+                session.removeAttribute(attr);
+            }
         }
 
         preparerModele(model, game, auth);
@@ -56,23 +60,28 @@ public class PlacementController {
     @PostMapping("/action")
     public String action(@RequestParam int x, @RequestParam int y,
                          @RequestParam(required = false) String type,
-                         @RequestParam(required = false, defaultValue = "true") boolean isWhite,
                          @ModelAttribute("jeuPlacement") JeuPlacement game,
                          HttpSession session, Authentication auth) {
 
         if (game.getPieceObject(x, y) == null) {
             if (type != null && !type.isEmpty()) {
-                String res = game.placerPieceJoueur(x, y, type, isWhite);
-                if (!"OK".equals(res)) {
-                    session.setAttribute("flashMessage", "INVALID".equals(res) ? "⚠️ Case menacée !" : "❌ Case occupée !");
-                    session.setAttribute("flashType", "error"); // Pour le son
+                String res = game.placerPieceJoueur(x, y, type, true);
+
+                if (res.startsWith("OK")) {
+                    session.setAttribute("flashType", "place");
                 } else {
-                    session.setAttribute("flashType", "place"); // Pour le son
+                    String[] parts = res.split(":");
+                    String mainMsg = parts[0].equals("INVALID") ? "⚠️ Coup illégal" : "❌ Case occupée";
+                    String detailMsg = parts.length > 1 ? parts[1] : "";
+
+                    session.setAttribute("flashMessage", mainMsg);
+                    session.setAttribute("flashDetail", detailMsg);
+                    session.setAttribute("flashType", "error");
                 }
             }
         } else {
             game.retirerPiece(x, y);
-            session.setAttribute("flashType", "remove"); // Pour le son
+            session.setAttribute("flashType", "remove");
         }
 
         if (game.estPuzzleResolu()) {

@@ -116,22 +116,53 @@ async function updatePageContent(response) {
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
-    // Rafraîchissement global du container pour synchroniser board, objectifs et classements
     const newContent = doc.querySelector('.main-container');
     if (newContent) {
         document.querySelector('.main-container').innerHTML = newContent.innerHTML;
     }
 
-    // Gestion des messages flash
-    const newMessage = doc.getElementById('server-data-message');
-    const oldMessage = document.getElementById('server-data-message');
-    if (newMessage && oldMessage) {
-        oldMessage.innerHTML = newMessage.innerHTML;
-        Array.from(newMessage.attributes).forEach(attr => oldMessage.setAttribute(attr.name, attr.value));
+    // --- NOUVELLE LOGIQUE POUR L'AUTOHIDE ---
+    const alert = document.querySelector('.messages-wrapper .alert');
+    if (alert) {
+        // On attend 5 secondes (5000ms)
+        setTimeout(() => {
+            // On retire l'animation d'entrée et on met celle de sortie
+            alert.classList.remove('animate__fadeInDown');
+            alert.classList.add('animate__fadeOutUp');
+
+            // On attend la fin de l'animation de sortie (800ms) pour supprimer l'élément
+            setTimeout(() => {
+                alert.remove();
+            }, 800);
+        }, 5000);
+    }
+    // ----------------------------------------
+
+    // Gestion des sons et effets (garder le reste de ta fonction)
+    const data = document.getElementById('server-data-message');
+    if (data && data.dataset.msg) {
+        playSFX(data.dataset.sound);
+        if (data.dataset.type === 'error') {
+            const board = document.getElementById('board');
+            if (board) {
+                board.classList.add('shake');
+                setTimeout(() => board.classList.remove('shake'), 500);
+            }
+        }
+        if (data.dataset.type === 'victory' && typeof lancerConfettis === "function") {
+            lancerConfettis();
+        }
     }
 
     updateVisuals();
-    checkServerMessage();
+}
+
+function playSFX(type) {
+    const audio = document.getElementById(`sfx-${type}`);
+    if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio blocké par le navigateur"));
+    }
 }
 
 async function changeMode(selectElem) {
@@ -218,3 +249,13 @@ async function resetBoard() {
         appState.isLoading = false;
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const flashType = "[[${session.flashType}]]";
+
+    if (flashType === 'victory') {
+        lancerConfettis(); // Si vous utilisez une lib comme canvas-confetti
+    } else if (flashType === 'error') {
+        vibrerEcran(); // Petit effet CSS de secousse (shake) sur l'échiquier
+    }
+});

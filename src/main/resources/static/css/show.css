@@ -537,3 +537,39 @@ body.dark-mode #theme-toggle i {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
+
+/* Animation de secousse pour les coups invalides */
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Style pour le badge Perfect */
+.perfect-text {
+    color: #ffcc00;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+}
+
+/* Style spécifique pour les alertes de victoire */
+.alert-success {
+    border: 2px solid #ffcc00 !important; /* Bordure dorée */
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3) !important;
+}
+
+.alert-danger {
+    border: 2px solid #ff4444 !important; /* Bordure rouge */
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.2) !important;
+}
+
+/* On centre aussi le titre pour être raccord */
+.main-title {
+    text-align: center;
+    width: 100%;
+}

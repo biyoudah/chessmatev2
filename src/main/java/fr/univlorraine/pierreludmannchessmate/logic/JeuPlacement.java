@@ -48,23 +48,18 @@ public class JeuPlacement extends AbstractChessGame {
      */
     public String placerPieceJoueur(int x, int y, String typePiece, boolean estBlanc) {
         Case c = echiquier.getCase(x, y);
-
         if (!c.isEstVide()) {
             this.erreurs++;
-            return "OCCUPEE";
+            return "OCCUPEE:Une pièce occupe déjà cette case.";
         }
 
-        // --- MODIFICATION : DOUBLE VÉRIFICATION ---
-        // 1. La case est-elle menacée par une pièce du plateau ?
-        // 2. La nouvelle pièce va-t-elle menacer une pièce du plateau ?
-        if (estCaseMenacee(x, y) || nouvellePieceMenace(x, y, typePiece)) {
+        String conflit = getDetailConflit(x, y, typePiece);
+        if (conflit != null) {
             this.erreurs++;
-            return "INVALID";
+            return "INVALID:" + conflit;
         }
 
         Piece p = factoryPiece(typePiece, estBlanc);
-        if (p == null) return "ERREUR";
-
         placerPieceInterne(x, y, p);
         this.placementsValides++;
         this.scoreBrut += poidsPiece(typePiece);
@@ -175,5 +170,33 @@ public class JeuPlacement extends AbstractChessGame {
         if (total == 0) return "Choisissez au moins une pièce.";
         if (total > 64) return "Trop de pièces !";
         return "OK";
+    }
+
+    /**
+     * Identifie la pièce qui bloque le placement.
+     * Retourne une String descriptive ou null si pas de menace.
+     */
+    public String getDetailConflit(int targetX, int targetY, String typeNouvellePiece) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Case c = echiquier.getCase(i, j);
+                if (!c.isEstVide() && c.getPiece() != null) {
+                    String typeExistante = c.getPiece().getClass().getSimpleName();
+                    int dx = Math.abs(i - targetX);
+                    int dy = Math.abs(j - targetY);
+                    String coord = (char)('A' + i) + "" + (j + 1);
+
+                    // Cas 1 : La pièce sur le plateau menace la nouvelle case
+                    if (attaque(typeExistante, dx, dy)) {
+                        return "Le " + typeExistante + " en " + coord + " menace cette case !";
+                    }
+                    // Cas 2 : La nouvelle pièce menacerait une pièce existante
+                    if (attaque(typeNouvellePiece, dx, dy)) {
+                        return "Placer un " + typeNouvellePiece + " ici capturerait le " + typeExistante + " en " + coord + " !";
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
