@@ -96,9 +96,14 @@ body {
     padding-top: 12px;
 }
 
-.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+.p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
 
 .user-profile form {
     margin-top: 12px;
     display: block !important;
+}
+
+.main-container {
+    margin-left: 260px;
+    padding: 20px;
 }
