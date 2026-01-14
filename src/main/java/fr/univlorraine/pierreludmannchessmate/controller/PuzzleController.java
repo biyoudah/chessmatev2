@@ -8,6 +8,7 @@ import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpSession;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -90,6 +95,10 @@ public class PuzzleController {
 
         model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
         model.addAttribute("classementTactique", scoreRepository.getClassementParMode("PUZZLE"));
+
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        model.addAttribute("isAdmin", isAdmin);
 
         return "jeuPuzzle";
     }
@@ -260,5 +269,35 @@ public class PuzzleController {
             game.dechiffre_pb(json);
             return true;
         } catch (Exception e) { return false; }
+    }
+
+    @GetMapping("/admin/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminPanel(Model model) {
+        return "adminPuzzle"; // Nouvelle vue HTML
+    }
+
+    @PostMapping("/admin/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String addPuzzleCsv(@RequestParam String puzzleId, @RequestParam String fen,
+                               @RequestParam String moves, @RequestParam String rating,
+                               @RequestParam String ratingConfidence, @RequestParam String popularity,
+                               @RequestParam String nbPlays, @RequestParam String themes,
+                               @RequestParam String gameUrl, @RequestParam String openingName) {
+
+        // Formatage de la ligne CSV
+        String newline = String.join(",", puzzleId, fen, moves, rating, ratingConfidence,
+                popularity, nbPlays, themes, gameUrl, openingName);
+
+        try {
+            // Localisation du fichier dans resources (Note: En production, il vaut mieux viser un chemin externe)
+            Path path = Paths.get(new ClassPathResource("puzzle.csv").getURI());
+            Files.write(path, ("\n" + newline).getBytes(), StandardOpenOption.APPEND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/puzzle?error=csv";
+        }
+
+        return "redirect:/puzzle?success=added";
     }
 }

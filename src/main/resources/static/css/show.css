@@ -579,3 +579,8 @@ body.dark-mode #theme-toggle i {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+.admin-form { max-width: 600px; margin: 40px auto; padding: 20px; background: #2a2a2a; border-radius: 8px; border: 1px solid var(--gold); }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; color: var(--gold); margin-bottom: 5px; }
+.form-group input { width: 100%; padding: 8px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 4px; }
