@@ -28,11 +28,6 @@
     --btn-secondary-shadow: #2f3946;
     --btn-secondary-hover: #404b5d;
 
-    /* boutons de jeu*/
-    --blue-btn-bg: var(--btn-generic-bg);
-    --blue-btn-color: white;
-    --blue-btn-hover: #475569FF;
-
 
     /* Accents */
     --gold: #ffd700;
@@ -80,11 +75,6 @@ body.dark-mode {
     --btn-secondary-bg: #3a4656;
     --btn-secondary-shadow: #252c37;
     --btn-secondary-hover: #2c3440;
-
-    /* boutons de jeu*/
-    --blue-btn-bg: #222222FF;
-    --blue-btn-color: white;
-    --blue-btn-hover: #2e2e2e;
 
     --blue-accent: #0542c8;
     --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
@@ -474,12 +464,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
 /* Gris (Sidebar Connexion) */
 .btn-secondary { background: var(--btn-secondary-bg); color: white; border: 1px solid #556; }
 
-/* Jeu : Bleu, Rouge, Jaune (adaptés aux variables) */
-.blue-btn{
-    background-color: var(--btn-generic-bg);
-    color: white;
-}
-.blue-btn:hover { background:var(--btn-hover) }
 
 .reset-btn{
     background-color: var(--btn-generic-bg);

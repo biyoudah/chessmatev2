@@ -36,6 +36,7 @@ public class PlacementController {
     public String afficher(@ModelAttribute("jeuPlacement") JeuPlacement game, Model model, Authentication auth, HttpSession session) {
         injecterInfosUtilisateur(model, auth);
 
+        // Dans PlacementController.java, méthode afficher()
         Object msg = session.getAttribute("flashMessage");
         if (msg != null) {
             model.addAttribute("message", msg);
@@ -129,8 +130,61 @@ public class PlacementController {
         return "redirect:/placement";
     }
 
-
     private void traiterVictoire(JeuPlacement game, HttpSession session, Authentication auth) {
+        if (game.isScoreEnregistre()) return;
+
+        // 1. IMPORTANT : On sauvegarde l'état Perfect AVANT de calculer ou reset
+        boolean isPerfect = game.estTentativeParfaite();
+
+        int baseScore = game.calculerScoreFinalSansBonus();
+        Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
+
+        String messageBase;
+
+        if (userOpt.isEmpty()) {
+            messageBase = "🏆 Réussi ! " + baseScore + " pts (Connectez-vous pour enregistrer)";
+        } else {
+            Utilisateur user = userOpt.get();
+            String cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise()).toString();
+            boolean premiereFois = !scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
+
+            int bonus = premiereFois ? Math.max(5, (int) Math.round(baseScore * 0.3)) : 0;
+            int total = baseScore + bonus;
+
+            Score s = new Score();
+            s.setUtilisateur(user);
+            s.setMode(game.getModeDeJeu());
+            s.setSchemaKey(cleSchema);
+            s.setPoints(total);
+            s.setScore(total);
+            s.setBonusPremierSchemaAttribue(bonus);
+            s.setErreurs(game.getErreurs());
+            s.setErreursPlacement(game.getErreurs());
+            s.setPerfect(isPerfect); // On utilise la variable capturée
+            s.setFirstTime(premiereFois);
+            s.setReussi(true);
+
+            scoreRepository.save(s);
+
+            messageBase = "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : "");
+        }
+
+        game.setScoreEnregistre(true);
+
+        // 2. Si c'est un perfect, on ajoute le flag en session pour l'affichage HTML séparé
+        if (isPerfect) {
+            session.setAttribute("flashPerfect", true);
+        }
+
+        // 3. On définit le message flash classique
+        session.setAttribute("flashMessage", messageBase);
+        session.setAttribute("flashType", "victory");
+
+        // 4. ET ENFIN on reset
+        game.reinitialiser();
+    }
+
+    /*private void traiterVictoire(JeuPlacement game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
 
         int baseScore = game.calculerScoreFinalSansBonus();
@@ -171,7 +225,7 @@ public class PlacementController {
 
         session.setAttribute("flashMessage", "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : ""));
         session.setAttribute("flashType", "victory");
-    }
+    } */
 
     private void preparerModele(Model model, JeuPlacement game, Authentication auth) {
         model.addAttribute("board", game.getBoard());
