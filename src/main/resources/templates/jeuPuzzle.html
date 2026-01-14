@@ -98,8 +98,8 @@
             <hr style="border-color: #444; margin: 20px 0;">
 
             <h4 class="gold-text">PARAMÈTRES</h4>
-            <label for="diffSelect" style="color: #ccc; font-size: 0.9em; display:block; margin-bottom:5px;">Filtre Difficulté</label>
-            <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select" style="margin-bottom: 15px;">
+            <label for="diffSelect">Filtre Difficulté</label>
+            <select id="diffSelect" onchange="triggerChangeMode(this.value)" class="form-select">
                 <option value="any" th:selected="${jeuPuzzle.difficulte == 'any'}">🎲 Aléatoire</option>
                 <option value="1" th:selected="${jeuPuzzle.difficulte == '1'}">🟢 Facile (Mat en 1)</option>
                 <option value="2" th:selected="${jeuPuzzle.difficulte == '2'}">🟡 Moyen (Mat en 2)</option>
@@ -107,12 +107,12 @@
             </select>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="action-btn blue-btn full-width" onclick="triggerReset()">
+                <button class="action-btn mode-btn" onclick="triggerReset()">
                     <span th:text="${jeuPuzzle.isPuzzleLoaded() ? '🔄 Nouveau Puzzle' : '▶️ Commencer'}">Action</span>
                 </button>
 
-                <button class="action-btn btn-warning full-width" onclick="triggerHint()">💡 Indice</button>
-                <button class="action-btn danger-btn full-width" onclick="triggerClear()">🏳️ Abandonner</button>
+                <button class="action-btn mode-btn" onclick="triggerHint()">💡 Indice</button>
+                <button class="action-btn mode-btn" onclick="triggerClear()">🏳️ Abandonner</button>
             </div>
         </div>
     </div>
@@ -209,17 +209,17 @@
         }
     }
 
-    // Suppression de la fonction closeOverlays() qui n'est plus utilisée
-
     function triggerChangeMode(v) {
-        document.getElementById('board-loader').style.display = 'flex';
+        const loader = document.getElementById('board-loader');
+        if (loader) loader.style.display = 'flex';
         const fd = new FormData();
         fd.append('difficulte', v);
         sendRequest(changeModeUrl, fd);
     }
 
     function triggerReset() {
-        document.getElementById('board-loader').style.display = 'flex';
+        const loader = document.getElementById('board-loader');
+        if(loader) loader.style.display = 'flex';
         sendRequest(resetUrl);
     }
 
