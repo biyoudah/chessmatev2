@@ -51,7 +51,7 @@
 }
 
 /* --- THÈME SOMBRE (NOIR / ONYX) --- */
-body.dark-mode {
+:root.dark-mode {
     --bg-gradient-1: #2c2c2c;
     --bg-gradient-2: #000000;
 
