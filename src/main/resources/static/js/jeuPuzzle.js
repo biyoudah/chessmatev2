@@ -109,9 +109,5 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearBtn = document.getElementById('clearBtn');
     if (clearBtn) clearBtn.addEventListener('click', triggerClear);
 
-    document.getElementById('board').addEventListener('click', function(e) {
-        if (e.target.classList.contains('puzzle-case')) {
-            clickPuzzleCase(e.target);
-        }
-    });
+
 });

@@ -135,10 +135,8 @@
                          th:class="${(i + j) % 2 == 0} ? 'case white' : 'case black'"
                          th:classappend="${hintCoords == i + ',' + j} ? ' hint-anim' : ''"
                          th:attr="data-x=${i}, data-y=${j}"
-                         class="puzzle-case">
-
-                        <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
-
+                         class="puzzle-case"
+                         onclick="clickPuzzleCase(this)"> <span class="coord" th:text="${'abcdefgh'.substring(j, j + 1) + (i + 1)}"></span>
                         <span th:if="${board[i][j] != null}" th:text="${board[i][j]}" class="piece"></span>
                     </div>
                 </th:block>
