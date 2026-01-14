@@ -27,13 +27,6 @@
             <i class="fa fa-sun" id="theme-icon"></i>
             <span id="theme-text">Mode Clair</span>
         </a>
-
-        <div id="gorilla-prank" class="gorilla-container">
-            <div class="gorilla-content">
-                <img th:src="@{/img/images.jpg}" alt="Gorille Prankeur" class="Prankeur">
-                <p>Tu croyais que c'était le bouton <strong>"Plus"</strong> mais c'était le <span>ChessMate Prankeur</span> ! 🦍</p>
-            </div>
-        </div>
     </nav>
 
     <div class="auth-section">
@@ -209,24 +202,5 @@
 <audio id="sfx-victory" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
 
 <script th:src="@{/js/show.js}"></script>
-<script>
-    let clickCount = 0;
-    const plusLink = document.getElementById('plus-link');
-    const gorillaDiv = document.getElementById('gorilla-prank');
-
-    if(plusLink) {
-        plusLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            clickCount++;
-            if (clickCount === 10) {
-                gorillaDiv.classList.add('show-gorilla');
-                setTimeout(() => {
-                    gorillaDiv.classList.remove('show-gorilla');
-                    clickCount = 0;
-                }, 8000);
-            }
-        });
-    }
-</script>
 </body>
 </html>

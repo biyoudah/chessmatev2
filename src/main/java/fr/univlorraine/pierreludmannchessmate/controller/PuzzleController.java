@@ -50,7 +50,6 @@ public class PuzzleController {
         model.addAttribute("isLoggedIn", isLoggedIn);
 
         if (isLoggedIn) {
-            // On va chercher le pseudo en base via ta méthode existante
             String pseudo = recupererUtilisateurCourant(auth)
                     .map(Utilisateur::getPseudo)
                     .orElse("Joueur");
@@ -60,18 +59,11 @@ public class PuzzleController {
             model.addAttribute("pseudo", "Invité");
         }
 
-        Object msg = session.getAttribute("flashMessage");
-        if (msg != null) {
-            model.addAttribute("message", msg);
-            session.removeAttribute("flashMessage");
-        }
-
         Object hint = session.getAttribute("hintCoords");
         if (hint != null) {
             model.addAttribute("hintCoords", hint);
         }
 
-        // Vérif plateau vide
         boolean plateauVide = true;
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
@@ -81,7 +73,7 @@ public class PuzzleController {
 
         if (plateauVide) {
             chargerPuzzleSelonDifficulte(game);
-            game.setScoreEnregistre(false); // Nouveau puzzle = score pas encore enregistré
+            game.setScoreEnregistre(false);
         }
 
         List<Integer> rows = game.isVueJoueurEstBlanc()
@@ -96,7 +88,6 @@ public class PuzzleController {
         model.addAttribute("board", game.getBoard());
         model.addAttribute("traitAuBlanc", game.isTraitAuBlanc());
 
-        // Récupère le top global
         model.addAttribute("classementGlobal", scoreRepository.getClassementGlobal());
         model.addAttribute("classementTactique", scoreRepository.getClassementParMode("PUZZLE"));
 
@@ -108,9 +99,7 @@ public class PuzzleController {
         String coords = game.getCoupAide();
         if (coords != null) {
             session.setAttribute("hintCoords", coords);
-            session.setAttribute("flashMessage", "💡 Indice : Jouez la pièce en violet !");
-        } else {
-            session.setAttribute("flashMessage", "Pas d'indice disponible.");
+            // Suppression du message "Indice"
         }
         return "redirect:/puzzle";
     }
@@ -120,18 +109,13 @@ public class PuzzleController {
                              @RequestParam int arriveeX, @RequestParam int arriveeY,
                              @ModelAttribute("jeuPuzzle") JeuPuzzle game,
                              HttpSession session,
-                             Authentication auth) { // Ajout Auth
+                             Authentication auth) {
 
         session.removeAttribute("hintCoords");
-
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
 
         if("GAGNE".equals(resultat)) {
-            session.setAttribute("flashMessage", "✅ Bravo !");
-            traiterVictoirePuzzle(game, session, auth); // SAUVEGARDE DU SCORE
-        }
-        else if("RATE".equals(resultat)) {
-            session.setAttribute("flashMessage", "❌ Mauvais coup !");
+            traiterVictoirePuzzle(game, session, auth);
         }
 
         return "redirect:/puzzle";
@@ -152,10 +136,10 @@ public class PuzzleController {
 
         if (!succes) {
             game.viderPlateau();
-            session.setAttribute("flashMessage", "⚠️ Aucun puzzle trouvé...");
+            // Suppression message erreur
         } else {
-            game.setScoreEnregistre(false); // Reset score
-            session.setAttribute("flashMessage", "Puzzle chargé (Niveau " + difficulte + ")");
+            game.setScoreEnregistre(false);
+            // Suppression message confirmation
         }
         return "redirect:/puzzle";
     }
@@ -167,7 +151,7 @@ public class PuzzleController {
             game.setScoreEnregistre(false);
         } else {
             game.viderPlateau();
-            session.setAttribute("flashMessage", "⚠️ Impossible de charger un puzzle.");
+            // Suppression message erreur
         }
         return "redirect:/puzzle";
     }
@@ -175,7 +159,7 @@ public class PuzzleController {
     @PostMapping("/clear")
     public String clearBoard(@ModelAttribute("jeuPuzzle") JeuPuzzle game, HttpSession session) {
         game.viderPlateau();
-        session.setAttribute("flashMessage", "Plateau vidé.");
+        // Suppression message "Plateau vidé"
         return "redirect:/puzzle";
     }
 
@@ -184,9 +168,7 @@ public class PuzzleController {
 
         Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
 
-        // IMPORTANT : Si l'utilisateur n'est pas connecté, on ne sauve rien.
         if (userOpt.isEmpty()) {
-            System.out.println("Score non enregistré : Utilisateur non connecté (Invité)");
             game.setScoreEnregistre(true);
             return;
         }
@@ -200,25 +182,21 @@ public class PuzzleController {
         };
 
         String schemaKey = "PUZZLE_" + game.getPuzzleId();
-
-        // Vérification d'unicité pour ne pas donner des points à l'infini sur le même puzzle
         boolean dejaReussi = scoreRepository.existsByUtilisateurAndSchemaKey(user, schemaKey);
 
         if (dejaReussi) {
-            session.setAttribute("flashMessage", "✅ Puzzle déjà complété !");
+            // Suppression message "Déjà complété"
             game.setScoreEnregistre(true);
             return;
         }
 
-        // Création de l'entité Score
         Score s = new Score();
         s.setUtilisateur(user);
-        s.setMode("PUZZLE"); // Doit matcher avec ce que tu appelles dans afficherPuzzle
+        s.setMode("PUZZLE");
         s.setSchemaKey(schemaKey);
         s.setPoints(nouveauxPoints);
         s.setScore(nouveauxPoints);
 
-        // Initialisation des champs obligatoires pour éviter l'erreur SQL 1364
         s.setBonusPremierSchemaAttribue(0);
         s.setErreurs(0);
         s.setErreursPlacement(0);
@@ -226,10 +204,10 @@ public class PuzzleController {
         s.setFirstTime(false);
         s.setReussi(true);
         s.setPerfect(true);
-         scoreRepository.save(s);
+        scoreRepository.save(s);
 
-         game.setScoreEnregistre(true);
-         session.setAttribute("flashMessage", "✅ Bravo ! +" + nouveauxPoints + " points.");
+        game.setScoreEnregistre(true);
+        // Suppression message "Bravo + points"
     }
 
     private Optional<Utilisateur> recupererUtilisateurCourant(Authentication auth) {
@@ -239,7 +217,6 @@ public class PuzzleController {
         return utilisateurRepository.findByEmail(auth.getName());
     }
 
-    // --- Chargement CSV (identique à votre code) ---
     private boolean chargerPuzzleSelonDifficulte(JeuPuzzle game) {
         try {
             ClassPathResource resource = new ClassPathResource("puzzle.csv");
