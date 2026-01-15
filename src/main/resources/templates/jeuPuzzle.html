@@ -16,6 +16,7 @@
 
         #thinking-loader { font-style: italic; color: var(--gold); margin-bottom: 10px; }
     </style>
+    <script>const isLoggedIn = [[${isLoggedIn}]];</script>
     <script defer th:src="@{/js/theme-manager.js}"></script>
     <script defer th:src="@{/js/jeuPuzzle.js}"></script>
 
@@ -65,7 +66,8 @@
 </aside>
 
 <div class="main-container">
-
+    <div id="chess-board" th:class="${!isLoggedIn} ? 'plateau-verrouille' : ''">
+    </div>
     <div class="side-column">
         <div class="dark-panel">
 

@@ -584,3 +584,12 @@ body.dark-mode #theme-toggle i {
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; color: var(--gold); margin-bottom: 5px; }
 .form-group input { width: 100%; padding: 8px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 4px; }
+
+.plateau-verrouille {
+    cursor: not-allowed;
+    filter: grayscale(30%); /* Optionnel : rend le plateau un peu plus terne */
+}
+
+.plateau-verrouille .case {
+    pointer-events: none; /* Désactive les clics au niveau CSS */
+}

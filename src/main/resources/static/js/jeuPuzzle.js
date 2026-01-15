@@ -10,8 +10,15 @@ let startCase = null;
 
 // Fonction utilitaire pour les requêtes POST
 async function sendRequest(url, fd = new FormData()) {
+
+    if (!isLoggedIn) {
+        window.location.href = "/login";
+        return;
+    }
+
     const token = document.querySelector('input[name="_csrf"]')?.value;
     const loader = document.getElementById('board-loader');
+
     if (url.includes('reset') || url.includes('changeMode')) {
         if (loader) loader.style.display = 'flex';
     }
@@ -21,11 +28,11 @@ async function sendRequest(url, fd = new FormData()) {
             body: fd,
             headers: { 'X-CSRF-TOKEN': token }
         });
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else {
-            window.location.reload();
+        if (response.redirected || response.status === 403 || response.status === 401) {
+            window.location.href = "/login";
+            return;
         }
+        window.location.reload();
     } catch(e) {
         console.error(e);
         if (loader) loader.style.display = 'none';
@@ -50,6 +57,10 @@ function triggerReset() {
 
 // Clic sur case (sélection/déplacement)
 function clickPuzzleCase(el) {
+    if (!isLoggedIn) {
+        window.location.href = "/login";
+        return;
+    }
     document.querySelectorAll('.hint-anim').forEach(e => e.classList.remove('hint-anim'));
     const x = el.getAttribute('data-x');
     const y = el.getAttribute('data-y');

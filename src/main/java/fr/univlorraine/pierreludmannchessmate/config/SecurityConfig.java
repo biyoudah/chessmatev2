@@ -3,6 +3,7 @@ package fr.univlorraine.pierreludmannchessmate.config;
 import org.springframework.beans.factory.annotation.Autowired; // <--- IMPORTER CECI
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,12 +24,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/puzzle/**", "/placement/**"))
 
                 .authorizeHttpRequests((requests) -> requests
-                        // Autoriser les ressources statiques en priorité
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**", "/favicon.ico", "/static/**").permitAll()
 
-                        .requestMatchers("/", "/home", "/classement", "/infos/**", "/show", "/puzzle/**", "/placement/**").permitAll()
+                        .requestMatchers("/", "/home", "/classement", "/infos/**", "/show", "/placement/**").permitAll()
 
                         .requestMatchers("/login", "/register", "/error").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/puzzle").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/puzzle/**").authenticated()
 
                         .anyRequest().authenticated()
                 )

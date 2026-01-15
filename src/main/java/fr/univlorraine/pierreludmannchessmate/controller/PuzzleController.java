@@ -136,6 +136,10 @@ public class PuzzleController {
                                            HttpSession session,
                                            Authentication auth) {
 
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(401).build();
+        }
+
         session.removeAttribute("hintCoords");
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
 
