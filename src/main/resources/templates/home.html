@@ -22,8 +22,8 @@
   </div>
 
   <nav class="nav-menu">
-    <a href="/placement"><i class="fa fa-chess-board"></i> Jouer</a>
-    <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+    <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+    <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
     <a href="/infos"><i class="fa fa-info-circle"></i> Infos</a>
     <a href="/classement"><i class="fa fa-user-friends"></i> Classement</a>
     <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
@@ -48,50 +48,6 @@
       </form>
     </div>
   </div>
-</aside>
-
-<main class="main-content">
-  <header class="page-header">
-    <h1>Bienvenue, <span th:text="${pseudo}" class="highlight">Joueur</span> ! 👋</h1>
-  </header>
-
-  <section class="card">
-    <div class="card-header">
-      <h3><i class="fa fa-trophy"></i> Tournois en direct</h3>
-    </div>
-    <div class="card-body">
-      <div th:if="${not #lists.isEmpty(tournaments)}">
-        <div th:each="t : ${tournaments}" class="list-item tournament">
-          <div class="item-info">
-            <strong th:text="${t.fullName}">Nom du tournoi</strong>
-            <div class="item-meta">
-              <span><i class="fa fa-users"></i> <span th:text="${t.nbPlayers}">0</span></span>
-              <span><i class="fa fa-clock"></i> <span th:text="${t.minutes}">0</span> min</span>
-            </div>
-          </div>
-          <a th:href="'https://lichess.org/tournament/' + ${t.id}" target="_blank" class="action-link">Rejoindre</a>
-        </div>
-      </div>
-      <p th:if="${#lists.isEmpty(tournaments)}" class="empty-msg">Aucun tournoi majeur en cours.</p>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="card-header">
-      <h3><i class="fa fa-newspaper"></i> Articles & Actualités</h3>
-    </div>
-    <div class="card-body">
-      <div th:each="art : ${articles}" class="list-item article">
-        <img th:if="${art.image}" th:src="${art.image}" class="article-thumb" alt="News">
-        <div class="item-info">
-          <a th:href="${art.url}" target="_blank" class="article-title" th:text="${art.title}">Titre</a>
-          <p class="article-summary" th:text="${art.short}">Résumé...</p>
-        </div>
-      </div>
-      <p th:if="${#lists.isEmpty(articles)}" class="empty-msg">Aucune actualité disponible.</p>
-    </div>
-  </section>
-</main>
 </aside>
 
 <main class="main-content">
