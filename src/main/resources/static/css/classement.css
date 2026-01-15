@@ -1,4 +1,108 @@
-/* Style général */
+:root {
+    --sidebar-bg: #1e293b;
+    --main-bg: #f8fafc;
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--main-bg);
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img { width: 38px; }
+.logo span { font-size: 1.5rem; font-weight: 700; }
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.nav-menu a {
+    padding: 14px 24px;
+    color: #cbd5e1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.nav-menu a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding-left: 30px;
+}
+
+.auth-section {
+    margin-top: auto;
+    padding: 20px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: transform 0.1s;
+}
+
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00; font-size: 0.9rem;}
+.btn-primary:hover { background: #068d06;}
+.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
+.btn-secondary:hover { background: #404b5d;}
+
+.user-profile {
+    text-align: center;
+    border-top: 1px solid #334155;
+    padding-top: 12px;
+}
+
+.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+
+.user-profile form {
+    margin-top: 12px;
+    display: block !important;
+}
+
 body {
     background-color: #f4f7f6;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
