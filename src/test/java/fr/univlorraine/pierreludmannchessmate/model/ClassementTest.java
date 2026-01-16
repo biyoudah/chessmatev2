@@ -65,8 +65,6 @@ class ClassementTest {
     void deux_ClassementAvecMemNom_SontDifferents() {
         Classement c1 = new Classement("Test");
         Classement c2 = new Classement("Test");
-
-        // Les objets sont différents en mémoire (pas d'override equals/hashCode)
         assertNotEquals(c1, c2);
     }
 
