@@ -95,8 +95,8 @@
             <h3 class="gold-text">STATUS</h3>
             <div class="status-box" style="background: transparent; padding: 0;">
                 <p class="text-muted small" style="color: #aaa; margin-bottom: 5px;">Au trait :</p>
-                <div th:if="${traitAuBlanc}" class="turn-indicator turn-white">⚪ Les Blancs</div>
-                <div th:unless="${traitAuBlanc}" class="turn-indicator turn-black">⚫ Les Noirs</div>
+                <div th:unless="${traitAuBlanc}" class="turn-indicator turn-white">⚪ Les Blancs</div>
+                <div th:if="${traitAuBlanc}" class="turn-indicator turn-black">⚫ Les Noirs</div>
 
                 <div id="thinking-loader" style="display:none;">
                     ⏳ L'ordi réfléchit...
