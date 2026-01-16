@@ -282,6 +282,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .btn-primary {
     background-color: var(--btn-primary-bg);
     box-shadow: 0 2px 0 var(--btn-primary-shadow);
+    color: white !important;
 }
 
 .btn-primary:hover {
