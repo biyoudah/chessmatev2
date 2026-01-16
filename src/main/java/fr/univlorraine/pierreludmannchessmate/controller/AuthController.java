@@ -22,7 +22,6 @@ import org.springframework.validation.FieldError;
 @Controller
 public class AuthController {
 
-    // --- INJECTION DE DÉPENDANCES ---
 
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
@@ -39,7 +38,7 @@ public class AuthController {
     }
 
 
-    // --- GESTION DE L'AUTHENTIFICATION ---
+    //Gestion de l'authentification
 
     /**
      * Affiche le formulaire de connexion.
@@ -79,7 +78,7 @@ public class AuthController {
                                       BindingResult bindingResult,
                                       Model model) {
 
-        // 1. Vérification si l'e-mail est déjà utilisé (Règle métier côté serveur)
+        //Vérification si l'e-mail est déjà utilisé (Règle métier côté serveur)
         if (utilisateurRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
             bindingResult.addError(new FieldError(
                     "utilisateur",
@@ -92,26 +91,26 @@ public class AuthController {
             ));
         }
 
-        // 2. Vérification des erreurs de validation JSR 380 OU de l'unicité ci-dessus
+        //Vérification des erreurs de validation JSR 380 OU de l'unicité ci-dessus
         if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        // 3. Enregistrement nouvel entité utilisateur
+        //Enregistrement nouvel entité utilisateur
         Utilisateur nouvelUtilisateur = new Utilisateur();
         nouvelUtilisateur.setEmail(registrationDto.getEmail());
         nouvelUtilisateur.setPseudo(registrationDto.getPseudo());
 
-        //4. Hachage mdp
+        //Hachage mdp
         nouvelUtilisateur.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 
-        //5. Définition du rôle
+        //Définition du rôle
         nouvelUtilisateur.setRole("USER");
 
-        // 6. Sauvegarde
+        //Sauvegarde
         utilisateurRepository.save(nouvelUtilisateur);
 
-        // 7. Redirection vers le login avec un message de succès
+        //Redirection vers le login avec un message de succès
         return "redirect:/login?success";
     }
 
