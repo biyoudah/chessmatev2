@@ -2,47 +2,80 @@
    HOME - Variables de Thème (Swap Uni Blanc/Noir)
    ============================================================ */
 :root {
-    /* --- THEME CLAIR (Tes valeurs originales) --- */
+    --sidebar-bg: #1e293b;
+    --main-bg: #f8fafc;
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --home-bg: #f8fafc;
-    --home-card-bg: #ffffff;
     --home-text: #1e293b;
     --home-text-muted: #64748b;
     --home-border: #e2e8f0;
     --home-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-    --sidebar-bg: #1e293b;
-    --accent-blue: #3b82f6;
+    --panel-bg-home: #ffffff;
 }
-
 body.dark-mode {
-    /* --- THEME SOMBRE (Le Swap Noir) --- */
-    --home-bg: #000000;           /* Fond noir uni */
-    --home-card-bg: #121212;      /* Cartes anthracite sombre */
-    --home-text: #ffffff;         /* Texte blanc */
-    --home-text-muted: #94a3b8;
-    --home-border: #2d3748;       /* Bordures foncées */
-    --home-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    /* --- THEME NOIR INTEGRAL (Comme l'image) --- */
+    --home-bg: #000000;           /* Fond noir pur */
+    --sidebar-bg: #000000;        /* Sidebar noire */
+    --panel-bg-home: #0d0d0d;     /* Cartes gris très foncé pour un léger relief */
 
-    --sidebar-bg: #000000;       /* Sidebar encore plus sombre en dark */
+    --text-dark: #ffffff;         /* Texte principal blanc */
+    --home-text: #ffffff;
+    --home-text-muted: #888888;   /* Texte secondaire gris */
+
+    --home-border: #1a1a1a;       /* Bordures très sombres */
+    --border-color: #1a1a1a;
+
+    --home-shadow: 0 0 20px rgba(0, 0, 0, 1);
 }
 
-/* ============================================================
-   STRUCTURE & LAYOUT
-   ============================================================ */
-* { box-sizing: border-box; }
+/* --- STYLE DES TITRES (STATUS, PARAMETRES, CLASSEMENT) --- */
+body.dark-mode .card-header h3,
+body.dark-mode h4,
+body.dark-mode .section-title {
+    color:#94a3b8;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* --- BOUTONS DANS LES PANNEAUX (Commencer, Indice, Abandonner) --- */
+body.dark-mode .btn-secondary,
+body.dark-mode .action-link {
+    background: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: #252525;
+}
+
+/* --- AJUSTEMENT DU DAMIER DE FOND --- */
+body.dark-mode {
+    /* Si tu as un pattern de damier en background-image,
+       ceci permet de le garder sombre et visible */
+    background-color: #000000;
+    background-blend-mode: overlay;
+}
+
+* {
+    box-sizing: border-box;
+}
 
 body {
     font-family: 'Inter', sans-serif;
+    background-color: var(--home-bg);
+    background-image: none;
+    color: var(--text-dark);
     margin: 0;
     display: flex;
     min-height: 100vh;
-
-    /* On force le fond uni et on désactive le damier de show.css */
-    background-color: var(--home-bg) !important;
-    background-image: none !important;
-    color: var(--home-text);
-
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* SIDEBAR */
@@ -54,37 +87,104 @@ body {
     flex-direction: column;
     position: fixed;
     height: 100vh;
-    z-index: 1000;
-    transition: background-color 0.3s ease;
+    z-index: 100;
 }
+
+.logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo img { width: 38px; }
+.logo span { font-size: 1.5rem; font-weight: 700; }
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.nav-menu a {
+    padding: 14px 24px;
+    color: #cbd5e1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.nav-menu a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding-left: 30px;
+}
+
+.auth-section {
+    margin-top: auto;
+    padding: 20px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: transform 0.1s;
+}
+
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: #00a800; color: white; box-shadow: 0 2px 0 #006d00; font-size: 0.9rem;}
+.btn-primary:hover { background: #068d06;}
+.btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
+.btn-secondary:hover { background: #404b5d;}
+
+.user-profile {
+    text-align: center;
+    border-top: 1px solid #334155;
+    padding-top: 12px;
+}
+
+.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+
+.user-profile form {
+    margin-top: 12px;
+    display: block !important;
+}
+
 
 .main-content {
     margin-left: 260px;
     padding: 40px;
-    width: calc(100% - 260px);
+    width: 100%;
     max-width: 1100px;
 }
 
-/* --- CARTES --- */
+.highlight { color: var(--accent-blue); }
+
 .card {
-    background: var(--home-card-bg);
+    background: var(--panel-bg-home);
     border-radius: 12px;
-    box-shadow: var(--home-shadow);
-    border: 1px solid var(--home-border);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
     margin-bottom: 30px;
     overflow: hidden;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .card-header {
     padding: 20px 24px;
-    border-bottom: 1px solid var(--home-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .card-header h3 {
     margin: 0;
     font-size: 1.2rem;
-    color: var(--home-text);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -94,44 +194,34 @@ body {
 
 .card-body { padding: 0 24px; }
 
-/* --- ÉLÉMENTS DE LISTE --- */
+
 .list-item {
     display: flex;
     align-items: center;
     padding: 20px 0;
-    border-bottom: 1px solid var(--home-border);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .list-item:last-child { border-bottom: none; }
 
-.article-title {
-    text-decoration: none;
-    color: var(--home-text);
-    font-weight: 700;
+.item-info { flex: 1; }
+
+.item-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    display: flex;
+    gap: 15px;
 }
-
-.article-title:hover { color: var(--accent-blue); }
-
-.article-summary, .item-meta {
-    color: var(--home-text-muted);
-}
-
-.empty-msg {
-    padding: 30px;
-    text-align: center;
-    color: var(--home-text-muted);
-}
-
-/* --- ACCENTS & LIENS --- */
-.highlight { color: var(--accent-blue); }
 
 .action-link {
-    background: rgba(59, 130, 246, 0.1); /* Bleu transparent léger */
+    background: #eff6ff;
     color: var(--accent-blue);
     padding: 8px 18px;
     border-radius: 20px;
     text-decoration: none;
     font-weight: 600;
+    font-size: 0.9rem;
     transition: 0.2s;
 }
 
@@ -139,6 +229,7 @@ body {
     background: var(--accent-blue);
     color: white;
 }
+
 
 .article-thumb {
     width: 110px;
@@ -148,9 +239,24 @@ body {
     margin-right: 20px;
 }
 
-/* --- PRANK GORILLA --- */
-.gorilla-container {
-    background: var(--home-card-bg);
-    border: 3px solid var(--sidebar-bg);
-    color: var(--home-text);
+.article-title {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.article-title:hover { color: var(--accent-blue); }
+
+.article-summary {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.empty-msg {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
 }
