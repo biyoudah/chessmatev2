@@ -5,6 +5,8 @@
     <title>♙ Classement - Chessmate</title>
     <link rel="stylesheet" th:href="@{/css/classement.css}">
     <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -19,7 +21,7 @@
 
     <nav class="nav-menu">
         <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
-        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Puzzle</a>
         <a href="/infos"><i class="fa fa-info-circle"></i> Infos</a>
         <a href="/classement"><i class="fa fa-user-friends"></i> Classement</a>
         <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
@@ -29,7 +31,26 @@
         </a>
     </nav>
 
+    <div class="auth-section">
+        <div th:if="${isLoggedIn == false or pseudo == 'Invité'}" class="auth-buttons">
+            <a href="/register" style="text-decoration: none;">
+                <button class="sidebar-btn btn-primary">Créer un compte</button>
+            </a>
+            <a href="#" onclick="window.location.href='/login?targetUrl=' + window.location.pathname; return false;" style="text-decoration: none;">
+                <button class="sidebar-btn btn-secondary">Se connecter</button>
+            </a>
+        </div>
 
+        <div th:if="${isLoggedIn == true or (pseudo != null and pseudo != 'Invité')}" class="user-profile">
+            <p>Connecté en tant que</p>
+            <strong th:text="${pseudo}" style="color: #fff;">Joueur</strong>
+            <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+                <button type="submit" class="sidebar-btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">
+                    <i class="fa fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
 </aside>
 
 <div class="container">

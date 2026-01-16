@@ -9,10 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+
   <script defer th:src="@{/js/theme-manager.js}"></script>
+
 </head>
 
 <body>
+
 <aside class="sidebar">
   <div class="logo">
     <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
@@ -34,17 +38,22 @@
   </nav>
 
   <div class="auth-section">
-    <div th:if="${!isLoggedIn}">
-      <a href="/register"><button class="btn btn-primary">Créer un compte</button></a>
-      <a href="/login"><button class="btn btn-secondary">Se connecter</button></a>
+    <div th:if="${isLoggedIn == false or pseudo == 'Invité'}" class="auth-buttons">
+      <a href="/register" style="text-decoration: none;">
+        <button class="sidebar-btn btn-primary">Créer un compte</button>
+      </a>
+      <a href="#" onclick="window.location.href='/login?targetUrl=' + window.location.pathname; return false;" style="text-decoration: none;">
+        <button class="sidebar-btn btn-secondary">Se connecter</button>
+      </a>
     </div>
 
-    <div th:if="${isLoggedIn}" class="user-profile">
+    <div th:if="${isLoggedIn == true or (pseudo != null and pseudo != 'Invité')}" class="user-profile">
       <p>Connecté en tant que</p>
-      <strong th:text="${pseudo}">Pseudo</strong>
-
-      <form th:action="@{/logout}" method="post" style="display: inline;">
-        <button class="btn btn-secondary">Se déconnecter</button>
+      <strong th:text="${pseudo}" style="color: #fff;">Joueur</strong>
+      <form th:action="@{/logout}" method="post" style="margin-top: 10px;">
+        <button type="submit" class="sidebar-btn btn-secondary" style="padding: 5px 10px; font-size: 0.8em;">
+          <i class="fa fa-sign-out-alt"></i> Déconnexion
+        </button>
       </form>
     </div>
   </div>
