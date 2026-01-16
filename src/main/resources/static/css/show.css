@@ -1,7 +1,6 @@
 :root {
     --bg-gradient-1: #839ab3;
     --bg-gradient-2: #cacaca;
-    --bg-gradient-3: #2c3e50;
 
     --sidebar-bg: #1e293b;       /* Bleu nuit */
     --panel-bg: #1e293b;         /* Bleu nuit */
@@ -28,6 +27,8 @@
     --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
     --shadow-hover: 0 0 10px #546786;
 
+
+
     --btn-toggle-bg: transparent;
     --btn-toggle-border: rgba(255,255,255,0.2);
 
@@ -43,7 +44,6 @@
 body.dark-mode {
     --bg-gradient-1: #2c2c2c;
     --bg-gradient-2: #000000;
-    --bg-gradient-3: #2c2c2c;
 
     --sidebar-bg: #000000;       /* Noir pur */
     --panel-bg: #121212;         /* Noir très foncé */
@@ -79,6 +79,7 @@ body.dark-mode {
 
 }
 
+
 body {
     margin: 0;
     padding: 0;
@@ -94,6 +95,7 @@ body {
     background-attachment: fixed;
     transition: background-image 0.3s ease, color 0.3s ease;
 }
+
 
 .main-container {
     display: flex;
