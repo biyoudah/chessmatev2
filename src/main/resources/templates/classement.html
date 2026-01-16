@@ -74,7 +74,7 @@
                     <option value="8-dames|{Dame=8}" th:selected="${schemaKeySelectionne == '8-dames|{Dame=8}'}">8 Dames</option>
                     <option value="16-rois|{Roi=16}" th:selected="${schemaKeySelectionne == '16-rois|{Roi=16}'}">16 Rois</option>
                     <option value="14-fous|{Fou=14}" th:selected="${schemaKeySelectionne == '14-fous|{Fou=14}'}">14 Fous</option>
-                    <option value="perso"
+                    <option value="custom" th:selected="${schemaKeySelectionne == 'custom'}">Personnalisé</option>
                 </optgroup>
             </select>
             <button type="submit" class="btn-filter">Afficher</button>
