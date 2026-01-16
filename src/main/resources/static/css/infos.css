@@ -179,3 +179,100 @@ body {
     font-weight: bold;
 }
 
+/* --- Styles spécifiques pour la page Infos --- */
+
+.info-icon { color: var(--accent-blue); margin-right: 10px; }
+.icon-green { color: var(--accent-green); }
+.icon-red { color: #ef4444; }
+.icon-gold { color: #f59e0b; }
+
+.page-header { margin-bottom: 30px; }
+.page-header h1 { display: flex; align-items: center; font-size: 2rem; }
+
+.intro-text { margin-bottom: 25px; line-height: 1.6; font-size: 1.05rem; }
+
+.section-subtitle {
+    margin-bottom: 15px;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    display: inline-block;
+    font-size: 1.1rem;
+}
+
+/* Grille des modes de jeu */
+.modes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.mode-box {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s;
+}
+.mode-box:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+
+.mode-title { display: block; margin-bottom: 12px; font-size: 1rem; }
+.mode-title.classic { color: var(--accent-blue); }
+.mode-title.custom { color: #f59e0b; }
+
+.classic-list { padding-left: 20px; margin: 0; line-height: 1.8; }
+.custom-desc { margin: 0; font-size: 0.95rem; line-height: 1.6; }
+
+/* Section Comment Jouer */
+.howto-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.howto-steps { flex: 2; min-width: 300px; }
+.howto-steps ol { padding-left: 20px; line-height: 1.8; margin-top: 0; }
+.howto-steps li { margin-bottom: 12px; }
+
+.sub-list {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--text-muted);
+    list-style: none;
+    padding-left: 0;
+}
+.sub-list li { margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+
+/* Encadré Compte */
+.account-box {
+    flex: 1;
+    background: #eff6ff;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #bfdbfe;
+    min-width: 280px;
+}
+
+.account-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.account-box p { font-size: 0.95rem; line-height: 1.5; color: #1e3a8a; margin-bottom: 10px; }
+.account-box ul { padding-left: 20px; font-size: 0.9rem; color: #1e3a8a; margin-bottom: 0; }
+.account-box li { margin-bottom: 5px; }
+
+/* Responsive : Empiler sur mobile */
+@media (max-width: 768px) {
+    .modes-grid { grid-template-columns: 1fr; }
+    .howto-container { flex-direction: column; }
+    .account-box { width: 100%; }
+}
