@@ -220,7 +220,7 @@ public class PlacementController {
 
                 Score s = new Score();
                 s.setUtilisateur(user);
-                s.setMode(game.getModeDeJeu());
+                s.setMode("PLACEMENT");
                 s.setSchemaKey(cleSchema);
                 s.setPoints(total);
                 s.setScore(total);

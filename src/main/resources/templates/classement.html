@@ -58,11 +58,22 @@
 
     <div class="filter-section">
         <form th:action="@{/classement}" method="get">
-            <label for="mode">Type de jeu :</label>
-            <select name="mode" id="mode">
-                <option value="TOUS" th:selected="${modeSelectionne == 'TOUS' || modeSelectionne == null}">Tous les modes</option>
-                <option value="DAME" th:selected="${modeSelectionne == 'DAME'}">Jeu de la Dame</option>
-                <option value="MAT_3" th:selected="${modeSelectionne == 'MAT_3'}">Mat en 3 coups</option>
+            <label>Mode :</label>
+            <select name="mode">
+                <option value="TOUS">Tous les modes</option>
+                <option value="PLACEMENT" th:selected="${modeSelectionne == 'PLACEMENT'}">Placement</option>
+                <option value="PUZZLE" th:selected="${modeSelectionne == 'PUZZLE'}">Puzzles</option>
+            </select>
+
+            <label>Défi spécifique :</label>
+            <select name="schemaKey">
+                <option value="">-- Aucun --</option>
+                <optgroup label="Placement">
+                    <option value="8-tours|{Tour=8}" th:selected="${schemaKeySelectionne == '8-tours|{Tour=8}'}">8 Tours</option>
+                    <option value="8-dames|{Dame=8}" th:selected="${schemaKeySelectionne == '8-dames|{Dame=8}'}">8 Dames</option>
+                    <option value="16-rois|{Roi=16}" th:selected="${schemaKeySelectionne == '16-rois|{Roi=16}'}">16 Rois</option>
+                    <option value="14-fous|{Fou=14}" th:selected="${schemaKeySelectionne == '14-fous|{Fou=14}'}">14 Fous</option>
+                </optgroup>
             </select>
             <button type="submit" class="btn-filter">Afficher</button>
         </form>
