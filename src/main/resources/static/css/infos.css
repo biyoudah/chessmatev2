@@ -1,8 +1,8 @@
 :root {
     --main-bg: #f8fafc;
-    --accent-blue: #3b82f6;
-    --accent-green: #22c55e;
-    --text-dark: #1e293b;
+    --accent-blue: #0542c8;
+    --accent-green: #0e9441;
+    --text-dark: #0a306f;
     --text-muted: #64748b;
     --white: #ffffff;
     --border-color: #e2e8f0;
@@ -182,7 +182,7 @@ body {
 
 .info-icon { color: var(--accent-blue); margin-right: 10px; }
 .icon-green { color: var(--accent-green); }
-.icon-red { color: #ef4444; }
+.icon-red { color: #bf2121; }
 .icon-gold { color: #f59e0b; }
 
 .page-header { margin-bottom: 30px; }
@@ -291,6 +291,16 @@ body {
 .account-btn:active {
     transform: scale(0.98);
     box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+}
+
+#theme-toggle i {
+    width: 20px;
+    text-align: center;
+    color: #ffd700;
+}
+
+body.dark-mode #theme-toggle i {
+    color: #ffd700;
 }
 
 
