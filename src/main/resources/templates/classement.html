@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <title>♙ Classement - Chessmate</title>
 
-    <link rel="stylesheet" th:href="@{/css/classement.css}">
+    <!-- Ordre important : Globaux d'abord, puis Spécifique -->
     <link rel="stylesheet" th:href="@{/css/show.css}">
     <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/classement.css}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script defer th:src="@{/js/theme-manager.js}"></script>
 </head>
 <body>
 
@@ -54,59 +56,71 @@
     </div>
 </aside>
 
-<div class="container">
-    <h1> Classement des Joueurs</h1>
+<!-- Wrapper pour décaler le contenu à droite de la sidebar -->
+<div class="main-content-wrapper">
+    <div class="container">
+        <h1> Classement des Joueurs</h1>
 
-    <div class="filter-section">
-        <form th:action="@{/classement}" method="get">
-            <label>Mode :</label>
-            <select name="mode">
-                <option value="TOUS">Tous les modes</option>
-                <option value="PLACEMENT" th:selected="${modeSelectionne == 'PLACEMENT'}">Placement</option>
-                <option value="PUZZLE" th:selected="${modeSelectionne == 'PUZZLE'}">Puzzles</option>
-            </select>
+        <div class="filter-section">
+            <form th:action="@{/classement}" method="get" style="display: flex; align-items: center; gap: 15px; width: 100%;">
 
-            <label>Défi spécifique :</label>
-            <select name="schemaKey">
-                <option value="">-- Aucun --</option>
-                <optgroup label="Placement">
-                    <option value="8-tours|{Tour=8}" th:selected="${schemaKeySelectionne == '8-tours|{Tour=8}'}">8 Tours</option>
-                    <option value="8-dames|{Dame=8}" th:selected="${schemaKeySelectionne == '8-dames|{Dame=8}'}">8 Dames</option>
-                    <option value="16-rois|{Roi=16}" th:selected="${schemaKeySelectionne == '16-rois|{Roi=16}'}">16 Rois</option>
-                    <option value="14-fous|{Fou=14}" th:selected="${schemaKeySelectionne == '14-fous|{Fou=14}'}">14 Fous</option>
-                    <option value="custom" th:selected="${schemaKeySelectionne == 'custom'}">Personnalisé</option>
-                </optgroup>
-            </select>
-            <button type="submit" class="btn-filter">Afficher</button>
-        </form>
-    </div>
+                <div style="flex: 1;">
+                    <label style="display:block; margin-bottom:5px;">Mode :</label>
+                    <!-- Utilisation de la classe standard .form-select -->
+                    <select name="mode" class="form-select">
+                        <option value="TOUS">Tous les modes</option>
+                        <option value="PLACEMENT" th:selected="${modeSelectionne == 'PLACEMENT'}">Placement</option>
+                        <option value="PUZZLE" th:selected="${modeSelectionne == 'PUZZLE'}">Puzzles</option>
+                    </select>
+                </div>
 
-    <table class="leaderboard-table">
-        <thead>
-        <tr>
-            <th>Rang</th>
-            <th>Joueur</th>
-            <th>Points Totaux</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="row, iterStat : ${classement}">
-            <td th:class="${iterStat.count == 1 ? 'rank-1' : (iterStat.count == 2 ? 'rank-2' : (iterStat.count == 3 ? 'rank-3' : ''))}">
-                <i th:if="${iterStat.count == 1}" class="fa fa-medal"></i>
-                <span th:text="${iterStat.count}">1</span>
-            </td>
-            <td th:text="${row.pseudo}">Joueur</td>
-            <td class="points-column" th:text="${row.totalPoints + ' pts'}">0 pts</td>
-        </tr>
+                <div style="flex: 1;">
+                    <label style="display:block; margin-bottom:5px;">Défi spécifique :</label>
+                    <select name="schemaKey" class="form-select">
+                        <option value="">-- Aucun --</option>
+                        <optgroup label="Placement">
+                            <option value="8-tours|{Tour=8}" th:selected="${schemaKeySelectionne == '8-tours|{Tour=8}'}">8 Tours</option>
+                            <option value="8-dames|{Dame=8}" th:selected="${schemaKeySelectionne == '8-dames|{Dame=8}'}">8 Dames</option>
+                            <option value="16-rois|{Roi=16}" th:selected="${schemaKeySelectionne == '16-rois|{Roi=16}'}">16 Rois</option>
+                            <option value="14-fous|{Fou=14}" th:selected="${schemaKeySelectionne == '14-fous|{Fou=14}'}">14 Fous</option>
+                            <option value="custom" th:selected="${schemaKeySelectionne == 'custom'}">Personnalisé</option>
+                        </optgroup>
+                    </select>
+                </div>
 
-        <tr th:if="${#lists.isEmpty(classement)}">
-            <td colspan="3" style="text-align: center;">Aucun score disponible.</td>
-        </tr>
-        </tbody>
-    </table>
 
-    <div class="nav-links">
-        <a href="/home"><i class="fa fa-home"></i> Accueil</a>
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="action-btn btn-primary" style="height: 45px; font-size: 1.0rem;">
+                            <i class="fa fa-filter"></i> Afficher
+                        </button>
+                    </div>
+            </form>
+        </div>
+
+        <table class="leaderboard-table">
+            <thead>
+            <tr>
+                <th>Rang</th>
+                <th>Joueur</th>
+                <th>Points Totaux</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, iterStat : ${classement}">
+                <td th:class="${iterStat.count == 1 ? 'rank-1' : (iterStat.count == 2 ? 'rank-2' : (iterStat.count == 3 ? 'rank-3' : ''))}">
+                    <i th:if="${iterStat.count == 1}" class="fa fa-medal"></i>
+                    <span th:text="${iterStat.count}">1</span>
+                </td>
+                <td th:text="${row.pseudo}">Joueur</td>
+                <td class="points-column" th:text="${row.totalPoints + ' pts'}">0 pts</td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(classement)}">
+                <td colspan="3" style="text-align: center;">Aucun score disponible.</td>
+            </tr>
+            </tbody>
+        </table>
+
     </div>
 </div>
 

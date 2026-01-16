@@ -1,18 +1,24 @@
 /* ============================================================
-   CLASSEMENT - Styles spécifiques (Thème géré par show.css)
+   CLASSEMENT - Styles spécifiques
    ============================================================ */
 
-/* On utilise le main-container pour éviter que le tableau passe sous la sidebar */
+/* Wrapper indispensable pour pousser le contenu à droite de la sidebar */
+.main-content-wrapper {
+    margin-left: 260px; /* Largeur exacte de la sidebar */
+    padding: 40px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
 .container {
     max-width: 900px;
-    margin: 40px auto;
+    margin: 0 auto; /* Centré horizontalement dans le wrapper */
     padding: 30px;
-    background: var(--panel-bg); /* Variable dynamique */
-    color: var(--text-color);    /* Variable dynamique */
+    background: var(--panel-bg);
+    color: var(--text-color);
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
 }
 
 h1 {
@@ -25,33 +31,18 @@ h1 {
 
 /* Section Filtres */
 .filter-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 25px;
     padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--btn-toggle-border);
-    background-color: var(--panel-bg); /* Couleur de fond variable */
-    background-image:
-            linear-gradient(45deg, var(--bg-gradient-3) 25%, transparent 25%, transparent 75%, var(--bg-gradient-3) 75%, var(--bg-gradient-3)),
-            linear-gradient(45deg, var(--bg-gradient-3) 25%, transparent 25%, transparent 75%, var(--bg-gradient-3) 75%, var(--bg-gradient-3));
-    background-size: 40px 40px;
-    background-position: 0 0, 20px 20px;
+    background-color: rgba(0,0,0,0.2); /* Fond légèrement plus sombre */
 }
 
-.filter-section select {
-    padding: 8px 15px;
-    border-radius: 5px;
-    background: var(--select-bg);
-    color: var(--select-text);
-    border: 1px solid var(--select-border);
-}
-
+/* On utilise les classes de show.css (.form-select), mais on ajuste ici si besoin */
 .filter-section label {
     color: var(--text-color);
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Pour détacher le texte du motif */
+    font-size: 0.9em;
 }
 
 /* Tableau Leaderboard */
@@ -78,26 +69,25 @@ h1 {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.rank-1 { color: var(--gold); font-weight: bold; }
-.rank-2 { color: #95a5a6; font-weight: bold; }
-.rank-3 { color: #d35400; font-weight: bold; }
+.rank-1 { color: var(--gold); font-weight: bold; font-size: 1.2em; }
+.rank-2 { color: #bdc3c7; font-weight: bold; font-size: 1.1em; } /* Argent */
+.rank-3 { color: #cd7f32; font-weight: bold; font-size: 1.1em; } /* Bronze */
 
 .points-column {
     font-weight: bold;
     color: var(--gold);
+    text-align: right;
 }
 
 .nav-links {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
-.nav-links a {
+.nav-links a,
+.nav-links a:visited,
+.nav-links a:hover,
+.nav-links a:active {
+    color: white !important; /* Ou var(--text-color) */
     text-decoration: none;
-    color: var(--text-color);
-    margin: 0 10px;
-    opacity: 0.7;
 }
-
-.nav-links a:hover { opacity: 1; color: var(--gold); }
-
