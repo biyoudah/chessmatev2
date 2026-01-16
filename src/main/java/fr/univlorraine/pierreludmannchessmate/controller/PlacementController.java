@@ -206,7 +206,12 @@ public class PlacementController {
             session.setAttribute("flashType", "victory");
         } else {
             Utilisateur user = userOpt.get();
-            String cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise()).toString();
+            String cleSchema;
+            if (game.getModeDeJeu() == "custom") {
+                cleSchema = game.getModeDeJeu();
+            } else {
+                cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise()).toString();
+            }
 
             boolean dejaResolu = scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
 
@@ -220,7 +225,7 @@ public class PlacementController {
 
                 Score s = new Score();
                 s.setUtilisateur(user);
-                s.setMode(game.getModeDeJeu());
+                s.setMode("PLACEMENT");
                 s.setSchemaKey(cleSchema);
                 s.setPoints(total);
                 s.setScore(total);
