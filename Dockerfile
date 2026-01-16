@@ -1,27 +1,16 @@
-# --- ÉTAPE 1 : BUILD (Traduction de ton stage 'build' GitLab) ---
-# On utilise la même image que dans ton .yml
-FROM maven:3.8.6-openjdk-21 AS build
-
-# Définition du répertoire de travail
+# --- ÉTAPE 1 : BUILD ---
+# On utilise une version de Maven compatible avec Java 21 (Eclipse Temurin)
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
-
-# Copie de l'intégralité du projet (Code source + pom.xml)
 COPY . .
-
-# Exécution de la commande de build (on ignore les tests pour accélérer le déploiement sur Render)
+# Compilation du JAR (en ignorant les tests pour Render)
 RUN mvn clean package -DskipTests
 
-# --- ÉTAPE 2 : RUN (Traduction de ton stage 'deploy') ---
-# On utilise une image plus légère pour l'exécution
+# --- ÉTAPE 2 : RUNTIME ---
+# On utilise l'image JRE légère recommandée pour la production
 FROM eclipse-temurin:21-jre-slim
-
 WORKDIR /app
-
-# On récupère uniquement le JAR généré à l'étape précédente (ton artifact)
+# Copie du fichier JAR généré à l'étape précédente
 COPY --from=build /app/target/*.jar app.jar
-
-# Port utilisé par ton application Spring Boot
 EXPOSE 8080
-
-# Commande de lancement
 ENTRYPOINT ["java", "-jar", "app.jar"]
