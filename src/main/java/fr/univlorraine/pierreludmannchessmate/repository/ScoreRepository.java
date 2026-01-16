@@ -22,6 +22,13 @@ public interface ScoreRepository extends CrudRepository<Score, Long> {
 
     long countByUtilisateurAndModeAndReussiTrue(Utilisateur user, String mode);
 
+    @Query("select s.utilisateur.pseudo as pseudo, sum(s.points) as totalPoints " +
+            "from Score s where s.schemaKey = :schemaKey " +
+            "group by s.utilisateur.pseudo " +
+            "order by totalPoints desc, min(s.createdAt) asc")
+    List<ClassementRow> getClassementParSchemaKey(@Param("schemaKey") String schemaKey);
+
+    // Gardez vos méthodes de classement global et par mode
     @Query("select s.utilisateur.pseudo as pseudo, sum(s.points) as totalPoints from Score s group by s.utilisateur.pseudo order by totalPoints desc, min(s.createdAt) asc")
     List<ClassementRow> getClassementGlobal();
 

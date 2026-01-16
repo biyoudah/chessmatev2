@@ -37,17 +37,29 @@ public class ClassementController {
      * @return le nom de la vue Thymeleaf à rendre
      */
     @GetMapping("/classement")
-    public String afficherClassement(@RequestParam(required = false) String mode, Model model) {
+    public String afficherClassement(
+            @RequestParam(required = false) String mode,
+            @RequestParam(required = false) String schemaKey,
+            Model model) {
+
         List<ClassementRow> classement;
 
-        if (mode != null && !mode.isEmpty() && !mode.equals("TOUS")) {
+        // Filtrage par défi spécifique (schemaKey)
+        if (schemaKey != null && !schemaKey.isEmpty() && !schemaKey.equals("TOUT")) {
+            classement = scoreRepository.getClassementParSchemaKey(schemaKey);
+        }
+        // 2. Secondaire : Filtrage par mode général (PLACEMENT ou PUZZLE)
+        else if (mode != null && !mode.isEmpty() && !mode.equals("TOUS")) {
             classement = scoreRepository.getClassementParMode(mode);
-        } else {
+        }
+        // 3. Par défaut : Classement Global
+        else {
             classement = scoreRepository.getClassementGlobal();
         }
 
         model.addAttribute("classement", classement);
         model.addAttribute("modeSelectionne", mode);
+        model.addAttribute("schemaKeySelectionne", schemaKey);
 
         return "classement";
     }
