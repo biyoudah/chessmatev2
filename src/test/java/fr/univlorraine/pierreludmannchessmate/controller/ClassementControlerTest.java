@@ -62,6 +62,7 @@ class ClassementControllerTest {
         List<ClassementRow> mockClassement = List.of();
         when(scoreRepository.getClassementGlobal()).thenReturn(mockClassement);
         String result = controller.afficherClassement("", model);
+        assert result.equals("classement");
         verify(scoreRepository).getClassementGlobal();
     }
 }

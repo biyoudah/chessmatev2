@@ -108,9 +108,10 @@ class HomeControllerTest {
                 .thenReturn(Optional.empty());  // Pseudo non trouvé
 
         String result = controller.accueil(model, authentication);
-
+        assert result.equals("home");
         verify(model).addAttribute(eq("pseudo"), eq("Joueur"));
     }
+
     @Test
     void injecterInfosUtilisateur_UtilisateurConnecte() {
         when(authentication.isAuthenticated()).thenReturn(true);
