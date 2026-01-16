@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 public class JoueurTest {
 
     @Test
-    public void JoueurTest() {
+    public void constructeurJoueurTest() {
         Joueur j  = new Joueur("Joueur",true);
         assertEquals("Joueur",j.getPseudo());
         assertTrue(j.estBlanc());

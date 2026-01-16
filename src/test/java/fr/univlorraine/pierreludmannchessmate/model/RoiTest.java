@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 public class RoiTest {
     @Test
-    void roiTest() {
+    void constructeurRoiTest() {
         Roi d = new Roi(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void RoiTest2() {
+    void constructeurRoiTest2() {
         Roi d = new Roi(false);
         assertFalse(d.estBlanc());
     }

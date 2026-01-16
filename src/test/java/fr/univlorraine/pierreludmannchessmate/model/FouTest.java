@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 class FouTest {
     @Test
-    void FouTest() {
+    void constructeurFouTest() {
         Fou d = new Fou(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void FouTest2() {
+    void constructeurFouTest2() {
         Fou d = new Fou(false);
         assertFalse(d.estBlanc());
     }

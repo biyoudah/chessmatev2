@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 public class PionTest {
     @Test
-    void pionTest() {
+    void constructeurPionTest() {
         Pion d = new Pion(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void PionTest2() {
+    void constructeurPionTest2() {
         Pion d = new Pion(false);
         assertFalse(d.estBlanc());
     }
@@ -27,6 +27,7 @@ public class PionTest {
         Pion d = new Pion(false);
         assertEquals("\u265F",d.dessiner());
     }
+    
 
     @Test
     void deplacementValideTest() {

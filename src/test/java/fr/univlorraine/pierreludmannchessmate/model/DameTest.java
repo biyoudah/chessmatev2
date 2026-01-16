@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 class DameTest {
     @Test
-    void DameTest() {
+    void constructeurDameTest() {
         Dame d = new Dame(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void DameTest2() {
+    void constructeurDameTest2() {
         Dame d = new Dame(false);
         assertFalse(d.estBlanc());
     }

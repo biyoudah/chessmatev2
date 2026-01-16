@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 public class TourTest {
     @Test
-    void tourTest() {
+    void constructeurTourTest() {
         Tour d = new Tour(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void tourTest2() {
+    void constructeurTourTest2() {
         Tour d = new Tour(false);
         assertFalse(d.estBlanc());
     }

@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 
 class CavalierTest {
     @Test
-    void CavalierTest() {
+    void constructeurCavalierTest() {
         Cavalier cavalier = new Cavalier(true);
         assertTrue(cavalier.estBlanc());
     }
 
     @Test
-    void CavalierTest2() {
+    void constructeurCavalierTest2() {
         Cavalier cavalier = new Cavalier(false);
         assertFalse(cavalier.estBlanc());
     }
