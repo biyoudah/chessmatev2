@@ -1,6 +1,6 @@
 :root {
     --main-bg: #f8fafc;
-    --accent-blue: #3b82f6;
+    --accent-blue: #2766cd;
     --accent-green: #22c55e;
     --text-dark: #1e293b;
     --text-muted: #64748b;
@@ -179,3 +179,12 @@ body {
     font-weight: bold;
 }
 
+#theme-toggle i {
+    width: 20px;
+    text-align: center;
+    color: #ffd700;
+}
+
+body.dark-mode #theme-toggle i {
+    color: #ffd700;
+}
