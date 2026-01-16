@@ -1,4 +1,6 @@
-
+/* ============================================================
+   HOME - Variables de Thème (Swap Uni Blanc/Noir)
+   ============================================================ */
 :root {
     --sidebar-bg: #1e293b;
     --main-bg: #f8fafc;
@@ -9,6 +11,57 @@
     --white: #ffffff;
     --border-color: #e2e8f0;
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --home-bg: #f8fafc;
+    --home-text: #1e293b;
+    --home-text-muted: #64748b;
+    --home-border: #e2e8f0;
+    --home-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --panel-bg-home: #ffffff;
+}
+body.dark-mode {
+    /* --- THEME NOIR INTEGRAL (Comme l'image) --- */
+    --home-bg: #000000;           /* Fond noir pur */
+    --sidebar-bg: #000000;        /* Sidebar noire */
+    --panel-bg-home: #0d0d0d;     /* Cartes gris très foncé pour un léger relief */
+
+    --text-dark: #ffffff;         /* Texte principal blanc */
+    --home-text: #ffffff;
+    --home-text-muted: #888888;   /* Texte secondaire gris */
+
+    --home-border: #1a1a1a;       /* Bordures très sombres */
+    --border-color: #1a1a1a;
+
+    --home-shadow: 0 0 20px rgba(0, 0, 0, 1);
+}
+
+/* --- STYLE DES TITRES (STATUS, PARAMETRES, CLASSEMENT) --- */
+body.dark-mode .card-header h3,
+body.dark-mode h4,
+body.dark-mode .section-title {
+    color:#94a3b8;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* --- BOUTONS DANS LES PANNEAUX (Commencer, Indice, Abandonner) --- */
+body.dark-mode .btn-secondary,
+body.dark-mode .action-link {
+    background: #1a1a1a;
+    color: #ffffff;
+    border: 1px solid #333333;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: #252525;
+}
+
+/* --- AJUSTEMENT DU DAMIER DE FOND --- */
+body.dark-mode {
+    /* Si tu as un pattern de damier en background-image,
+       ceci permet de le garder sombre et visible */
+    background-color: #000000;
+    background-blend-mode: overlay;
 }
 
 * {
@@ -17,7 +70,8 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--main-bg);
+    background-color: var(--home-bg);
+    background-image: none;
     color: var(--text-dark);
     margin: 0;
     display: flex;
@@ -115,7 +169,7 @@ body {
 .highlight { color: var(--accent-blue); }
 
 .card {
-    background: var(--white);
+    background: var(--panel-bg-home);
     border-radius: 12px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
@@ -205,44 +259,4 @@ body {
     padding: 30px;
     text-align: center;
     color: var(--text-muted);
-}
-
-
-.gorilla-container {
-    position: fixed;
-    right: -450px;
-    bottom: 30px;
-    width: 350px;
-    background: white;
-    padding: 15px;
-    border-radius: 20px;
-    box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
-    z-index: 9999; /* Toujours au-dessus de tout */
-    border: 3px solid #1e293b;
-    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    text-align: center;
-}
-
-
-.gorilla-container.show-gorilla {
-    right: 30px;
-}
-
-.Prankeur {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
-
-.gorilla-container p {
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #334155;
-    margin: 0;
-}
-
-.gorilla-container p span {
-    color: #3b82f6;
-    font-weight: bold;
 }
