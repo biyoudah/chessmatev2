@@ -109,14 +109,14 @@ class HomeControllerTest {
 
         String result = controller.accueil(model, authentication);
 
-        verify(model).addAttribute(eq("pseudo"), eq("Joueur"));  // Valeur par défaut
+        verify(model).addAttribute(eq("pseudo"), eq("Joueur"));
     }
     @Test
     void injecterInfosUtilisateur_UtilisateurConnecte() {
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("user@test.com");
         when(utilisateurRepository.findByEmail(eq("user@test.com")))
-                .thenReturn(Optional.of(mock(Utilisateur.class)));  // ← Mock simple
+                .thenReturn(Optional.of(mock(Utilisateur.class)));
 
         ReflectionTestUtils.invokeMethod(controller, "injecterInfosUtilisateur", model, authentication);
 
