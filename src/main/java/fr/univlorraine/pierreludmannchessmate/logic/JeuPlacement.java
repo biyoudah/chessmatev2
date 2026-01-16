@@ -93,11 +93,24 @@ public class JeuPlacement extends AbstractChessGame {
 
     @Override
     public boolean retirerPiece(int x, int y) {
-        boolean reussite = super.retirerPiece(x, y);
-        if (reussite) {
-            this.aRetire = true;
+        Case c = echiquier.getCase(x, y);
+
+        // 1. Vérifier si une pièce existe pour récupérer son type avant suppression
+        if (c != null && !c.isEstVide() && c.getPiece() != null) {
+            String typeDeLaPieceRetiree = c.getPiece().getClass().getSimpleName();
+
+            // 2. Appeler la logique parente pour supprimer physiquement la pièce
+            boolean reussite = super.retirerPiece(x, y);
+
+            if (reussite) {
+                this.aRetire = true;
+                // 3. Soustraire le poids correct basé sur le type identifié
+                this.scoreBrut -= poidsPiece(typeDeLaPieceRetiree);
+                this.placementsValides--; // Optionnel : décrémenter aussi le compteur de placements
+                return true;
+            }
         }
-        return reussite;
+        return false;
     }
 
     // --- Logique de score de l'ancienne version ---
