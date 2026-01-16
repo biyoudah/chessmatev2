@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Ajouter Puzzle</title>
+    <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" th:href="@{/css/ajoutPuzzle.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script defer th:src="@{/js/theme-manager.js}"></script>
+</head>
+<body id="page-body">
+
+<aside class="sidebar" th:replace="~{jeuPuzzle :: aside}"></aside>
+
+<div class="admin-main-container">
+    <div class="admin-card">
+        <div class="admin-header">
+            <i class="fa fa-database" style="color: var(--gold); font-size: 1.5rem;"></i>
+            <h2 class="gold-text">CONFIGURATION NOUVEAU PUZZLE</h2>
+        </div>
+
+        <form th:action="@{/puzzle/admin/add}" method="post">
+            <div class="admin-grid">
+                <div class="form-group full-width">
+                    <label>Nom de l'ouverture</label>
+                    <input name="openingName" placeholder="ex: Queen's Gambit" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Position FEN</label>
+                    <input name="fen" placeholder="rnbqkbnr/pppp1ppp/..." required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Liste des coups (UCI)</label>
+                    <input name="moves" placeholder="d8h4 e1e2..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating (Difficulté)</label>
+                    <input name="rating" type="number" value="600" required>
+                </div>
+                <div class="form-group">
+                    <label>Confiance Rating</label>
+                    <input name="ratingConfidence" type="number" value="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Popularité</label>
+                    <input name="popularity" type="number" value="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de parties</label>
+                    <input name="nbPlays" type="number" value="1000" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Thèmes (tags)</label>
+                    <input name="themes" placeholder="mateIn1 short black" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>URL de la partie (Lichess)</label>
+                    <input name="gameUrl" placeholder="https://lichess.org/..." required>
+                </div>
+            </div>
+
+            <div class="admin-actions">
+                <a th:href="@{/puzzle}" class="btn-cancel">Annuler</a>
+                <button type="submit" class="btn-save">
+                    <i class="fa fa-save"></i> Enregistrer dans le CSV
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+</body>
+</html>

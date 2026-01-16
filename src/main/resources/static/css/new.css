@@ -1,61 +1,36 @@
-/*
- * Styles du Contenu Principal (Main Content)
- *
- * Ce fichier gère la zone centrale de l'application, située à droite de la sidebar.
- * Il contient l'interface de démarrage de partie (titre, sélection de mode, lancement).
- */
 
-/* =========================================
-   Mise en page du Conteneur Central
-   ========================================= */
-
-/*
- * Zone principale de contenu.
- *
- * Utilise 'flex: 1' pour occuper tout l'espace restant à côté de la sidebar.
- * Le contenu est centré verticalement et horizontalement pour attirer l'attention.
- */
 .main-content {
-    flex: 1;                /* Occupe l'espace restant dans le conteneur parent (flex) */
+    flex: 1;
     display: flex;
-    flex-direction: column; /* Empilement vertical des éléments */
-    justify-content: center;/* Centrage vertical */
-    align-items: center;    /* Centrage horizontal */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     padding: 32px 48px;
-    box-sizing: border-box; /* Inclut le padding dans le calcul des dimensions */
+    box-sizing: border-box;
 }
 
-/* --- Typographie --- */
 
-/* Titre principal de la section (ex: "Nouvelle Partie") */
 .main-content h1 {
     margin: 0 0 10px;
     font-size: 32px;
 }
 
-/* Paragraphe introductif ou sous-titre */
 .main-content p {
     margin: 0 0 20px;
     font-size: 15px;
 }
 
-/* =========================================
-   Formulaire de Sélection de Jeu
-   ========================================= */
 
-/* Espacement du formulaire par rapport au texte */
+
 #new-game-form {
     margin-top: 16px;
 }
 
-/*
- * Conteneur des boutons de modes.
- * Aligne les options de jeu (ex: Joueur vs Joueur, Joueur vs IA) sur une ligne.
- */
+
 .modes-container {
     display: flex;
-    gap: 12px;             /* Espace entre les boutons */
+    gap: 12px;
     margin-bottom: 10px;
 }
 
@@ -74,34 +49,27 @@
     transition: background 0.2s, transform 0.1s, box-shadow 0.2s; /* Animation fluide */
 }
 
-/* Effet de survol : léger soulèvement et changement de couleur */
+
 .game-btn:hover {
     background: #1e3f5a;
-    transform: translateY(-1px); /* Effet de "levée" */
+    transform: translateY(-1px);
 }
 
-/*
- * État actif (Mode sélectionné).
- * Indique visuellement quel mode est actuellement choisi par l'utilisateur.
- */
 .game-btn.active-mode {
     background: #03224c;
     color: #ffffff;
-    box-shadow: 0 0 0 2px #1e3f5a; /* Renforce la bordure pour l'emphase */
+    box-shadow: 0 0 0 2px #1e3f5a;
 }
 
-/* Description textuelle du mode choisi (sous les boutons) */
+
 .mode-info {
     font-size: 0.95rem;
-    color: #dddddd;        /* Gris clair pour le texte secondaire */
+    color: #dddddd;
     margin: 4px 0 18px;
 }
 
-/* =========================================
-   Bouton d'Action Principal
-   ========================================= */
 
-/* Bouton "Commencer la partie" */
+
 .start-btn {
     display: inline-block;
     margin-top: 4px;
@@ -116,49 +84,42 @@
     transition: background 0.15s;
 }
 
-/* Assure la cohérence visuelle au survol */
+
 .start-btn:hover {
-    background: #03224c; /* Peut être ajusté pour un feedback visuel plus fort si nécessaire */
+    background: #03224c;
 }
 
-/* =========================================
-   Responsive Design (Mobiles)
-   ========================================= */
 
-/*
- * Adaptation pour écrans étroits (Smartphones).
- * Transforme l'alignement horizontal en empilement vertical pour faciliter le toucher.
- */
 @media screen and (max-width: 600px) {
-    /* Ajustement du conteneur principal pour optimiser l'espace */
+
     .main-content {
-        padding: 20px 15px;   /* Marges réduites */
+        padding: 20px 15px;
         width: 100%;
-        margin-top: 0;        /* Colle au menu du haut (Topbar) */
+        margin-top: 0;
     }
 
-    /* Transformation des boutons de mode en liste verticale */
+
     .modes-container {
-        flex-direction: column; /* Colonne au lieu de ligne */
+        flex-direction: column;
         width: 100%;
         gap: 8px;
     }
 
-    /* Les boutons s'élargissent pour offrir une zone de clic confortable (doigt) */
+
     .game-btn {
         width: 100%;
         padding: 14px;
         box-sizing: border-box;
     }
 
-    /* Le bouton "Commencer" devient également pleine largeur */
+
     .start-btn {
         width: 100%;
         margin-top: 15px;
         padding: 15px;
     }
 
-    /* Réduction de la taille du titre pour éviter qu'il ne domine trop l'écran */
+
     .main-content h1 {
         font-size: 24px;
     }

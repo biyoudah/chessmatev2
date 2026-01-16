@@ -12,6 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Contrôleur de la page d'accueil (Dashboard).
+ * <p>
+ * Expose les routes racine et "/home" permettant d'afficher le tableau de bord
+ * avec les informations publiques (articles récents, tournois en direct) et
+ * les informations de session (pseudo, statut de connexion).
+ */
 @Controller
 public class HomeController {
 
@@ -19,6 +26,13 @@ public class HomeController {
     private final ScoreRepository scoreRepository;
     private final ChessApiService chessApiService; // Ajout du service
 
+    /**
+     * Constructeur avec injection des dépendances nécessaires.
+     *
+     * @param utilisateurRepository accès aux utilisateurs (récupération du pseudo)
+     * @param scoreRepository accès aux scores (réutilisable dans le dashboard)
+     * @param chessApiService service pour récupérer des contenus récents (API externe)
+     */
     public HomeController(UtilisateurRepository utilisateurRepository,
                           ScoreRepository scoreRepository,
                           ChessApiService chessApiService) {
@@ -28,7 +42,9 @@ public class HomeController {
     }
 
     /**
-     * Redirection automatique de la racine vers /home.
+     * Redirige la racine de l'application vers la page d'accueil.
+     *
+     * @return une redirection HTTP vers la route "/home"
      */
     @GetMapping("/")
     public String racine() {
@@ -36,14 +52,17 @@ public class HomeController {
     }
 
     /**
-     * Affiche la page d'accueil (Dashboard).
-     * C'est ici que l'utilisateur choisit entre "Bac à sable" et "JeuPuzzle".
+     * Affiche la page d'accueil (dashboard) avec le contexte utilisateur et
+     * des informations externes (articles, tournois en direct).
+     *
+     * @param model modèle passé à la vue Thymeleaf
+     * @param auth informations d'authentification de l'utilisateur courant
+     * @return le nom de la vue Thymeleaf à rendre
      */
     @GetMapping("/home")
     public String accueil(Model model, Authentication auth) {
         injecterInfosUtilisateur(model, auth);
 
-        // Ajoute ces deux lignes :
         model.addAttribute("articles", chessApiService.getRecentArticles());
         model.addAttribute("tournaments", chessApiService.getLiveTournaments()); // <--- IMPORTANT
 
@@ -51,8 +70,11 @@ public class HomeController {
     }
 
     /**
-     * Méthode utilitaire pour vérifier si l'utilisateur est connecté
-     * et passer son pseudo à la vue.
+     * Injecte dans le modèle des informations de session: statut de connexion
+     * et pseudo de l'utilisateur si disponible.
+     *
+     * @param model modèle de la vue
+     * @param authentication objet d'authentification Spring Security
      */
     private void injecterInfosUtilisateur(Model model, Authentication authentication) {
         boolean isConnected = authentication != null

@@ -165,19 +165,35 @@ function playSFX(type) {
     }
 }
 
-async function changeMode(selectElem) {
-    if (appState.isLoading) return;
-    const val = selectElem.value;
-    const csrf = document.querySelector('input[name="_csrf"]').value;
-    const formData = new FormData();
-    formData.append('_csrf', csrf);
-    formData.append('modeDeJeu', val);
+function changeMode(select) {
+    const mode = select.value;
+    const customPanel = document.getElementById('customConfigPanel');
 
-    appState.isLoading = true;
-    try {
-        const res = await fetch('/placement/changeMode', { method: 'POST', body: formData });
-        if (res.ok) await updatePageContent(res);
-    } catch (e) {} finally { appState.isLoading = false; }
+    if (mode === 'custom') {
+        customPanel.style.display = 'block';
+    } else {
+        customPanel.style.display = 'none';
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/placement/changeMode';
+
+        const inputMode = document.createElement('input');
+        inputMode.type = 'hidden';
+        inputMode.name = 'modeDeJeu';
+        inputMode.value = mode;
+        form.appendChild(inputMode);
+
+        const csrfToken = document.querySelector('input[name="_csrf"]').value;
+        const inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = '_csrf';
+        inputCsrf.value = csrfToken;
+        form.appendChild(inputCsrf);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 
 function setModePlace() { appState.mode = 'place'; localStorage.setItem('chessMode', 'place'); updateVisuals(); }

@@ -21,7 +21,6 @@ public class JeuPlacement extends AbstractChessGame {
     @Getter @Setter
     private boolean scoreEnregistre = false;
 
-    // --- Attributs de l'ancienne version pour le score ---
     @Getter private int erreurs = 0;
     @Getter private int placementsValides = 0;
     @Getter private int scoreBrut = 0;
@@ -43,9 +42,7 @@ public class JeuPlacement extends AbstractChessGame {
         this.scoreEnregistre = false;
     }
 
-    /**
-     * Logique de placement de l'ancienne version adaptée.
-     */
+
     public String placerPieceJoueur(int x, int y, String typePiece, boolean estBlanc) {
         Case c = echiquier.getCase(x, y);
         if (!c.isEstVide()) {
@@ -96,11 +93,24 @@ public class JeuPlacement extends AbstractChessGame {
 
     @Override
     public boolean retirerPiece(int x, int y) {
-        boolean reussite = super.retirerPiece(x, y);
-        if (reussite) {
-            this.aRetire = true;
+        Case c = echiquier.getCase(x, y);
+
+        // 1. Vérifier si une pièce existe pour récupérer son type avant suppression
+        if (c != null && !c.isEstVide() && c.getPiece() != null) {
+            String typeDeLaPieceRetiree = c.getPiece().getClass().getSimpleName();
+
+            // 2. Appeler la logique parente pour supprimer physiquement la pièce
+            boolean reussite = super.retirerPiece(x, y);
+
+            if (reussite) {
+                this.aRetire = true;
+                // 3. Soustraire le poids correct basé sur le type identifié
+                this.scoreBrut -= poidsPiece(typeDeLaPieceRetiree);
+                this.placementsValides--; // Optionnel : décrémenter aussi le compteur de placements
+                return true;
+            }
         }
-        return reussite;
+        return false;
     }
 
     // --- Logique de score de l'ancienne version ---
@@ -186,11 +196,9 @@ public class JeuPlacement extends AbstractChessGame {
                     int dy = Math.abs(j - targetY);
                     String coord = (char)('A' + i) + "" + (j + 1);
 
-                    // Cas 1 : La pièce sur le plateau menace la nouvelle case
                     if (attaque(typeExistante, dx, dy)) {
                         return "Le " + typeExistante + " en " + coord + " menace cette case !";
                     }
-                    // Cas 2 : La nouvelle pièce menacerait une pièce existante
                     if (attaque(typeNouvellePiece, dx, dy)) {
                         return "Placer un " + typeNouvellePiece + " ici capturerait le " + typeExistante + " en " + coord + " !";
                     }

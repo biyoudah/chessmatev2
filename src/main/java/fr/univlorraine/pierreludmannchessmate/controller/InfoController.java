@@ -11,21 +11,45 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Contrôleur de la page d'informations.
+ * <p>
+ * Fournit la route "/infos" affichant une page statique enrichie du contexte
+ * de session (statut de connexion et pseudo si disponible).
+ */
 @Controller
 public class InfoController {
 
     private final UtilisateurRepository utilisateurRepository;
 
+    /**
+     * Constructeur avec injection du dépôt utilisateur.
+     *
+     * @param utilisateurRepository accès aux utilisateurs pour récupérer le pseudo
+     */
     public InfoController(UtilisateurRepository utilisateurRepository) {
         this.utilisateurRepository = utilisateurRepository;
     }
 
+    /**
+     * Affiche la page d'informations.
+     *
+     * @param model modèle pour la vue Thymeleaf
+     * @param auth informations d'authentification de l'utilisateur courant
+     * @return le nom de la vue à rendre
+     */
     @GetMapping("/infos")
     public String infos(Model model, Authentication auth) {
         injecterInfosUtilisateur(model, auth);
         return "infos";
     }
 
+    /**
+     * Injecte dans le modèle le statut de connexion et le pseudo utilisateur.
+     *
+     * @param model modèle de la vue
+     * @param authentication objet Spring Security décrivant l'utilisateur courant
+     */
     private void injecterInfosUtilisateur(Model model, Authentication authentication) {
         boolean isConnected = authentication != null
                 && authentication.isAuthenticated()

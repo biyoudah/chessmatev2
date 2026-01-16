@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Classement - ChessMate</title>
+    <link rel="stylesheet" th:href="@{/css/classement.css}">
+    <link rel="stylesheet" th:href="@{/css/show.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo">
+        <a th:href="@{/}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+            <img th:src="@{/img/ChessMate.png}" alt="Chessmate" style="width: 38px;">
+            <span>Chessmate</span>
+        </a>
+    </div>
+
+    <nav class="nav-menu">
+        <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+        <a href="/puzzle"><i class="fa fa-puzzle-piece"></i> Problèmes</a>
+        <a href="/infos"><i class="fa fa-info-circle"></i> Infos</a>
+        <a href="/classement"><i class="fa fa-user-friends"></i> Classement</a>
+        <a href="#" id="plus-link"><i class="fa fa-ellipsis-h"></i> Plus</a>
+        <a href="#" id="theme-toggle">
+            <i class="fa fa-sun" id="theme-icon"></i>
+            <span id="theme-text">Mode Clair</span>
+        </a>
+    </nav>
+
+
+</aside>
+
+<div class="container">
+    <h1> Classement des Joueurs</h1>
+
+    <div class="filter-section">
+        <form th:action="@{/classement}" method="get">
+            <label for="mode">Type de jeu :</label>
+            <select name="mode" id="mode">
+                <option value="TOUS" th:selected="${modeSelectionne == 'TOUS' || modeSelectionne == null}">Tous les modes</option>
+                <option value="DAME" th:selected="${modeSelectionne == 'DAME'}">Jeu de la Dame</option>
+                <option value="MAT_3" th:selected="${modeSelectionne == 'MAT_3'}">Mat en 3 coups</option>
+            </select>
+            <button type="submit" class="btn-filter">Afficher</button>
+        </form>
+    </div>
+
+    <table class="leaderboard-table">
+        <thead>
+        <tr>
+            <th>Rang</th>
+            <th>Joueur</th>
+            <th>Points Totaux</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row, iterStat : ${classement}">
+            <td th:class="${iterStat.count == 1 ? 'rank-1' : (iterStat.count == 2 ? 'rank-2' : (iterStat.count == 3 ? 'rank-3' : ''))}">
+                <i th:if="${iterStat.count == 1}" class="fa fa-medal"></i>
+                <span th:text="${iterStat.count}">1</span>
+            </td>
+            <td th:text="${row.pseudo}">Joueur</td>
+            <td class="points-column" th:text="${row.totalPoints + ' pts'}">0 pts</td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(classement)}">
+            <td colspan="3" style="text-align: center;">Aucun score disponible.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="nav-links">
+        <a href="/home"><i class="fa fa-home"></i> Accueil</a>
+        <a href="/placement"><i class="fa fa-chess-board"></i> Placement</a>
+    </div>
+</div>
+
+</body>
+</html>
