@@ -1,8 +1,4 @@
-/* ============================================================
-   HOME - Variables de Thème (Swap Uni Blanc/Noir)
-   ============================================================ */
 :root {
-    --sidebar-bg: #1e293b;
     --main-bg: #f8fafc;
     --accent-blue: #3b82f6;
     --accent-green: #22c55e;
@@ -11,121 +7,16 @@
     --white: #ffffff;
     --border-color: #e2e8f0;
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --home-bg: #f8fafc;
-    --home-text: #1e293b;
-    --home-text-muted: #64748b;
-    --home-border: #e2e8f0;
-    --home-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --panel-bg-home: #ffffff;
-}
-body.dark-mode {
-    /* --- THEME NOIR INTEGRAL (Comme l'image) --- */
-    --home-bg: #000000;           /* Fond noir pur */
-    --sidebar-bg: #000000;        /* Sidebar noire */
-    --panel-bg-home: #0d0d0d;     /* Cartes gris très foncé pour un léger relief */
-
-    --text-dark: #ffffff;         /* Texte principal blanc */
-    --home-text: #ffffff;
-    --home-text-muted: #888888;   /* Texte secondaire gris */
-
-    --home-border: #1a1a1a;       /* Bordures très sombres */
-    --border-color: #1a1a1a;
-
-    --home-shadow: 0 0 20px rgba(0, 0, 0, 1);
 }
 
-/* --- STYLE DES TITRES (STATUS, PARAMETRES, CLASSEMENT) --- */
-body.dark-mode .card-header h3,
-body.dark-mode h4,
-body.dark-mode .section-title {
-    color:#94a3b8;
-    text-transform: uppercase;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-/* --- BOUTONS DANS LES PANNEAUX (Commencer, Indice, Abandonner) --- */
-body.dark-mode .btn-secondary,
-body.dark-mode .action-link {
-    background: #1a1a1a;
-    color: #ffffff;
-    border: 1px solid #333333;
-}
-
-body.dark-mode .btn-secondary:hover {
-    background: #252525;
-}
-
-/* --- AJUSTEMENT DU DAMIER DE FOND --- */
-body.dark-mode {
-    /* Si tu as un pattern de damier en background-image,
-       ceci permet de le garder sombre et visible */
-    background-color: #000000;
-    background-blend-mode: overlay;
-}
-
-* {
-    box-sizing: border-box;
-}
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--home-bg);
-    background-image: none;
+    background-color: var(--main-bg);
     color: var(--text-dark);
     margin: 0;
     display: flex;
     min-height: 100vh;
-}
-
-/* SIDEBAR */
-.sidebar {
-    width: 260px;
-    background-color: var(--sidebar-bg);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-    z-index: 100;
-}
-
-.logo {
-    padding: 30px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.logo img { width: 38px; }
-.logo span { font-size: 1.5rem; font-weight: 700; }
-
-.nav-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
-}
-
-.nav-menu a {
-    padding: 14px 24px;
-    color: #cbd5e1;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-weight: 500;
-    transition: 0.2s;
-}
-
-.nav-menu a:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding-left: 30px;
-}
-
-.auth-section {
-    margin-top: auto;
-    padding: 20px;
 }
 
 .btn {
@@ -145,19 +36,6 @@ body {
 .btn-secondary { background: #475569; color: white; box-shadow: 0 2px 0 #2f3946; font-size: 0.9rem;}
 .btn-secondary:hover { background: #404b5d;}
 
-.user-profile {
-    text-align: center;
-    border-top: 1px solid #334155;
-    padding-top: 12px;
-}
-
-.user-profile p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
-
-.user-profile form {
-    margin-top: 12px;
-    display: block !important;
-}
-
 
 .main-content {
     margin-left: 260px;
@@ -169,7 +47,7 @@ body {
 .highlight { color: var(--accent-blue); }
 
 .card {
-    background: var(--panel-bg-home);
+    background: var(--white);
     border-radius: 12px;
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
@@ -259,4 +137,44 @@ body {
     padding: 30px;
     text-align: center;
     color: var(--text-muted);
+}
+
+
+.gorilla-container {
+    position: fixed;
+    right: -450px;
+    bottom: 30px;
+    width: 350px;
+    background: white;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
+    z-index: 9999; /* Toujours au-dessus de tout */
+    border: 3px solid #1e293b;
+    transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-align: center;
+}
+
+
+.gorilla-container.show-gorilla {
+    right: 30px;
+}
+
+.Prankeur {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.gorilla-container p {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #334155;
+    margin: 0;
+}
+
+.gorilla-container p span {
+    color: #3b82f6;
+    font-weight: bold;
 }

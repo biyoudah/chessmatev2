@@ -13,6 +13,24 @@
     --btn-secondary-shadow: #2f3946;
 }
 
+.sidebar, .sidebar * {
+    box-sizing: border-box;
+}
+
+body.dark-mode {
+    --sidebar-bg: #000000;       /* Noir pur en mode sombre */
+    --text-color: #e0e0e0;       /* Texte légèrement grisé */
+
+    /* Si vous voulez que les boutons changent aussi en mode sombre */
+    --btn-primary-bg: #008d00;
+    --btn-primary-shadow: #005600;
+    --btn-primary-hover: #057905;
+
+    --btn-secondary-bg: #3a4656;
+    --btn-secondary-shadow: #252c37;
+    --btn-secondary-hover: #2c3440;
+}
+
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
@@ -23,8 +41,16 @@
     top: 0; left: 0; height: 100vh;
     z-index: 1000;
     border-right: 1px solid #334155;
-    font-family: 'Inter', sans-serif;
     transition: background-color 0.3s ease;
+    font-family: 'Segoe UI', sans-serif;/* Déjà là normalement */
+    line-height: 1.5; /* Forcez une hauteur de ligne fixe */
+    font-size: 0.9rem; /* Déjà là, vérifiez que c'est bien appliqué */
+    box-sizing: border-box;
+}
+
+.auth-buttons a {
+    text-decoration: none;
+    display: block; /* Important pour que le lien prenne toute la largeur */
 }
 
 .logo {
@@ -77,7 +103,7 @@
     border: none;
     border-radius: 8px;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
