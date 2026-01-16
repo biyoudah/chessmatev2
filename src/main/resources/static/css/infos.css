@@ -44,7 +44,6 @@ body {
     max-width: 1100px;
 }
 
-.highlight { color: var(--accent-blue); }
 
 .card {
     background: var(--white);
@@ -218,8 +217,7 @@ body {
 .mode-box:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
 
 .mode-title { display: block; margin-bottom: 12px; font-size: 1rem; }
-.mode-title.classic { color: var(--accent-blue); }
-.mode-title.custom { color: #f59e0b; }
+
 
 .classic-list { padding-left: 20px; margin: 0; line-height: 1.8; }
 .custom-desc { margin: 0; font-size: 0.95rem; line-height: 1.6; }
@@ -269,6 +267,32 @@ body {
 .account-box p { font-size: 0.95rem; line-height: 1.5; color: #1e3a8a; margin-bottom: 10px; }
 .account-box ul { padding-left: 20px; font-size: 0.9rem; color: #1e3a8a; margin-bottom: 0; }
 .account-box li { margin-bottom: 5px; }
+
+/* Bouton d'inscription dans la boîte bleue */
+.account-btn {
+    display: inline-block;
+    background-color: var(--accent-blue); /* Bleu accordé au thème */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3); /* Ombre bleue légère */
+}
+
+.account-btn:hover {
+    background-color: #2563eb; /* Bleu un peu plus foncé au survol */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.4);
+}
+
+.account-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+}
+
 
 /* Responsive : Empiler sur mobile */
 @media (max-width: 768px) {
