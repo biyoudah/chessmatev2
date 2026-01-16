@@ -1,8 +1,6 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 import static org.junit.jupiter.api.Assertions.*;
 
-import fr.univlorraine.pierreludmannchessmate.model.Case;
-import fr.univlorraine.pierreludmannchessmate.model.Dame;
 import org.junit.jupiter.api.Test;
 
 public class CaseTest {

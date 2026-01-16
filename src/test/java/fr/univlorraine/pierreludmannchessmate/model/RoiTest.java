@@ -1,43 +1,42 @@
-package fr.univlorraine.pierreludmannchessmate;
+package fr.univlorraine.pierreludmannchessmate.model;
 import static org.junit.jupiter.api.Assertions.*;
 
-import fr.univlorraine.pierreludmannchessmate.model.Pion;
 import org.junit.jupiter.api.Test;
 
-public class PionTest {
+public class RoiTest {
     @Test
-    void pionTest() {
-        Pion d = new Pion(true);
+    void roiTest() {
+        Roi d = new Roi(true);
         assertTrue(d.estBlanc());
     }
 
     @Test
-    void PionTest2() {
-        Pion d = new Pion(false);
+    void RoiTest2() {
+        Roi d = new Roi(false);
         assertFalse(d.estBlanc());
     }
 
     @Test
     void dessinerTest() {
-        Pion d= new Pion(true);
-        assertEquals("\u2659",d.dessiner());
+        Roi d= new Roi(true);
+        assertEquals("\u2654",d.dessiner());
     }
 
     @Test
     void dessinerTest2() {
-        Pion d = new Pion(false);
-        assertEquals("\u265F",d.dessiner());
+        Roi d = new Roi(false);
+        assertEquals("\u265A",d.dessiner());
     }
 
     @Test
     void deplacementValideTest() {
-        Pion d = new Pion(false);
+        Roi d = new Roi(false);
         assertTrue(d.deplacementValide(0,0,1,0));
     }
 
     @Test
     void deplacementValideTest2() {
-        Pion d = new Pion(false);
+        Roi d = new Roi(false);
         assertFalse(d.deplacementValide(0,0,1,2));
     }
 }
