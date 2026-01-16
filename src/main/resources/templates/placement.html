@@ -126,6 +126,18 @@
                     <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
                     <span>Roi du perfect</span>
                 </div>
+                <div class="trophy-item" th:classappend="${trophees['FouDuPersonnalise']} ? 'unlocked' : 'locked'" title="5 Schémas Personnalisés Réussis">
+                    <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
+                    <span>Fou du Personnalise</span>
+                </div>
+                <div class="trophy-item" th:classappend="${trophees['CavalierDuTemps']} ? 'unlocked' : 'locked'" title="Plus d'une heure de jeu">
+                    <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
+                    <span>Cavalier du Temps</span>
+                </div>
+                <div class="trophy-item" th:classappend="${trophees['ChessMate']} ? 'unlocked' : 'locked'" title="Devenir un ChessMate">
+                    <img th:src="@{/img/roiduperfect-removebg-preview.png}" class="trophy-img">
+                    <span>ChessMate</span>
+                </div>
             </div>
         </div>
     </div>
@@ -180,11 +192,11 @@
             <p>Joueur : <strong th:text="${pseudo}">Invité</strong></p>
             <h4 class="gold-text">OBJECTIFS :</h4>
             <ul class="obj-list" th:if="${not #maps.isEmpty(configRequise)}">
-                <li th:each="obj : ${configRequise}">
+                <li th:each="obj : ${configRequise}" th:if="${obj.value > 0}">
                     <span th:text="${obj.key}">Type</span> :
                     <span th:class="${compteActuel[obj.key] == obj.value} ? 'count-ok' : 'count-nok'">
-                        <span th:text="${compteActuel[obj.key] ?: 0}">0</span> / <span th:text="${obj.value}">8</span>
-                    </span>
+            <span th:text="${compteActuel[obj.key] ?: 0}">0</span> / <span th:text="${obj.value}">8</span>
+            </span>
                 </li>
             </ul>
             <div class="score-info">
@@ -197,7 +209,38 @@
                 <option value="8-tours" th:selected="${jeuPlacement.modeDeJeu == '8-tours'}">8 Tours</option>
                 <option value="14-fous" th:selected="${jeuPlacement.modeDeJeu == '14-fous'}">14 Fous</option>
                 <option value="16-rois" th:selected="${jeuPlacement.modeDeJeu == '16-rois'}">16 Rois</option>
+                <option value="custom" th:selected="${jeuPlacement.modeDeJeu == 'custom'}">Personnalisé</option>
             </select>
+            <div id="customConfigPanel" th:style="${jeuPlacement.modeDeJeu == 'custom' ? 'display:block' : 'display:none'}"
+                 style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+
+                <h4 class="gold-text" style="font-size: 0.9em;">CONFIGURER LES PIÈCES</h4>
+                <form th:action="@{/placement/customConfig}" method="post" class="custom-form">
+                    <div class="custom-input-group">
+                        <label>♕ Dames</label>
+                        <input type="number" name="c_dame" min="0" max="32" value="0" class="input-mini">
+                    </div>
+                    <div class="custom-input-group">
+                        <label>♖ Tours</label>
+                        <input type="number" name="c_tour" min="0" max="32" value="0" class="input-mini">
+                    </div>
+                    <div class="custom-input-group">
+                        <label>♗ Fous</label>
+                        <input type="number" name="c_fou" min="0" max="32" value="0" class="input-mini">
+                    </div>
+                    <div class="custom-input-group">
+                        <label>♘ Cavaliers</label>
+                        <input type="number" name="c_cavalier" min="0" max="32" value="0" class="input-mini">
+                    </div>
+                    <div class="custom-input-group">
+                        <label>♔ Rois</label>
+                        <input type="number" name="c_roi" min="0" max="32" value="0" class="input-mini">
+                    </div>
+                    <button type="submit" class="action-btn btn-primary" style="width:100%; margin-top:10px;">
+                        Appliquer
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="dark-panel leaderboard-panel">

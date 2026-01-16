@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * Contrôleur du mode « Placement ».
+ * <p>
+ * Permet de placer/retirer des pièces pour résoudre des défis de composition
+ * (ex: 8 dames) avec validation métier et gestion de feedback utilisateur.
+ * Les informations de session (pseudo, statut) sont injectées pour la vue.
+ */
 @Controller
 @RequestMapping("/placement")
 @SessionAttributes("jeuPlacement")
@@ -22,16 +29,34 @@ public class PlacementController {
     private final UtilisateurRepository utilisateurRepository;
     private final ScoreRepository scoreRepository;
 
+    /**
+     * Constructeur avec injection des dépôts requis.
+     * @param utilisateurRepository accès utilisateur pour récupérer le pseudo
+     * @param scoreRepository accès aux scores pour l'enregistrement des résultats
+     */
     public PlacementController(UtilisateurRepository utilisateurRepository, ScoreRepository scoreRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.scoreRepository = scoreRepository;
     }
 
+    /**
+     * Initialise l'instance de jeu en session si nécessaire.
+     * @return une instance de {@link JeuPlacement}
+     */
     @ModelAttribute("jeuPlacement")
     public JeuPlacement initPlacement() {
         return new JeuPlacement();
     }
 
+    /**
+     * Affiche la page du mode Placement et prépare les messages flash et le modèle.
+     *
+     * @param game jeu en session
+     * @param model modèle de la vue
+     * @param auth authentification courante
+     * @param session session HTTP (messages flash, chronométrage)
+     * @return le nom de la vue "placement"
+     */
     @GetMapping
     public String afficher(@ModelAttribute("jeuPlacement") JeuPlacement game, Model model, Authentication auth, HttpSession session) {
         injecterInfosUtilisateur(model, auth);
@@ -53,10 +78,27 @@ public class PlacementController {
             }
         }
 
+        if (session.getAttribute("startTime") == null) {
+            session.setAttribute("startTime", System.currentTimeMillis());
+        }
+
         preparerModele(model, game, auth);
         return "placement";
     }
 
+    /**
+     * Action principale de placement/retrait de pièce selon l'état de la case.
+     * Déclenche la validation du puzzle et la gestion des messages utilisateur.
+     *
+     * @param x colonne cliquée (0..7)
+     * @param y ligne cliquée (0..7)
+     * @param type type de pièce à placer (Roi, Dame, Tour, Fou, Cavalier, Pion)
+     * @param isWhite couleur de la pièce
+     * @param game instance de jeu en session
+     * @param session session HTTP pour les messages flash et le temps
+     * @param auth authentification courante
+     * @return redirection vers "/placement"
+     */
     @PostMapping("/action")
     public String action(@RequestParam int x, @RequestParam int y,
                          @RequestParam(required = false) String type,
@@ -92,12 +134,23 @@ public class PlacementController {
         return "redirect:/placement";
     }
 
+    /**
+     * Réinitialise le plateau et l'état du jeu de placement.
+     * @param game jeu en session
+     * @return redirection vers "/placement"
+     */
     @PostMapping("/reset")
     public String reset(@ModelAttribute("jeuPlacement") JeuPlacement game) {
         game.reinitialiser();
         return "redirect:/placement";
     }
 
+    /**
+     * Change la configuration du défi (ex: 8 dames, 8 tours...).
+     * @param modeDeJeu libellé du mode
+     * @param game jeu en session
+     * @return redirection vers "/placement"
+     */
     @PostMapping("/changeMode")
     public String changeMode(@RequestParam String modeDeJeu, @ModelAttribute("jeuPlacement") JeuPlacement game) {
         Map<String, Integer> config = new HashMap<>();
@@ -143,99 +196,60 @@ public class PlacementController {
     private void traiterVictoire(JeuPlacement game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
 
-        // 1. IMPORTANT : On sauvegarde l'état Perfect AVANT de calculer ou reset
         boolean isPerfect = game.estTentativeParfaite();
-
-        int baseScore = game.calculerScoreFinalSansBonus();
         Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
 
-        String messageBase;
+
 
         if (userOpt.isEmpty()) {
-            messageBase = "🏆 Réussi ! " + baseScore + " pts (Connectez-vous pour enregistrer)";
+            session.setAttribute("flashMessage", "🏆 Réussi ! (Connectez-vous pour gagner des points)");
+            session.setAttribute("flashType", "victory");
         } else {
             Utilisateur user = userOpt.get();
             String cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise()).toString();
-            boolean premiereFois = !scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
 
-            int bonus = premiereFois ? Math.max(5, (int) Math.round(baseScore * 0.3)) : 0;
-            int total = baseScore + bonus;
+            boolean dejaResolu = scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
 
-            Score s = new Score();
-            s.setUtilisateur(user);
-            s.setMode(game.getModeDeJeu());
-            s.setSchemaKey(cleSchema);
-            s.setPoints(total);
-            s.setScore(total);
-            s.setBonusPremierSchemaAttribue(bonus);
-            s.setErreurs(game.getErreurs());
-            s.setErreursPlacement(game.getErreurs());
-            s.setPerfect(isPerfect); // On utilise la variable capturée
-            s.setFirstTime(premiereFois);
-            s.setReussi(true);
+            if (dejaResolu) {
+                session.setAttribute("flashMessage", "Déjà résolu ! (Points déjà obtenus)");
+                session.setAttribute("flashType", "victory");
+            } else {
+                int baseScore = game.calculerScoreFinalSansBonus();
+                int bonus = Math.max(5, (int) Math.round(baseScore * 0.3));
+                int total = baseScore + bonus;
 
-            scoreRepository.save(s);
+                Score s = new Score();
+                s.setUtilisateur(user);
+                s.setMode(game.getModeDeJeu());
+                s.setSchemaKey(cleSchema);
+                s.setPoints(total);
+                s.setScore(total);
+                s.setPerfect(isPerfect);
+                s.setFirstTime(true);
+                s.setReussi(true);
 
-            messageBase = "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : "");
+                scoreRepository.save(s);
+                Long startTime = (Long) session.getAttribute("startTime");
+                // Dans PlacementController.java -> traiterVictoire
+                if (startTime != null) {
+                    long secondesEcoulées = (System.currentTimeMillis() - startTime) / 1000;
+                    utilisateurRepository.ajouterTempsDeJeu(user.getId(), secondesEcoulées);
+                    session.setAttribute("startTime", System.currentTimeMillis());
+                }
+
+                session.setAttribute("flashMessage", "🏆 Première réussite ! +" + total + " pts");
+                session.setAttribute("flashType", "victory");
+
+            }
         }
 
-        game.setScoreEnregistre(true);
-
-        // 2. Si c'est un perfect, on ajoute le flag en session pour l'affichage HTML séparé
         if (isPerfect) {
             session.setAttribute("flashPerfect", true);
         }
 
-        // 3. On définit le message flash classique
-        session.setAttribute("flashMessage", messageBase);
-        session.setAttribute("flashType", "victory");
-
-        // 4. ET ENFIN on reset
-        game.reinitialiser();
-    }
-
-    /*private void traiterVictoire(JeuPlacement game, HttpSession session, Authentication auth) {
-        if (game.isScoreEnregistre()) return;
-
-        int baseScore = game.calculerScoreFinalSansBonus();
-        Optional<Utilisateur> userOpt = recupererUtilisateurCourant(auth);
-
-        if (userOpt.isEmpty()) {
-            session.setAttribute("flashMessage", "🏆 Réussi ! " + baseScore + " pts (Connectez-vous pour enregistrer)");
-            session.setAttribute("flashType", "victory");
-
-            game.reinitialiser();
-            return;
-        }
-
-        Utilisateur user = userOpt.get();
-
-        String cleSchema = game.getModeDeJeu() + "|" + new TreeMap<>(game.getConfigurationRequise()).toString();
-        boolean premiereFois = !scoreRepository.existsByUtilisateurAndSchemaKey(user, cleSchema);
-
-        int bonus = premiereFois ? Math.max(5, (int) Math.round(baseScore * 0.3)) : 0;
-        int total = baseScore + bonus;
-
-        Score s = new Score();
-        s.setUtilisateur(user);
-        s.setMode(game.getModeDeJeu());
-        s.setSchemaKey(cleSchema);
-        s.setPoints(total);
-        s.setScore(total);
-        s.setBonusPremierSchemaAttribue(bonus);
-        s.setErreurs(game.getErreurs());
-        s.setErreursPlacement(game.getErreurs());
-        s.setPerfect(game.estTentativeParfaite());
-        s.setFirstTime(premiereFois);
-        s.setReussi(true);
-
-        scoreRepository.save(s);
         game.setScoreEnregistre(true);
         game.reinitialiser();
-
-        session.setAttribute("flashMessage", "🏆 Victoire ! +" + total + " pts" + (premiereFois ? " (Bonus inclus)" : ""));
-        session.setAttribute("flashType", "victory");
-    } */
+    }
 
     private void preparerModele(Model model, JeuPlacement game, Authentication auth) {
         model.addAttribute("board", game.getBoard());
@@ -264,15 +278,18 @@ public class PlacementController {
 
     private Map<String, Boolean> calculerTrophees(Utilisateur user) {
         Map<String, Boolean> trophees = new HashMap<>();
-        long totalSolved = scoreRepository.countByUtilisateurAndReussiTrue(user);
+        long totalResol = scoreRepository.countByUtilisateurAndReussiTrue(user);
         long perfects = scoreRepository.countByUtilisateurAndPerfectTrue(user);
-        long damesSolved = scoreRepository.countByUtilisateurAndModeAndReussiTrue(user, "8-dames");
+        long damesResol = scoreRepository.countByUtilisateurAndModeAndReussiTrue(user, "8-dames");
+        long persoResol = scoreRepository.countByUtilisateurAndModeAndReussiTrue(user, "custom");
+        boolean aJouePlusDuneHeure = user.getTempsTotalDeJeu() >= 3600;
 
-        trophees.put("MaitreDesDames", damesSolved >= 1); // A fini le mode 8 dames au moins une fois
-        trophees.put("RoiDuPuzzle", totalSolved >= 10);   // A résolu 10 puzzles
-        trophees.put("RoiDuFou", totalSolved >= 50);      // A résolu 50 puzzles (Exemple nom)
-        trophees.put("RoiDuPerfect", perfects >= 5);      // A fait 5 perfects
-        trophees.put("VoieDesTrophees", totalSolved >= 100); // Trophée ultime
+        trophees.put("MaitreDesDames", damesResol >= 6);
+        trophees.put("RoiDuPuzzle", totalResol >= 10);
+        trophees.put("RoiDuPerfect", perfects >= 5);
+        trophees.put("CavalierDuTemps", aJouePlusDuneHeure);
+        trophees.put("FouDuPersonnalise", persoResol >= 7);
+        trophees.put("ChessMate", perfects >=10 && persoResol >=8 && damesResol >= 6 & totalResol >20);
 
         return trophees;
     }
@@ -281,13 +298,11 @@ public class PlacementController {
         boolean estConnecte = auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
         model.addAttribute("isLoggedIn", estConnecte);
         if (estConnecte) {
-            String email = auth.getName(); // L'email de connexion
+            String email = auth.getName();
 
-            // On va chercher le VRAI pseudo en base de données
             String pseudo = utilisateurRepository.findByEmail(email)
                     .map(Utilisateur::getPseudo)
-                    .orElse("Joueur"); // Valeur par défaut si pseudo vide
-
+                    .orElse("Joueur");
             model.addAttribute("pseudo", pseudo);
         } else {
             model.addAttribute("pseudo", "Invité");

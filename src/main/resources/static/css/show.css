@@ -1,8 +1,4 @@
-/* =========================================
-   1. VARIABLES & THÈMES
-   ========================================= */
 :root {
-    /* --- THÈME PAR DÉFAUT (BLEU / NUIT) --- */
     --bg-gradient-1: #839ab3;
     --bg-gradient-2: #cacaca;
 
@@ -10,16 +6,13 @@
     --panel-bg: #1e293b;         /* Bleu nuit */
     --text-color: #ffffff;
 
-    /* Plateau */
     --board-border: #1e293b;
     --case-white: #ddd;
     --case-black: #3d4c63;       /* Bleu gris */
 
-    /* Boutons Génériques */
     --btn-generic-bg: #3d4c63;
     --btn-hover: #667ea4;
 
-    /* Boutons Sidebar (Spécifiques) */
     --btn-primary-bg: #00a800;
     --btn-primary-shadow: #006d00;
     --btn-primary-hover: #068d06;
@@ -29,7 +22,6 @@
     --btn-secondary-hover: #404b5d;
 
 
-    /* Accents */
     --gold: #ffd700;
     --blue-accent: #0542c8;
     --shadow-accent: 0 0 10px rgba(5, 66, 200, 0.8);
@@ -37,7 +29,6 @@
 
 
 
-    /* Bouton Mode */
     --btn-toggle-bg: transparent;
     --btn-toggle-border: rgba(255,255,255,0.2);
 
@@ -50,7 +41,6 @@
     --select-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 
-/* --- THÈME SOMBRE (NOIR / ONYX) --- */
 body.dark-mode {
     --bg-gradient-1: #2c2c2c;
     --bg-gradient-2: #000000;
@@ -59,12 +49,10 @@ body.dark-mode {
     --panel-bg: #121212;         /* Noir très foncé */
     --text-color: #e0e0e0;
 
-    /* Plateau Dark Mode */
     --board-border: #333;
     --case-white: #b0b0b0;       /* Gris clair */
     --case-black: #333333;       /* Gris foncé */
 
-    /* Boutons Dark Mode */
     --btn-generic-bg: #222222;
     --btn-hover: #404040;
 
@@ -83,7 +71,7 @@ body.dark-mode {
     --btn-toggle-bg: #222;
     --btn-toggle-border: #444;
 
-    --select-bg: #222222; /* Gris foncé au lieu du bleu/nuit */
+    --select-bg: #222222;
     --select-hover: #3b3a3a;
     --select-border: #444444;
     --select-text: #e0e0e0;
@@ -91,9 +79,7 @@ body.dark-mode {
 
 }
 
-/* =========================================
-   2. GLOBAL & BODY
-   ========================================= */
+
 body {
     margin: 0;
     padding: 0;
@@ -110,9 +96,7 @@ body {
     transition: background-image 0.3s ease, color 0.3s ease;
 }
 
-/* =========================================
-   3. LAYOUT PRINCIPAL
-   ========================================= */
+
 .main-container {
     display: flex;
     justify-content: center;
@@ -139,16 +123,13 @@ body {
 }
 
 .main-title {
-    color: var(--panel-bg); /* S'adapte au thème pour le contraste ou utilise var(--text-color) si sur fond clair */
+    color: var(--panel-bg);
 }
-/* Correction titre sur fond clair vs sombre */
 body:not(.dark-mode) .main-title { color: #1e293b; }
 body.dark-mode .main-title { color: #e0e0e0; }
 
 
-/* =========================================
-   4. SIDEBAR (NAVIGATION)
-   ========================================= */
+
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
@@ -193,7 +174,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .nav-menu a:hover { background: rgba(255, 255, 255, 0.1); color: white; padding-left: 28px; }
 .nav-menu i { width: 20px; text-align: center; }
 
-/* Section Auth */
 .auth-section {
     margin-top: auto;
     padding: 20px;
@@ -211,9 +191,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .user-profile { text-align: center; }
 .user-profile p { font-size: 0.85rem; color: #94a3b8; margin: 0 0 5px 0; }
 
-/* =========================================
-   5. PANNEAUX & PIÈCES
-   ========================================= */
+
 .dark-panel {
     background: var(--panel-bg);
     padding: 18px;
@@ -252,7 +230,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     box-shadow: var(--shadow-accent);
 }
 
-/* Schémas & Trophées */
 .schema-grid.mini { display: flex; justify-content: space-between; gap: 8px; }
 .schema-item {
     display: flex;
@@ -303,41 +280,36 @@ body.dark-mode .main-title { color: #e0e0e0; }
 
 .leader-list li {
     display: flex;
-    align-items: baseline; /* Aligne le texte sur la même ligne horizontale */
+    align-items: baseline;
     padding: 8px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
 }
 
 .leader-name {
-    flex-shrink: 0; /* Empêche le nom de se contracter */
+    flex-shrink: 0;
     text-align: left;
-    /* Supprimez tout padding-left ici pour coller au bord */
     padding-left: 0;
 }
 
 .leader-spacer {
-    flex-grow: 1; /* C'est cet élément qui pousse les autres vers les bords */
-    border-bottom: 1px dotted #555; /* Tirets/Points de séparation */
-    margin: 0 8px; /* Espace entre le texte et les points */
+    flex-grow: 1;
+    border-bottom: 1px dotted #555;
+    margin: 0 8px;
     height: 1px;
     position: relative;
-    top: -4px; /* Ajuste la hauteur des pointillés pour qu'ils soient au milieu du texte */
+    top: -4px;
 }
 
 .leader-points {
     flex-shrink: 0;
     text-align: right;
-    min-width: 65px; /* Largeur fixe pour que les "pts" soient bien alignés verticalement */
+    min-width: 65px;
 }
-
 .leader-points strong {
     color: var(--gold);
 }
 
-/* =========================================
-   6. PLATEAU DE JEU
-   ========================================= */
 .board-wrapper {
     display: inline-block;
     padding: 15px;
@@ -363,7 +335,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .case.white { background: var(--case-white); transition: background 0.3s; }
 .case.black { background: var(--case-black); transition: background 0.3s; }
 
-/* Coordonnées */
 .coord {
     position: absolute; bottom: 2px; right: 4px;
     font-size: 12px; font-weight: 600; line-height: 1; pointer-events: none; z-index: 5;
@@ -371,11 +342,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .case.white .coord { color: rgba(0, 0, 0, 0.5); }
 .case.black .coord { color: rgba(255, 255, 255, 0.5); }
 
-/* =========================================
-   7. BOUTONS (DESIGN CORRIGÉ)
-   ========================================= */
 
-/* Structure de base pour les boutons de la sidebar */
 .sidebar-btn {
     width: 100%;
     padding: 12px 15px;
@@ -383,10 +350,10 @@ body.dark-mode .main-title { color: #e0e0e0; }
     border-radius: 8px;
     font-weight: 600;
     font-family: 'Inter', sans-serif;
-    font-size: 0.9rem; /* Taille demandée */
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.1s ease-in-out; /* Transition plus rapide pour le clic */
-    display: flex;
+    transition: all 0.1s ease-in-out;
+    display:flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
@@ -395,12 +362,10 @@ body.dark-mode .main-title { color: #e0e0e0; }
     text-decoration: none;
 }
 
-/* Effet de pression commun à tous les boutons actifs */
 .sidebar-btn:active, .action-btn:active, .btn:active {
     transform: scale(0.98);
 }
 
-/* --- BOUTON PRIMAIRE (VERT) --- */
 .btn-primary {
     background-color: var(--btn-primary-bg);
     box-shadow: 0 2px 0 var(--btn-primary-shadow);
@@ -415,7 +380,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     box-shadow: 0 1px 0 var(--btn-primary-shadow);
 }
 
-/* --- BOUTON SECONDAIRE (GRIS) --- */
 .btn-secondary {
     background-color: var(--btn-secondary-bg);
     box-shadow: 0 2px 0 var(--btn-secondary-shadow);
@@ -429,7 +393,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     box-shadow: 0 1px 0 var(--btn-secondary-shadow);
 }
 
-/* --- B. Bouton Toggle Mode (Nouveau) --- */
 .theme-toggle-btn {
     background: var(--btn-toggle-bg);
     border: 1px solid var(--btn-toggle-border);
@@ -438,7 +401,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     width: calc(100% - 40px);
 }
 
-/* --- C. Boutons d'Action (Jeu) --- */
 .action-btn, .btn {
     padding: 10px 20px;
     border: none;
@@ -457,11 +419,9 @@ body.dark-mode .main-title { color: #e0e0e0; }
 .action-btn:hover, .btn:hover { background:#475569FF; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(77, 77, 77, 0.2); }
 
 
-/* --- D. Couleurs des Boutons (Variables) --- */
-/* Vert (Sidebar Créer compte) */
+
 .btn-primary { background: var(--btn-primary-bg); color: white; }
 
-/* Gris (Sidebar Connexion) */
 .btn-secondary { background: var(--btn-secondary-bg); color: white; border: 1px solid #556; }
 
 
@@ -469,7 +429,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
     background-color: var(--btn-generic-bg);
     color: white;
     display: block !important;
-    width: fit-content;    /* Ajuste la largeur au contenu */
+    width: fit-content;
     margin-left: auto !important;
     margin-right: auto !important;
     margin-top: 10px;
@@ -477,9 +437,7 @@ body.dark-mode .main-title { color: #e0e0e0; }
 }
 .reset-btn:hover { background:var(--btn-hover) }
 
-/* =========================================
-   8. MENUS DÉROULANTS (SELECT)
-   ========================================= */
+
 .form-select {
     appearance: none;
     -webkit-appearance: none;
@@ -494,7 +452,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     line-height: 1.5;
     transition: all 0.3s ease;
 
-    /* Utilisation des variables dynamiques */
     background-color: var(--select-bg);
     border: 1px solid var(--select-border);
     color: var(--select-text);
@@ -513,7 +470,6 @@ body.dark-mode .main-title { color: #e0e0e0; }
     background-color: var(--select-hover);
 }
 
-/* Style des options à l'intérieur du menu */
 .form-select option {
     background-color: var(--select-hover);
     color: var(--select-text);
@@ -522,17 +478,14 @@ body.dark-mode .main-title { color: #e0e0e0; }
 #theme-toggle i {
     width: 20px;
     text-align: center;
-    color: var(--gold); /* Garde la couleur dorée pour le distinguer un peu */
+    color: var(--gold);
 }
 
-/* En mode sombre, on peut changer la couleur de l'icône si on veut */
 body.dark-mode #theme-toggle i {
     color: #ffd700;
 }
 
-/* =========================================
-   9. BOUTONS COULEURS (BLANC / NOIR)
-   ========================================= */
+
 .color-btn, .mode-btn {
     flex: 1;
     border: 2px solid transparent;
@@ -545,26 +498,23 @@ body.dark-mode #theme-toggle i {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* L'overlay qui couvre uniquement le plateau */
 .board-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Assombrit le plateau */
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 100;
-    border-radius: 8px; /* Optionnel: pour suivre les bords du plateau */
-    backdrop-filter: blur(3px); /* Le flou ne s'appliquera qu'ici */
-}
+    border-radius: 8px;
+    backdrop-filter: blur(3px);  }
 
-/* Le contenu du loader en Jaune/Gold */
 .loader-text {
     text-align: center;
-    color: var(--gold); /* Utilise votre variable gold */
+    color: var(--gold);
 }
 
 .loader-text i {
@@ -587,9 +537,33 @@ body.dark-mode #theme-toggle i {
 
 .plateau-verrouille {
     cursor: not-allowed;
-    filter: grayscale(30%); /* Optionnel : rend le plateau un peu plus terne */
+    filter: grayscale(30%);
 }
 
 .plateau-verrouille .case {
-    pointer-events: none; /* Désactive les clics au niveau CSS */
+    pointer-events: none;
+}
+
+.custom-input-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+    color: #ddd;
+}
+
+.input-mini {
+    width: 50px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #555;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.input-mini:focus {
+    border-color: #ffcc00;
+    outline: none;
 }

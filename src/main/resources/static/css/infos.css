@@ -1,4 +1,3 @@
-/* VARIABLES ET RESET */
 :root {
     --sidebar-bg: #1e293b;
     --main-bg: #f8fafc;
@@ -24,7 +23,7 @@ body {
     min-height: 100vh;
 }
 
-/* SIDEBAR */
+
 .sidebar {
     width: 260px;
     background-color: var(--sidebar-bg);
@@ -176,7 +175,7 @@ body {
     color: white;
 }
 
-/* SPECIFIC FOR ARTICLES */
+
 .article-thumb {
     width: 110px;
     height: 70px;
@@ -207,25 +206,25 @@ body {
     color: var(--text-muted);
 }
 
-/* Positionnement du Prankeur à droite */
+
 .gorilla-container {
     position: fixed;
-    right: -450px; /* Caché par défaut à droite */
+    right: -450px;
     bottom: 30px;
     width: 350px;
     background: white;
     padding: 15px;
     border-radius: 20px;
     box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
-    z-index: 9999; /* Toujours au-dessus de tout */
+    z-index: 9999;
     border: 3px solid #1e293b;
     transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     text-align: center;
 }
 
-/* Classe activée par le clic */
+
 .gorilla-container.show-gorilla {
-    right: 30px; /* Apparaît à 30px du bord droit */
+    right: 30px;
 }
 
 .Prankeur {

@@ -23,6 +23,7 @@ public class Utilisateur {
     @UpdateTimestamp
     private Instant dateMAJ;
     private String role; // Ex: "USER", "ADMIN"
+    private long tempsTotalDeJeu; // En secondes
 
     public Utilisateur() {
     }

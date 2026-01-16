@@ -28,6 +28,13 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+/**
+ * Contrôleur du mode « Puzzle ».
+ * <p>
+ * Gère l'affichage du puzzle, le chargement selon la difficulté, les actions
+ * de jeu (coup du joueur, réponse de l'ordinateur, indice), ainsi que la
+ * persistance des scores et quelques mécanismes d'administration.
+ */
 @Controller
 @RequestMapping("/puzzle")
 @SessionAttributes("jeuPuzzle")
@@ -36,24 +43,41 @@ public class PuzzleController {
     private final UtilisateurRepository utilisateurRepository;
     private final ScoreRepository scoreRepository;
 
+    /**
+     * Constructeur avec injection des dépôts nécessaires.
+     * @param utilisateurRepository accès aux utilisateurs pour les informations de session
+     * @param scoreRepository accès aux classements et enregistrement des scores
+     */
     public PuzzleController(UtilisateurRepository utilisateurRepository, ScoreRepository scoreRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.scoreRepository = scoreRepository;
     }
 
+    /**
+     * Crée l'instance de jeu associée à la session si absente.
+     * @return une instance de {@link JeuPuzzle}
+     */
     @ModelAttribute("jeuPuzzle")
     public JeuPuzzle initPuzzle() {
         return new JeuPuzzle();
     }
 
+    /**
+     * Affiche la page du mode Puzzle. Prépare le plateau (charge un puzzle si vide),
+     * le contexte utilisateur et le classement.
+     *
+     * @param game jeu en session
+     * @param model modèle Thymeleaf
+     * @param auth authentification courante
+     * @param session session HTTP pour gérer les messages flash/indice
+     * @return le nom de la vue "puzzle"
+     */
     @GetMapping
     public String afficherPuzzle(@ModelAttribute("jeuPuzzle") JeuPuzzle game,
                                  Model model,
                                  Authentication auth,
                                  HttpSession session) {
 
-        // --- RECUPERATION ET NETTOYAGE DES MESSAGES ---
-        // Cette partie fonctionne maintenant car le GET est appelé une seule fois par le reload JS
         String[] sessionAttrs = {"flashMessage", "flashDetail", "flashType"};
 
         for (String attr : sessionAttrs) {
@@ -115,8 +139,6 @@ public class PuzzleController {
         return "jeuPuzzle";
     }
 
-    // --- MODIFICATION MAJEURE ICI : On renvoie ResponseEntity (Void) au lieu de String (redirect) ---
-    // Cela empêche le fetch de consommer la redirection, laissant le JS faire le reload.
 
     @PostMapping("/hint")
     @ResponseBody
@@ -155,8 +177,6 @@ public class PuzzleController {
             session.setAttribute("flashDetail", "Ce n'est pas la solution. Réessayez.");
         }
 
-        // On renvoie juste 200 OK. Le JS recevra ça, verra que ce n'est pas une redirection,
-        // et exécutera window.location.reload(), ce qui affichera le message.
         return ResponseEntity.ok().build();
     }
 
@@ -202,7 +222,6 @@ public class PuzzleController {
         return ResponseEntity.ok().build();
     }
 
-    // --- FIN DES MODIFICATIONS AJAX ---
 
     private void traiterVictoirePuzzle(JeuPuzzle game, HttpSession session, Authentication auth) {
         if (game.isScoreEnregistre()) return;
@@ -306,8 +325,6 @@ public class PuzzleController {
         return "adminPuzzle";
     }
 
-    // Celui-ci reste en redirection classique car c'est probablement un formulaire standard HTML
-    // et non un appel fetch JS.
     @PostMapping("/admin/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String addPuzzleCsv(@RequestParam String puzzleId, @RequestParam String fen,

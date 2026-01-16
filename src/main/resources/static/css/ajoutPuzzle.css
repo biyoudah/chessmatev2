@@ -1,6 +1,4 @@
-/* =========================================
-   STYLE SPÉCIFIQUE - PANEL ADMIN PUZZLE
-   ========================================= */
+
 
 .admin-main-container {
     display: flex;
@@ -12,7 +10,7 @@
 
 .admin-card {
     width: 100%;
-    max-width: 900px; /* Zone beaucoup plus large */
+    max-width: 900px;
     background: var(--panel-bg);
     padding: 40px;
     border-radius: 15px;
@@ -36,14 +34,14 @@
     letter-spacing: 1px;
 }
 
-/* Grille du formulaire pour utiliser l'espace horizontal */
+
 .admin-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Deux colonnes */
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-/* Certains champs prennent toute la largeur (FEN, Moves, Themes) */
+
 .full-width {
     grid-column: span 2;
 }
@@ -64,26 +62,23 @@
 .form-group input {
     width: 100%;
     padding: 12px 15px;
-    /* On force le fond en gris très foncé/noir pour trancher avec le panel */
     background-color: #1a1a1a !important;
-    /* Bordure plus visible */
     border: 1px solid #444 !important;
-    /* Texte en blanc pur pour le contraste */
     color: #ffffff !important;
     border-radius: 8px;
     font-family: 'Consolas', 'Monaco', monospace;
     font-size: 1rem;
     transition: all 0.2s;
-    box-sizing: border-box; /* Évite que l'input dépasse du container */
+    box-sizing: border-box;
 }
 
-/* Style spécifique pour le Placeholder (le texte d'exemple) */
+
 .form-group input::placeholder {
     color: #666 !important;
     font-style: italic;
 }
 
-/* État au survol et au clic */
+
 .form-group input:focus {
     outline: none !important;
     border-color: var(--gold) !important;
@@ -122,18 +117,18 @@
 .btn-save:hover { background-color: var(--btn-primary-hover); transform: translateY(-2px); }
 .btn-cancel:hover { background-color: var(--btn-secondary-hover); transform: translateY(-2px); }
 
-/* Dans admin.css, assurez-vous que les inputs ont bien les styles correcteurs vus précédemment */
+
 
 .form-group input:invalid {
-    border-color: #ff4444 !important; /* Bordure rouge si le champ required est vide */
+    border-color: #ff4444 !important;
 }
 
-/* On force certains champs à prendre toute la ligne pour une meilleure ergonomie */
+
 .full-width {
     grid-column: span 2;
 }
 
-/* Style spécifique pour les messages d'erreur si vous en ajoutez */
+
 .error-msg {
     color: #ff4444;
     background: rgba(255, 68, 68, 0.1);
