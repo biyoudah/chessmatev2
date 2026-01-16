@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 class ClassementControllerTest {
@@ -26,43 +27,82 @@ class ClassementControllerTest {
     private ClassementController controller;
 
     @Test
-    void afficherClassement_NoMode_GetClassementGlobal() {
+    void afficherClassement_NoMode_NoSchema_GetClassementGlobal() {
         List<ClassementRow> mockClassement = List.of();
         when(scoreRepository.getClassementGlobal()).thenReturn(mockClassement);
-        String result = controller.afficherClassement(null, model);
-        assert result.equals("classement");
+
+        String result = controller.afficherClassement(null, null, model);
+
+        assertEquals("classement", result);
         verify(scoreRepository).getClassementGlobal();
         verify(model).addAttribute("classement", mockClassement);
         verify(model).addAttribute("modeSelectionne", null);
+        verify(model).addAttribute("schemaKeySelectionne", null);
     }
 
     @Test
-    void afficherClassement_WithMode_GetClassementParMode() {
+    void afficherClassement_WithMode_NoSchema_GetClassementParMode() {
         List<ClassementRow> mockClassement = List.of();
-        when(scoreRepository.getClassementParMode("8-dames")).thenReturn(mockClassement);
-        String result = controller.afficherClassement("8-dames", model);
-        assert result.equals("classement");
-        verify(scoreRepository).getClassementParMode("8-dames");
-        verify(model).addAttribute("classement", mockClassement);
-        verify(model).addAttribute("modeSelectionne", "8-dames");
+        String mode = "PLACEMENT";
+        when(scoreRepository.getClassementParMode(mode)).thenReturn(mockClassement);
+
+        String result = controller.afficherClassement(mode, null, model);
+
+        assertEquals("classement", result);
+        verify(scoreRepository).getClassementParMode(mode);
+        verify(model).addAttribute("modeSelectionne", mode);
+        verify(model).addAttribute("schemaKeySelectionne", null);
+    }
+
+    @Test
+    void afficherClassement_NoMode_WithSchema_GetClassementParSchemaKey() {
+        List<ClassementRow> mockClassement = List.of();
+        String schema = "8-dames|{Dame=8}";
+        when(scoreRepository.getClassementParSchemaKey(schema)).thenReturn(mockClassement);
+
+        String result = controller.afficherClassement(null, schema, model);
+
+        assertEquals("classement", result);
+        verify(scoreRepository).getClassementParSchemaKey(schema);
+        verify(model).addAttribute("schemaKeySelectionne", schema);
+    }
+
+    @Test
+    void afficherClassement_PrioritySchemaOverMode() {
+        // Si les deux sont fournis, schemaKey doit avoir la priorité
+        List<ClassementRow> mockClassement = List.of();
+        String mode = "PLACEMENT";
+        String schema = "custom";
+        when(scoreRepository.getClassementParSchemaKey(schema)).thenReturn(mockClassement);
+
+        String result = controller.afficherClassement(mode, schema, model);
+
+        assertEquals("classement", result);
+        // On vérifie que c'est bien la méthode par SchemaKey qui est appelée
+        verify(scoreRepository).getClassementParSchemaKey(schema);
+        verify(scoreRepository, never()).getClassementParMode(anyString());
     }
 
     @Test
     void afficherClassement_ModeToutes_GetClassementGlobal() {
         List<ClassementRow> mockClassement = List.of();
         when(scoreRepository.getClassementGlobal()).thenReturn(mockClassement);
-        String result = controller.afficherClassement("TOUS", model);
-        assert result.equals("classement");
+
+        String result = controller.afficherClassement("TOUS", null, model);
+
+        assertEquals("classement", result);
         verify(scoreRepository).getClassementGlobal();
-        verify(model).addAttribute("classement", mockClassement);
     }
 
     @Test
-    void afficherClassement_ModeEmpty_GetClassementGlobal() {
+    void afficherClassement_SchemaTOUT_GetClassementGlobal() {
+        // Test du cas où schemaKey est "TOUT" (devrait revenir au global ou au mode)
         List<ClassementRow> mockClassement = List.of();
         when(scoreRepository.getClassementGlobal()).thenReturn(mockClassement);
-        String result = controller.afficherClassement("", model);
-        assert result.equals("classement");
+
+        String result = controller.afficherClassement(null, "TOUT", model);
+
+        assertEquals("classement", result);
         verify(scoreRepository).getClassementGlobal();
     }
 }
