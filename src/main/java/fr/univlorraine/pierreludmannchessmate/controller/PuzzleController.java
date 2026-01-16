@@ -1,8 +1,10 @@
 package fr.univlorraine.pierreludmannchessmate.controller;
 
 import fr.univlorraine.pierreludmannchessmate.logic.JeuPuzzle;
+import fr.univlorraine.pierreludmannchessmate.model.Puzzle;
 import fr.univlorraine.pierreludmannchessmate.model.Score;
 import fr.univlorraine.pierreludmannchessmate.model.Utilisateur;
+import fr.univlorraine.pierreludmannchessmate.repository.PuzzleRepository;
 import fr.univlorraine.pierreludmannchessmate.repository.ScoreRepository;
 import fr.univlorraine.pierreludmannchessmate.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpSession;
@@ -42,15 +44,18 @@ public class PuzzleController {
 
     private final UtilisateurRepository utilisateurRepository;
     private final ScoreRepository scoreRepository;
+    private final PuzzleRepository puzzleRepository;
+
 
     /**
      * Constructeur avec injection des dépôts nécessaires.
      * @param utilisateurRepository accès aux utilisateurs pour les informations de session
      * @param scoreRepository accès aux classements et enregistrement des scores
      */
-    public PuzzleController(UtilisateurRepository utilisateurRepository, ScoreRepository scoreRepository) {
+    public PuzzleController(UtilisateurRepository utilisateurRepository, ScoreRepository scoreRepository, PuzzleRepository puzzleRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.scoreRepository = scoreRepository;
+        this.puzzleRepository = puzzleRepository;
     }
 
     /**
@@ -157,10 +162,6 @@ public class PuzzleController {
                                            @ModelAttribute("jeuPuzzle") JeuPuzzle game,
                                            HttpSession session,
                                            Authentication auth) {
-
-        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-            return ResponseEntity.status(401).build();
-        }
 
         session.removeAttribute("hintCoords");
         String resultat = game.jouerCoupJoueur(departY, departX, arriveeY, arriveeX);
@@ -275,48 +276,34 @@ public class PuzzleController {
     }
 
     private boolean chargerPuzzleSelonDifficulte(JeuPuzzle game) {
-        try {
-            ClassPathResource resource = new ClassPathResource("puzzle.csv");
-            if (!resource.exists()) return false;
-            List<String> lines = new ArrayList<>();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (!line.trim().isEmpty() && !line.startsWith("PuzzleId")) lines.add(line);
-                }
-            }
-            if (lines.isEmpty()) return false;
-            String diff = game.getDifficulte();
-            List<String> candidats = new ArrayList<>();
-            String currentId = game.getPuzzleId();
-            for (String line : lines) {
-                try {
-                    String[] tokens = line.split(",");
-                    if (tokens.length < 3) continue;
-                    if (tokens[0].trim().equals(currentId)) continue;
-                    String moves = tokens[2].trim();
-                    int nbMoves = moves.split("\\s+").length;
-                    boolean match = switch (diff) {
-                        case "1" -> nbMoves <= 2;
-                        case "2" -> nbMoves > 2 && nbMoves <= 4;
-                        case "3" -> nbMoves > 4;
-                        default -> true;
-                    };
-                    if (match) candidats.add(line);
-                } catch (Exception ignored) {}
-            }
-            if (candidats.isEmpty()) return false;
-            Random rand = new Random();
-            String chosenLine = candidats.get(rand.nextInt(candidats.size()));
-            String[] tokens = chosenLine.split(",");
-            game.setPuzzleId(tokens[0]);
+        int minMoves = 1;
+        int maxMoves = 2;
+
+        switch (game.getDifficulte()) {
+            case "2" -> { minMoves = 3; maxMoves = 4; }
+            case "3" -> { minMoves = 5; maxMoves = 20; }
+        }
+
+        // 1. On cherche l'entité Puzzle en base
+        Optional<Puzzle> puzzleData = puzzleRepository.findRandomByMoveCount(minMoves, maxMoves);
+
+        if (puzzleData.isPresent()) {
+            Puzzle p = puzzleData.get();
+
+            // 2. On prépare le JSON que votre méthode dechiffre_pb attend
             JSONObject json = new JSONObject();
-            json.put("PuzzleId", tokens[0]);
-            json.put("fen", tokens[1]);
-            json.put("moves", tokens[2]);
+            json.put("PuzzleId", p.getPuzzleId());
+            json.put("fen", p.getFen());
+            json.put("moves", p.getMoves());
+
+            // 3. On "nourrit" le moteur de jeu avec ces données
+            game.setPuzzleId(p.getPuzzleId());
             game.dechiffre_pb(json);
+
             return true;
-        } catch (Exception e) { return false; }
+        }
+
+        return false;
     }
 
     @GetMapping("/admin/add")
@@ -328,26 +315,29 @@ public class PuzzleController {
     @PostMapping("/admin/add")
     @PreAuthorize("hasRole('ADMIN')")
     public String addPuzzleCsv(@RequestParam String puzzleId, @RequestParam String fen,
-                               @RequestParam String moves, @RequestParam String rating,
-                               @RequestParam String ratingConfidence, @RequestParam String popularity,
-                               @RequestParam String nbPlays, @RequestParam String themes,
+                               @RequestParam String moves, @RequestParam Integer rating,
+                               @RequestParam Integer ratingConfidence, @RequestParam Integer popularity,
+                               @RequestParam Integer nbPlays, @RequestParam String themes,
                                @RequestParam String gameUrl, @RequestParam String openingName,
                                HttpSession session) {
 
-        String newline = String.join(",", puzzleId, fen, moves, rating, ratingConfidence,
-                popularity, nbPlays, themes, gameUrl, openingName);
-
         try {
-            Path path = Paths.get(new ClassPathResource("puzzle.csv").getURI());
-            Files.write(path, ("\n" + newline).getBytes(), StandardOpenOption.APPEND);
+            Puzzle newPuzzle = new Puzzle();
+            newPuzzle.setPuzzleId(puzzleId);
+            newPuzzle.setFen(fen);
+            newPuzzle.setMoves(moves);
+            newPuzzle.setRating(rating);
 
-            session.setAttribute("flashMessage", "Puzzle enregistré !");
+            puzzleRepository.save(newPuzzle);
+
+            session.setAttribute("flashMessage", "Puzzle ajouté avec succès !");
             session.setAttribute("flashType", "victory");
-            session.setAttribute("flashDetail", "Le nouveau puzzle a été ajouté au fichier CSV.");
+            session.setAttribute("flashDetail", "Le puzzle " + puzzleId + " est désormais disponible en base de données.");
 
         } catch (Exception e) {
-            session.setAttribute("flashMessage", "Erreur d'écriture");
+            session.setAttribute("flashMessage", "Erreur lors de l'ajout");
             session.setAttribute("flashType", "error");
+            session.setAttribute("flashDetail", "Impossible d'enregistrer le puzzle : " + e.getMessage());
         }
 
         return "redirect:/puzzle";

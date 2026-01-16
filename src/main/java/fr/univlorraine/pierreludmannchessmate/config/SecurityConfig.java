@@ -30,9 +30,13 @@ public class SecurityConfig {
 
                         .requestMatchers("/login", "/register", "/error").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/puzzle").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/puzzle").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/puzzle/**").authenticated()
+                                .requestMatchers("/puzzle/move", "/puzzle/hint", "/puzzle/computer-move", "/puzzle/changeMode", "/puzzle/reset").permitAll()
+
+                                .requestMatchers("/puzzle/admin/**").hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.POST, "/puzzle/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
